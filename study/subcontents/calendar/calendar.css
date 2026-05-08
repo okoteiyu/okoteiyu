@@ -1,0 +1,184 @@
+
+:root {
+    --header-bar-height:99px;
+
+    --calendar-bg-color: #F2F3F4;
+    --calendar-border-color: #1e1c1c;
+    --calendar-cell-bg-color: rgb(194, 210, 194);
+    --calendar-special-cell-bg-color:#c9b1c6;
+    --calendar-invisible-cell-bg-color: rgba(0,0,0,0);
+}
+
+html{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0; 
+}
+
+body {
+    font-family: 'DotGothic16';
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0; 
+    background-color: var(--calendar-bg-color);
+
+    box-sizing: border-box;
+    
+    padding: 10px;
+    border: 1px dashed black;
+    border-radius: 8px;
+}
+
+
+/* ========================================
+    上部バー
+======================================== */
+
+.header_bar{
+    
+    position: relative;
+    top:0%;
+    height:var(--header-bar-height);
+    width:100%;
+}
+
+
+/* 横並び*/
+.tool_bar{
+    width: 100%;
+    height:calc(var(--header-bar-height)*2/3);
+}
+
+/* 最後にフロートを消す要素を挿入 */
+.tool_bar::after{
+    clear: both;
+}
+
+/* ボタン */
+.tool_bar_button{
+    position: relative;
+    top:8px;
+    float: left;
+    margin-left: 5px;
+    width:64px;
+    height:24px;
+    font-size: 16px;
+    background-color: rgb(118, 144, 124);
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+.tool_bar_button:hover{
+    border: 2px solid black;
+}
+
+
+/* 月の表示 */
+.year_month_field{
+    float: left;
+    text-align: center;
+    padding-top: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 20px;
+    box-sizing: border-box;
+}
+
+
+/* 曜日ヘッダ */
+.weekday_header{
+    height:calc(var(--header-bar-height)/3);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+.weekday_header_item{
+    width:90%;
+    height:90%;
+    padding: 5%;
+    box-sizing: border-box;
+    text-align: center;
+    margin: auto auto;
+    background-color: white;;
+    border-radius: 5px;
+}
+
+/* ========================================
+    カレンダーのグリッド
+======================================== */
+.calendar_grid{
+    position: relative;
+    width:100%;
+    height:calc(100% - var(--header-bar-height));
+    
+    
+    /* グリッド要素にする */ 
+    display: grid;
+    /* どんな配置でも入るように、7×6 にする */
+    grid-template-rows: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
+
+    background-color: var(--calendar-bg-color);
+
+    
+    position: relative;
+    box-sizing: border-box;
+}
+
+
+/* 境界線用の擬似要素 */
+.calendar_grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;/* 左右上下の位置 */
+    
+    background-image:
+        linear-gradient(to right, var(--calendar-border-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--calendar-border-color) 1px, transparent 1px);
+    background-size: calc(100% / 7) 100%, 100% calc(100% / 6);
+    
+    box-sizing: border-box;
+    /* イベントを阻害しないように */
+    pointer-events: none;
+}
+
+
+
+
+/* カレンダーのセル */
+.calendar_cell{
+    background-color: var(--calendar-invisible-cell-bg-color);
+    width: 90%;
+    height: 90%;
+    margin: auto auto;
+    border-radius: 5px;
+
+    text-align: center;
+    overflow: hidden;
+
+    font-size: 18px;
+    font-family: 'DotGothic16';
+
+    padding: 5px;
+    box-sizing: border-box;
+}
+/* 特別な日 */
+.calendar_special_cell{
+    background-color: var(--calendar-special-cell-bg-color);
+    width: 90%;
+    height: 90%;
+    margin: auto auto;
+    border-radius: 5px;
+
+    text-align: center;
+    overflow: hidden;
+
+    font-size: 11px;
+    font-family: 'DotGothic16';
+
+    padding: 5px;
+    box-sizing: border-box;
+    border: 4px solid var(--calendar-cell-bg-color);
+}

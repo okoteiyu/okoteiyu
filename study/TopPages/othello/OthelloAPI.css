@@ -1,0 +1,208 @@
+
+input[type="button"] {
+	-webkit-appearance: none;
+	border-radius: 0;
+}
+
+/* ========================================
+    変数
+======================================== */
+:root {
+
+    
+    --board-width : 94%;
+    --board-cell-width : 12.5%;
+    --board-bg-color : #2E8B57;
+    --board-border-color :  black;
+    
+    /* 石は、セル幅に対する比率で決定される円 */
+    --stone-width : 90%;
+}
+  
+
+
+/*
+    [prefix] oth := オセロ
+*/
+/* ================================================
+    AI 選択ドロップラウンリスト
+================================================ */
+
+
+.oth_AILevelSelectLine{
+    width: var(--board-width);
+    margin: auto auto;
+    /* グリッド要素にする */ 
+    display: grid;
+    /* 2 つに分ける */
+    grid-template-columns: 200px auto;
+}
+
+.oth_AILevelSelect_title{
+    text-align: center;
+    font-size: 16px;
+}
+
+.oth_AILevelSelect{
+    appearance: none;
+
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid gray;
+    background-color: white;
+}
+
+/* ================================================
+    ボード (左上から、右優先、次点で下優先に石を自動配置)
+================================================ */
+.oth_board{
+    /* グリッド要素にする */ 
+    display: grid;
+    /* 8 個に分ける(1fr = 均等) */
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    
+    margin: auto auto;
+    width: var(--board-width);
+    max-width: 500px;
+    aspect-ratio: 1/1;
+    position: relative;
+    border-radius: 6px;
+  
+    background-color: var(--board-bg-color);
+    box-sizing: border-box;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+/* 境界線用の擬似要素 */
+.oth_board::before {
+    content: "";
+    position: absolute;
+    inset: 0;/* 左右上下の位置 */
+    
+    background-image:
+        linear-gradient(to right, var(--board-border-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--board-border-color) 1px, transparent 1px);
+    background-size: calc(100% / 8) 100%, 100% calc(100% / 8);
+
+    /* イベントを阻害しないように */
+    pointer-events: none;
+}
+
+
+/* 
+    オセロの石。
+    状態の定義は var を用いる。javascript でも共通。
+*/
+.oth_board .stone{
+    width : 80%;
+    aspect-ratio: 1/1;
+    margin: auto auto;
+    border-radius: 100%;
+
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+}
+
+/* ホバー時の挙動 */
+.oth_board .stone:hover{
+    width : 90%;
+    box-shadow:0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ================================================
+    石の反転アニメーション
+    ただし、状態の制御は js で行う
+================================================ */
+@keyframes turn_stone_animation {
+    0% {
+        transform: rotateY(0deg);
+    } 100% {
+        transform: rotateY(180deg);
+    }
+}
+
+
+/* ================================================
+    上部のステータスバーまわり
+================================================ */  
+.oth_status_upperbar{
+    width: var(--board-width);
+    margin: auto auto;
+    /* グリッド要素にする */ 
+    display: grid;
+    /* 2 つに分ける */
+    grid-template-columns: 140px auto 120px;
+}
+
+/* ゲーム進行メッセージ */
+.oth_status_upperbar .oth_game_message{
+    font-family: 'DotGothic16';
+    font-size: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    background-color: rgb(234, 226, 182);
+    overflow-x: hidden;
+
+    text-align: center;
+    border: 1px solid black;
+    box-sizing: border-box;
+}
+
+
+/* ================================================
+    下部のステータスバーまわり
+================================================ */
+/* バー */
+.oth_status_lowerbar{
+    width: var(--board-width);
+    margin: auto auto;
+    /* グリッド要素にする */ 
+    display: grid;
+    /* 4 つに分ける */
+    grid-template-columns: 70px auto 60px 80px;
+}
+
+/* 盤面リセット */
+.oth_status_lowerbar .oth_board_resetbutton{
+    font-family: 'DotGothic16';
+    width: 100%;
+    font-size: 15px;
+    background-color: white;
+}
+
+
+/* ゲーム進行メッセージ */
+.oth_status_lowerbar .oth_game_message{
+    font-family: 'DotGothic16';
+    font-size: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    
+    background-color: wheat;
+    overflow-x: scroll;
+}
+
+
+/* パスボタン */
+.oth_status_lowerbar .oth_passbutton{
+    font-family: 'DotGothic16';
+    width: 100%;
+    font-size: 15px;
+    background-color: white;
+}
+
+
+/* モード変更 */
+.oth_status_lowerbar .oth_changemode_button{
+    font-family: 'DotGothic16';
+    width: 100%;
+    font-size: 12px;
+    background-color: white;
+}
+

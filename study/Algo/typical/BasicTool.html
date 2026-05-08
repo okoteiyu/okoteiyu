@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    基本ツール<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <br>
+                基本的なツールのライブラリ
+
+                
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre><br><br><br>/*&nbsp;便利ツール集&nbsp;*/<br>namespace&nbsp;mytool{<br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;============================&nbsp;型&nbsp;============================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Inint&nbsp;:&nbsp;デフォルト初期値を定義した&nbsp;long&nbsp;long<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;long&nbsp;long&nbsp;init_v&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;Inint{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;data;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inint(long&nbsp;long&nbsp;x):data(x){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;explicit&nbsp;Inint()&nbsp;:&nbsp;Inint(init_v)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operator&nbsp;long&nbsp;long(){return&nbsp;data;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;============================&nbsp;アルゴリズム&nbsp;============================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;findKthSmallest(A,k)&nbsp;:=&nbsp;配列&nbsp;A&nbsp;の要素のうち、小さいものから&nbsp;k&nbsp;番目のものを答える。O(|A|)&nbsp;時間だが&nbsp;sort&nbsp;とあんまり変わらない。<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;配列&nbsp;A&nbsp;で、小さいものから&nbsp;k&nbsp;番目の要素を答える&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;一応&nbsp;O(|A|)&nbsp;時間で、ソートよりはすこーし速い程度<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;findKthSmallest(vector&lt;T&gt;&nbsp;A&nbsp;,&nbsp;int&nbsp;k){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;int&nbsp;blocksize&nbsp;=&nbsp;15;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;int&nbsp;halfsize&nbsp;=&nbsp;(blocksize&gt;&gt;1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;k&nbsp;&amp;&amp;&nbsp;k&nbsp;&lt;&nbsp;A.size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(A.size()&nbsp;&lt;=&nbsp;blocksize){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort(A.begin(),A.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;A[k];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;blocksize&nbsp;ちょうどにならないブロックは、最大値で埋めておいても一般性を損なわない<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;edge&nbsp;=&nbsp;blocksize&nbsp;-&nbsp;int(A.size())%blocksize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(edge&nbsp;&lt;&nbsp;blocksize)while(edge--&gt;0)A.push_back(numeric_limits&lt;T&gt;::max());<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;B;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;b&nbsp;=&nbsp;0&nbsp;;&nbsp;b*blocksize&nbsp;&lt;&nbsp;A.size()&nbsp;;&nbsp;b++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort(A.begin()&nbsp;+&nbsp;b*blocksize&nbsp;,&nbsp;A.begin()&nbsp;+&nbsp;(b+1)*blocksize);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B.push_back(A[b*blocksize&nbsp;+&nbsp;halfsize]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;要素が偶数個の中央値の代わりに、中央&nbsp;2&nbsp;つのうち&nbsp;index&nbsp;が小さい方を見る&nbsp;(余分に埋めた領域の方の値がヒットしないように)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;mid&nbsp;=&nbsp;findKthSmallest&lt;T&gt;(B,(int(B.size())-1)&gt;&gt;1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;mid_cnt&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;S,L;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(T&nbsp;x&nbsp;:&nbsp;A){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x&nbsp;&lt;&nbsp;mid)S.push_back(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(x&nbsp;==&nbsp;mid)mid_cnt++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;L.push_back(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(k&nbsp;&lt;&nbsp;S.size())return&nbsp;findKthSmallest&lt;T&gt;(S,k);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(k&nbsp;&lt;&nbsp;S.size()&nbsp;+&nbsp;mid_cnt)return&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;findKthSmallest&lt;T&gt;(L,k&nbsp;-&nbsp;int(S.size())&nbsp;-&nbsp;mid_cnt);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;============================&nbsp;数値計算&nbsp;============================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;intersect(l1,r1,l2,r2)&nbsp;:=&nbsp;二つの区間&nbsp;[&nbsp;l1&nbsp;,&nbsp;r1&nbsp;)&nbsp;と&nbsp;[&nbsp;l2&nbsp;,&nbsp;r2&nbsp;)&nbsp;が交差するかを判定<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;intersection_size(l1,r1,l2,r2)&nbsp;:=&nbsp;二つの区間&nbsp;[&nbsp;l1&nbsp;,&nbsp;r1&nbsp;)&nbsp;と&nbsp;[&nbsp;l2&nbsp;,&nbsp;r2&nbsp;)&nbsp;の共通部分の大きさ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dist_on_ring(a,b,c,S)&nbsp;:=&nbsp;円周が&nbsp;S&nbsp;の円環上で地点&nbsp;a&nbsp;から地点&nbsp;b&nbsp;まで、地点&nbsp;c&nbsp;を通らずに移動する距離<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;timecount(y,mo,d,h,mi,s)&nbsp;:=&nbsp;西暦&nbsp;0/1/1&nbsp;00:00:00&nbsp;から西暦&nbsp;y/mo/d&nbsp;h::mi::s&nbsp;までの秒数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;ただしグレゴリオ歴なので、1582&nbsp;年以前は未定義<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;datecount(y,mo,d)&nbsp;:=&nbsp;西暦&nbsp;0/1/1&nbsp;から西暦&nbsp;y/mo/d&nbsp;まで何日か&nbsp;(何日経過したか)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;ただしグレゴリオ歴なので、1582&nbsp;年以前は未定義<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;二つの区間&nbsp;[&nbsp;l1&nbsp;,&nbsp;r1&nbsp;)&nbsp;と&nbsp;[&nbsp;l2&nbsp;,&nbsp;r2&nbsp;)&nbsp;が交差するか<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;intersect(T&nbsp;l1&nbsp;,&nbsp;T&nbsp;r1&nbsp;,&nbsp;T&nbsp;l2&nbsp;,&nbsp;T&nbsp;r2){return&nbsp;(l1&nbsp;&lt;=&nbsp;l2&nbsp;&amp;&amp;&nbsp;l2&nbsp;&lt;&nbsp;r1)&nbsp;||&nbsp;(l2&nbsp;&lt;=&nbsp;l1&nbsp;&amp;&amp;&nbsp;l1&nbsp;&lt;&nbsp;r2);}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;二つの区間&nbsp;[&nbsp;l1&nbsp;,&nbsp;r1&nbsp;)&nbsp;と&nbsp;[&nbsp;l2&nbsp;,&nbsp;r2&nbsp;)&nbsp;の共通部分の大きさ<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;intersection_size(T&nbsp;l1&nbsp;,&nbsp;T&nbsp;r1&nbsp;,&nbsp;T&nbsp;l2&nbsp;,&nbsp;T&nbsp;r2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!intersect_range(l1,r1,l2,r2))return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;min&lt;T&gt;(r1,r2)-max&lt;T&gt;(l1,l2);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;円周が&nbsp;S&nbsp;の円環上で地点&nbsp;a&nbsp;から地点&nbsp;b&nbsp;まで、地点&nbsp;c&nbsp;を通らずに移動する距離<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;dist_on_ring(T&nbsp;a&nbsp;,&nbsp;T&nbsp;b&nbsp;,&nbsp;T&nbsp;c&nbsp;,&nbsp;T&nbsp;S){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(a!=c&nbsp;&amp;&amp;&nbsp;b!=c);//&nbsp;c&nbsp;と重複してしまう場合はエラー<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a&nbsp;&gt;&nbsp;b)swap(a,b);//&nbsp;対称性より&nbsp;swap&nbsp;して&nbsp;OK<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a&nbsp;&lt;&nbsp;c&nbsp;&amp;&amp;&nbsp;c&nbsp;&lt;&nbsp;b)return&nbsp;a+S-b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;b-a;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;グレゴリオで、西暦&nbsp;0&nbsp;年&nbsp;1&nbsp;月&nbsp;1&nbsp;日&nbsp;0&nbsp;時&nbsp;0&nbsp;分&nbsp;0&nbsp;秒から、西暦&nbsp;Y&nbsp;年&nbsp;Mo&nbsp;月&nbsp;D&nbsp;日&nbsp;H&nbsp;時&nbsp;Mi&nbsp;分&nbsp;S&nbsp;秒までの経過時間を計算<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ただし、0/1/1&nbsp;00:00:00&nbsp;は数値計算用の絶対的な値として採用しているだけで、グレゴリオ歴は&nbsp;1582&nbsp;年スタートであることに注意<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;timecount(long&nbsp;long&nbsp;Y&nbsp;,&nbsp;long&nbsp;long&nbsp;Mo&nbsp;,&nbsp;long&nbsp;long&nbsp;D&nbsp;,&nbsp;long&nbsp;long&nbsp;H&nbsp;=&nbsp;0&nbsp;,&nbsp;long&nbsp;long&nbsp;Mi&nbsp;=&nbsp;0&nbsp;,&nbsp;long&nbsp;long&nbsp;S&nbsp;=&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;datecount&nbsp;for&nbsp;month&nbsp;[x]&nbsp;:=&nbsp;x月の日数。ただし閏年ではない<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;int&nbsp;d4m[13]&nbsp;=&nbsp;{0,31,&nbsp;28,&nbsp;31,&nbsp;30,&nbsp;31,&nbsp;30,&nbsp;31,&nbsp;31,&nbsp;30,&nbsp;31,&nbsp;30,&nbsp;31};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;int&nbsp;accum_d4m[14]&nbsp;=&nbsp;{0&nbsp;,&nbsp;0&nbsp;,&nbsp;31&nbsp;,&nbsp;59&nbsp;,&nbsp;90&nbsp;,&nbsp;120&nbsp;,&nbsp;151&nbsp;,&nbsp;181&nbsp;,&nbsp;212&nbsp;,&nbsp;243&nbsp;,&nbsp;273&nbsp;,&nbsp;304&nbsp;,&nbsp;334&nbsp;,&nbsp;365};//&nbsp;[x]&nbsp;:=&nbsp;その年から&nbsp;x&nbsp;月の初めまでの日数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;キャスト用に&nbsp;long&nbsp;long&nbsp;にしておく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;long&nbsp;long&nbsp;h4d&nbsp;=&nbsp;24;//&nbsp;一日あたりの時刻数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;long&nbsp;long&nbsp;m4h&nbsp;=&nbsp;60;//&nbsp;一時間あたりの分数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;const&nbsp;long&nbsp;long&nbsp;s4m&nbsp;=&nbsp;60;//&nbsp;一分あたりの秒数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;Y);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(1&nbsp;&lt;=&nbsp;Mo&nbsp;&amp;&amp;&nbsp;Mo&nbsp;&lt;=&nbsp;12);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Mo&nbsp;==&nbsp;2&nbsp;&amp;&amp;&nbsp;((Y%4&nbsp;==&nbsp;0&nbsp;&amp;&amp;&nbsp;Y%100&nbsp;!=&nbsp;0)&nbsp;||&nbsp;Y%400&nbsp;==&nbsp;0))assert(1&nbsp;&lt;=&nbsp;D&nbsp;&amp;&amp;&nbsp;D&nbsp;&lt;=&nbsp;d4m[Mo]+1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;assert(1&nbsp;&lt;=&nbsp;D&nbsp;&amp;&amp;&nbsp;D&nbsp;&lt;=&nbsp;d4m[Mo]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;H&nbsp;&amp;&amp;&nbsp;H&nbsp;&lt;=&nbsp;23);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;Mi&nbsp;&amp;&amp;&nbsp;Mi&nbsp;&lt;=&nbsp;59);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;S&nbsp;&amp;&amp;&nbsp;S&nbsp;&lt;=&nbsp;59);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;daycount&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Y&gt;=1)daycount&nbsp;+=&nbsp;(long&nbsp;long)((Y-1)/400)*366&nbsp;+&nbsp;((long&nbsp;long)((Y-1)/100)-(long&nbsp;long)((Y-1)/400))*365&nbsp;+&nbsp;((long&nbsp;long)((Y-1)/4)-(long&nbsp;long)((Y-1)/100))*366&nbsp;+&nbsp;((Y-1)-(long&nbsp;long)((Y-1)/4))*365;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;daycount&nbsp;+=&nbsp;accum_d4m[Mo]&nbsp;+&nbsp;D&nbsp;-&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Mo&nbsp;&gt;&nbsp;2&nbsp;&amp;&amp;&nbsp;((Y%4&nbsp;==&nbsp;0&nbsp;&amp;&amp;&nbsp;Y%100&nbsp;!=&nbsp;0)&nbsp;||&nbsp;Y%400&nbsp;==&nbsp;0))daycount&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;daycount*h4d*m4h*s4m&nbsp;+&nbsp;H*m4h*s4m&nbsp;+&nbsp;Mi*s4m&nbsp;+&nbsp;S;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0/1/1&nbsp;から　Y/Mo/D&nbsp;までの日数&nbsp;(!!!Y/Mo/D&nbsp;を含まない!!!)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;つまり、0/1/1&nbsp;から何日経過すると&nbsp;Y/Mo/D&nbsp;になるかを計算<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;datecount(long&nbsp;long&nbsp;Y&nbsp;,&nbsp;long&nbsp;long&nbsp;Mo&nbsp;,&nbsp;long&nbsp;long&nbsp;D){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(long&nbsp;long)((timecount(Y,Mo,D)-timecount(0,1,1))/86400)&nbsp;+&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br>};<br><br><br><br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

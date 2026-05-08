@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>トポソ</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    トポロジカルソート<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <br>
+                <p>
+                    閉路のない有向グラフ \(G\) のトポロジカルソートとは、以下順序で頂点を並べた列を作ることです。
+                    <ul>
+                        <li>
+                            \(G\) の頂点 \(u , v\) について、\(u\) から \(v\) に到達可能ならば \(u\) は \(v\) より前の位置に、\(v\) から \(u\) に到達可能ならば \(u\) は \(v\) より後の位置に、どちらでもないなら \(u\) , \(v\) の順番は自由にする。
+                        </li>
+                    </ul>
+                </p>
+                <br>
+                <br><img src = "./../../images/topological.png"  class = "StandardImageStyle">
+                <p>
+                    DAG 上で有向辺の 順/逆順 に DP したい場合などに役立ちます。
+                </p>
+                <p>
+                    <b>ただし、トポロジカルソートした数列で、u が v より前に現れても、必ずしもグラフ上で u から v に到達可能ではないです</b>
+                </p>
+                
+                <p>
+                    実装も簡単で、頂点 \(x\) に入ってくる辺の本数を \(\mathrm{indegree}[x]\) とし、トポロジカル順で頂点を並べる数列を \(A\) とし、以下の手順を繰り返します。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{indegree}[x] = 0 \) となる頂点をすべて queue に入れる。
+                    </li>
+                    <li>
+                        queue が空になるまで、以下の 3,4 を繰り返す。
+                    </li>
+                    <li>
+                        queueから頂点を一つ取り出しそれを \(x\) として \(A\) の末尾に追加する。
+                    </li>
+                    <li>    
+                        \(x\) から出る辺の先の頂点 \(n_1,n_2,n_3,\dots \) 全てに対して、\(\mathrm{indegree}[n_i]\) を \(1\) 減らして、\(0\) になったものを新たに queue に入れる。
+                    </li>
+                </ol>
+                <p>
+                    最終的に得られる \(A\) がトポロジカルソートされた結果です。
+                </p>
+                <p>
+                    このアルゴリズムは、\(G\) にサイクルがある場合にうまくいかないので、\(G\) が DAG かどうかの判定にも使うことができます。
+                </p>
+                <p>
+                    \(G\) が DAG でない場合、トポロジカルソートされた配列 \(A\) のサイズと、頂点数が一致しないので、そこで判別します。 
+                </p>
+                以下はコード例で、verifyは<a target = "_blank" href = "">こちら</a>です。
+                <br>                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+
+
+                        <br>
+                        <br>
+                        <pre><br><br><br><br><br><br>/*トポソ*/<br>class&ensp;TpSort{<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;protected:<br>&ensp;&ensp;&ensp;&ensp;int&ensp;m_V;//頂点数&ensp;(0&ensp;~&ensp;m_V-1)&ensp;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;int&gt;&gt;&ensp;m_G;<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点数は既に取得済みとする<br>&ensp;&ensp;&ensp;&ensp;void&ensp;init_member(){m_G&ensp;=&ensp;vector&lt;vector&lt;int&gt;&gt;(m_V);}<br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;TpSort(){}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点数を指定<br>&ensp;&ensp;&ensp;&ensp;TpSort(int&ensp;V_&ensp;):m_V(V_){init_member();}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;辺&ensp;(u-&gt;v)&ensp;を追加<br>&ensp;&ensp;&ensp;&ensp;void&ensp;add_edge(int&ensp;u&ensp;,&ensp;int&ensp;v){m_G[u].push_back(v);}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;トポロジカルソートを記録した配列を返す関数&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;DAG&ensp;でなければ、できたところまで返し、頂点数とサイズを比較して失敗かどうかを判定する<br>&ensp;&ensp;&ensp;&ensp;template&lt;typename&ensp;Integer&gt;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;Integer&gt;&ensp;sorted(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;indegree(m_V,0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;0&ensp;;&ensp;i&ensp;&lt;&ensp;m_V&ensp;;&ensp;i++)for(int&ensp;j:m_G[i])indegree[j]++;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;Integer&gt;&ensp;sorted_vertices;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;queue&lt;Integer&gt;&ensp;q;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for&ensp;(int&ensp;i&ensp;=&ensp;0;&ensp;i&ensp;&lt;&ensp;m_V;&ensp;i++)&ensp;if&ensp;(indegree[i]&ensp;==&ensp;0)q.push(i);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while&ensp;(!q.empty())&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Integer&ensp;u&ensp;=&ensp;q.front();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;q.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sorted_vertices.push_back(u);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;v&ensp;&ensp;:&ensp;m_G[u]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;indegree[v]--;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if&ensp;(indegree[v]&ensp;==&ensp;0)&ensp;q.push(v);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;sorted_vertices;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>};<br><br><br><br><br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+                
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

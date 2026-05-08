@@ -1,0 +1,103 @@
+                    回文木
+                </h2>
+                <p>
+                    列 \(S\) の連続部分列に登場する回文の種類数は \(O(|S|)\) 個しかないので、\(S\) に登場する全ての回文をノードとして管理し、回文同士の関係を辺で表現したグラフを構築することができます。ノード \(P\) が表す回文を \(p\) とおくと、ノード \(P\) は以下の \(2\) 種類の辺を持ちます。
+                </p>
+                <ul>
+                    <li>
+                        \(P.\mathrm{connect}[c] := \) 回文 \(c + p + c \) に対応するノード。ただし \(S\) の連続部分列でないなら null 
+                    </li>
+                    <li>
+                        \(P.\mathrm{Suffix}\mathrm{Link} := P\) の接尾辞のうち、\(S\) の連続部分列であるもので最長の回文のノード
+                    </li>
+                </ul>
+                <p>
+                    このように構築したグラフにおいて、辺集合を各ノードの \(\mathrm{Suffix}\space \mathrm{Link}\) のみに置き換えた部分グラフのことを、\(S\) の (定義に沿った意味での) 回文木といいます。
+                </p>
+                <p>
+                    また、ノードとして表現する回文は全て \(S\) の連続部分列なので、それぞれのノードは回文自体を保持するのではなく、回文が<b>登場する区間</b>の情報を保持します。一つの回文が \(S\) に複数回登場する場合、<b>その登場箇所のいずれか一つ</b>を持ちます。
+                </p>
+                <h2>
+                    構築
+                </h2>
+                <p>
+                    列 \(S\) の回分木がすでに構築されているとします。\(S\) の末尾に新たな要素 \(c\) を push したものを \(S\prime\) として、\(S\) の回文木から \(S\prime\) の回文木を構築する方法を考えます。ただしここで言う回文木は、先の \(2\) 種類の辺の両方をメンバにもつ有向グラフを指すものとします。
+                </p>
+                <p> 
+                    回文は元の列の連続部分列なので、列 \(S\) の末尾に \(c\) を加えた結果として新たにできる回文は、\(S\) の<b>回文接尾辞 (接尾辞かつ回文) </b>のいずれかの両端に \(c\) を加えた形であると言えます。ここで、\(S\prime\) で新たにできる回文が<b>複数存在しない</b>ことを背理法によって証明します。新たにできる回文が複数存在すると仮定し、うち任意の \(2\) 種類を選んでそれらを \(A,B\) としたとき、\(A,B\) について以下が言えます。
+                </p>
+                <ul>
+                    <li>
+                        \(|A| &lt; |B|\) としても一般性を損なわない。
+                    </li>
+                    <li>
+                        \(A,B\) は \(S\prime\) の接尾辞かつ回文なので、\(B\) が回文ならば \(A\) は \(B\) の接頭辞である。
+                    </li>
+                    <li>
+                        \(B\) の接頭辞は \(B\) 自身を除いて \(S\prime\) の終端に到達しないので、\(A\) は \(S\) に含まれる。
+                    </li>
+                </ul>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.001.jpeg">
+                <p>
+                    よって新たな回文はそもそも存在しないか、\(S\) の回文接尾辞の両端に \(c\) を付け加えてできる \(S\prime\) の接尾辞のうち最長のもののみであるとがわかります。このことから、回文木の構築のキーは<b>最長の回文接尾辞を管理すること</b>であると言えます。
+                </p>
+                <p>
+                    \(S\prime\) の回文木は \(S\) の回文木と最長回文接尾辞のノードから新たに構築することができます。よって空列 \(\phi\) の回文木を定義することができれば、再帰的に回文木のアルゴリズムを設計することができます。
+                </p>
+                <p>
+                    実装の簡略化のため、空列 \(\phi\) の回文木を以下の \(2\) 種類のノードを使って定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{seed} := S \) の連続部分列 \([x,x-1)\) の空回文を表すノード。長さが \(-1\) の不自然な空回文。
+                    </li>
+                    <li>
+                        \(\mathrm{empty} := S \) の連続部分列 \([x,x)\) の空回文を表すノード。長さが \(0\) で、自然な定義。
+                    </li>
+                </ul>
+                <p>
+                    空列 \(\phi\) の最長回文接尾辞は \(\mathrm{empty}\) と対応します。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.002.jpeg">
+                <p>
+                    \(\mathrm{seed}\) の \(\mathrm{Suffix}\mathrm{Link}\) 先は NULL であり、\(\mathrm{empty}\) の \(\mathrm{Suffix}\mathrm{Link}\) 先は \(\mathrm{seed}\) とします。また、\(\mathrm{seed}.\mathrm{connect}[c]\) は \(c\) のみからなる長さ \(1\) の回文にリンクし、\(\mathrm{empty}.\mathrm{connect}[c]\) は長さ \(2\) の回文 \(c+c\) にリンクします。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.003.jpeg">
+                <p>
+                    また、長さ \(1\) の回文の  \(\mathrm{Suffix}\mathrm{Link}\) 先は \(\mathrm{empty}\) とします。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.004.jpeg">
+                <h3>
+                    遷移
+                </h3>
+                <p>
+                    初期状態の定義ができたところで、次は \(S \space(+c)\space\rightarrow S\prime\) の遷移の話に移ります。\(S\) の最長回文接尾辞を \(F\) として、以下の手順によって \(S\prime\) の回文木を構築できます。
+                </p>
+                <ol>
+                    <li>
+                        \(F.\mathrm{connect}[c]\) が \(S\prime\) の接尾辞なら、\(F = F.\mathrm{connect}[c]\) として終了する (\(F.\mathrm{connect}[c]\) が存在しなければ新たに生成して試す)。
+                    </li>
+                    <li>
+                        操作 1 で終了しなければ、\(F\) を \(F\) の \(\mathrm{Suffix}\mathrm{Link}\) 先で置き換えて再度手順を実行する。
+                    </li>
+                </ol>
+                <p>
+                    最終的な \(F\) が \(S\prime\) の最長回文接尾辞に対応します。操作を終了した後は、\(S\prime\) を新たに \(S\) とします。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.005.jpeg">
+                <p>
+                    \(\mathrm{Suffix}\mathrm{Link}\) の定義より、この手順は \(S\) の接尾辞の候補全てをカバーできており、長い回文接尾辞から操作 1 で解が見つかって打ち切られるまで調べるので、新たな \(F\) (\(F\prime\) とする) は \(S\prime\) の最長回文接尾辞です。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.006.jpeg">
+                <p>
+                    \(S\prime\) で新たな回文が発見される場合、\(S\prime\) の回文木構築の手順の操作 1 で \(F.\mathrm{connect}[c]\) を新たに生成する必要があります。この場合、\(\mathrm{Suffix}\mathrm{Link}\) もまた新たに構築する必要があります。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.007.jpeg">
+                <p>
+                    区別しやすいように、\(S\prime\) の最長回文接尾辞を \(F\prime\) とし、\(F\prime = G.\mathrm{connect}[c]\) である \(G\) (操作 1 で \(F\prime\) に繋がる \(S\) の回文接尾辞) を考えます。
+                </p>
+                <img class ="StandardImageStyle" src = "./../../images/PalindromicTree/PalindromicTree.008.jpeg">
+                <p>
+                    \(F\prime\) の自身を除く回文接尾辞は \(G + c\) の回文接尾辞なので、\(G\) の \(\mathrm{Suffix}\mathrm{Link}\) を辿り、両端に \(c\) をつけても \(S\prime\) の回文接尾辞であるものが見つかれば、\(F\prime\) からその回文接尾辞に \(\mathrm{Suffix}\mathrm{Link}\) をリンクして終了します。定義より、\(\mathrm{Suffix}\mathrm{Link}\) を順に辿ることで最長のものを見つけられます。
+                </p>
+                <br>

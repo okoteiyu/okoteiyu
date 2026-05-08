@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    tableau 基礎<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    Tableau とは
+                </h2>
+                <p>
+                    tableau は CSV や Excel などのデータソースから読み込んだデータを可視化することで、視覚的なデータ分析をサポートします。ドキュメントは<a href = "https://help.tableau.com/current/pro/desktop/ja-jp/default.htm" target="_blank">こちらのサイト(外部リンク)</a>にありますが、難読なのでこちらのページで簡略化して基礎的な使い方などを紹介します。
+                </p>
+                <h2>
+                    目次
+                </h2>
+                <p>
+                    <ul>
+                        <li>
+                            用語について
+                        </li>
+                        <li>
+                            データソース
+                        </li>
+                        <li>
+                            ワークシートの使い方 (メイン & 部品)
+                        </li>
+                        <li>
+                            計算フィールド & パラメータ
+                        </li>
+                        <li>
+                            ダッシュボードとアクション
+                        </li>
+                        <li>
+                            拡張機能
+                        </li>
+                    </ul>
+                </p>
+                <br>
+                <h2>
+                    用語
+                </h2>
+                <u>
+                    データソースの用語
+                </u>
+                <p>
+                    データソースとは、tableau が読み込むデータが保管されたファイルやデータベースを指します。基本的にデータベースなどは以下のような<b>テーブル</b>でデータを管理します。
+                    <br><img class = "StandardImageStyle" src = "./../../images/MyAtCoderHistory/MyAtCoderHistory.001.jpeg"><br>
+                    第 \(1\) 行 (第 \(0\) 行) に書き込まれている要素を<b>ヘッダー</b>と呼び、続く行が持つデータの属性の命名の役割を持ちます。
+                    <br><img class = "StandardImageStyle" src = "./../../images/MyAtCoderHistory/MyAtCoderHistory.002.jpeg"><br>
+                    記録は行単位で行われ、\(1\) 行に対応するデータの組を<b>レコード</b>と呼びます。異なるレコード同士に関係性を定義することはなく、各行は独立な記録を表します。レコードを記録する際は、レコードの属性を表すデータと各列のヘッダーの命名が対応するように書き込む必要があります。
+                    <br><img class = "StandardImageStyle" src = "./../../images/MyAtCoderHistory/MyAtCoderHistory.003.jpeg"><br>
+                    赤枠で囲まれたレコードは、2024/5/18 の 22:40 に終了したプログラミングコンテストの結果を記録したレコードです。この枠内の各セルに記録されたデータは、そのセルの列のヘッダーが命名する属性に対応しています。
+                </p>
+                <p>
+                    余談ですが、レコードを識別するために使用する Key (属性,列名) のことを<b>主要キー</b> ないし <b>Primary Key</b> と呼びます。Primary Key となるデータの値は全てのレコードで<b>ユニーク</b>である (重複しない) 必要があります。例えば、以下のテーブルのコンテストという列は Primary Key の一つです。
+                    <br><img class = "StandardImageStyle" src = "./../../images/MyAtCoderHistory/MyAtCoderHistory.004.jpeg"><br>
+                </p>
+                <u>
+                    適宜追加していきます
+                </u>
+                <p>
+                    適宜追加していきます
+                </p>
+                <br>
+                <h2>
+                    データソース
+                </h2>
+                <p>
+                    tableau ファイルで表示するデータの参照先をデータソースと言います。データソースを参照できる状態にすることを<b>接続</b>と呼び、主要な接続方法は以下の \(2\) 種類です。
+                    <ol>
+                        <li>
+                            抽出 : データソースを tableau ファイルに統合して、同じファイル内で接続する状態
+                        </li>
+                        <li>
+                            ライブ : 外部のデータソースを常に参照する状態
+                        </li>
+                    </ol>
+                    どちらにするべきとかはありませんが、「接続が~」みたいなメッセージが出たらここを思い出すと良いです。
+                </p>
+                <u>
+                    データソースの選択
+                </u>
+                <p>
+                    さまざまな形式のファイルをデータソースとして読み込むことができますが、全てのデータは<b>テーブル形式に変換されます</b>。例えば CSV を読み込むと、CSV の第 \(1\) 行 (第 \(0\) 行) の要素がヘッダーとして登録され、以降の行がレコードとして記録されます。また、json ファイルではキーがヘッダーに登録され、各キーに対する値がレコードに記録されます。
+                </p>
+                <u>
+                    データソースの結合
+                </u>
+                <br>
+                <h2>
+                    ワークシート
+                </h2>
+                <u>
+                    ビューの作成
+                </u>
+                <p>
+                    ビューとは ~
+                </p>
+                <p>
+                    ビューのデータの表示に関して、データを以下の \(3\) の概念に分けて考える必要があります。
+                    <ul>
+                        <li>
+                            ディメンジョン : レコードの分類を指定するデータ要素
+                        </li>
+                        <li>
+                            属性 : 対象のデータ(マーク)のラベル
+                        </li>
+                        <li>
+                            集計 : ディメンジョンによる各分類について、ある分類に属するレコードのデータの集計
+                        </li>
+                    </ul>
+                </p>
+                <u>
+                    コンポーネント (部品) としてのワークシート
+                </u>
+                <h2>
+                    計算フィールドとパラメータ
+                </h2>
+                <p>
+                    TODO
+                </p>
+                <h2>
+                    ダッシュボードとアクション
+                </h2>
+                <p>
+
+                </p>
+                <h2>
+                    拡張機能
+                </h2>
+                <p>
+
+                </p>
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

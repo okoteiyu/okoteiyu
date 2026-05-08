@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>計算トレーニング 1</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    計算トレーニング 1 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    概要
+                </h3>
+                <p>
+                    ここでは、文字列を辞書順に並べるトレーニングを行います。
+                </p>
+                <h3>
+                    ルール
+                </h3>
+                <ul>
+                    <li>
+                        4 つの文字列が表示されるので、辞書順で小さい順に選択してください。
+                    </li>
+                    <li>
+                        正解した速度が計測されます。その速度が自分の中でベストになるように頑張ってください。
+                    </li>
+                </ul>
+
+                <div class = "Highlight">
+                    <div style = "display: flex;">
+                        <div id ="result" style = "text-align: center; flex:1; border-bottom: 2px solid black; font-size: 21px;">
+                            下のボタンを押して問題を開始してね
+                        </div>
+                    </div>
+                    <div style = "display: flex;">
+                        <input type="button" id = "NewQueryButton" value="NewQuestion" onclick="NewQuery()"  style =  " font-size: 21px; flex:1;">
+                    </div>
+                    <div id = "question" style = "display:none;">
+                        <div style = "display: flex;">
+                            <input type = "button" id = "string0"  onclick="button_push(0)"  style = "font-size: 20px; flex: 1;">
+                            <input type = "button" id = "string1"  onclick="button_push(1)"  style = "font-size: 20px; flex: 1;">
+                            <input type = "button" id = "string2"  onclick="button_push(2)"  style = "font-size: 20px; flex: 1;">
+                            <input type = "button" id = "string3"  onclick="button_push(3)"  style = "font-size: 20px; flex: 1;">
+                        </div>
+                    </div>
+                </div>
+
+
+                
+            </section>
+                
+
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+<script>
+    const array_size = 4;//表示するstringの個数
+    let string_array = ["" ,"" , "" , ""];/*表示される文字列たち*/
+    let string_array_sorted = ["","","",""];/*ソートしたやつ*/
+    let selected= [0,0,0,0];//押したかどうか
+    let index =  0;//次の選択肢が辞書順で何番目か 
+
+    var start_time;
+    var end_time;
+    
+
+    function init_val(){
+        string_array = ["","","",""];
+        string_array_sorted = ["","","",""];
+        selected = [0,0,0,0];
+        index = 0;
+    }
+    
+    function newQuestion(){
+        for(var i = 0 ; i < 4 ; i++){
+            var s_size = Math.floor(Math.random()*5)+2;
+            let chars = "xyz";
+            let s_i = '';
+            for ( var j = 0 ; j < s_size; j++ ) {
+                s_i += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            string_array_sorted[i] = s_i;
+            string_array[i] = s_i;
+        }
+        string_array_sorted.sort();
+        document.getElementById("string0").value = string_array[0];
+        document.getElementById("string1").value = string_array[1];
+        document.getElementById("string2").value = string_array[2];
+        document.getElementById("string3").value = string_array[3];
+       
+    }
+    
+
+    function NewQuery(){
+
+        document.getElementById("question").style.display = "block" ;
+        document.getElementById("NewQueryButton").style.display = "none" ;
+        document.getElementById("result").style.display = "none" ;
+        newQuestion();
+        start_time = Date.now();
+    }
+
+
+    //button(number)を押した時の挙動
+    function button_push(number){ 
+        if(number >= array_size)return false;
+        if(number<0)return false;
+
+        if(selected[number] != 0)return false;
+        
+     
+        selected[number] = 1;
+
+        let string_id = String("string");
+        string_id += number;
+
+        let button_id = String("button_");
+        button_id += number;
+
+
+        let select_string = document.getElementById(string_id).innerText;
+        
+        if(select_string == string_array_sorted[index]){
+            document.getElementById(string_id).innerText = String(index+1);
+            index++;
+            if(index >= array_size){//全部押し終わったらAC   
+                correct_answer();
+            }
+        }else{//間違えたら
+            wrong_answer();
+
+        }
+        return true;
+    }
+   
+
+
+   
+
+    //正解
+    function correct_answer(){
+        end_time = Date.now();
+        let result = String("正解!!かかった時間は");
+        result += String(Math.floor((end_time-start_time)/1000));
+        result +=".";
+        result += String(Math.floor((end_time-start_time)%1000));
+        result += "秒です。";        
+        document.getElementById("NewQueryButton").style.display = "block" ;
+        document.getElementById("question").style.display = "none" ;
+        document.getElementById("result").innerText = result;
+        document.getElementById("result").style.display = "block" ;
+        init_val();
+    }
+
+
+    //不正解
+    function wrong_answer(){
+        let result = String("不正解です。正解は : ");
+        for(var i = 0 ; i < array_size;i++){
+            result += string_array_sorted[i];
+            if(i == array_size-1)break;
+            result += " , ";
+        }
+        result += "です。"
+        document.getElementById("NewQueryButton").style.display = "block" ;
+        document.getElementById("question").style.display = "none" ;
+        document.getElementById("result").innerText = result;
+        document.getElementById("result").style.display = "block" ;
+        init_val();
+    }
+
+</script>

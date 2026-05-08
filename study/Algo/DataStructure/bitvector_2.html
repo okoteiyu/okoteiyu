@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    自主ゼミ資料 (簡潔データ構造 \(3\) 章 \(4\) 節) <br></h2>
+            </section>
+            <section class = "Explanation">
+                <u>1. テーマ</u>
+                <p>
+                    \(u = n\mathrm{polylog(n)}\) のとき、\(\beta(n,u) + O(\frac{n\log{\log{n}}}{\log{n}})\) ビットのデータ構造を用いて、\(rank\) を定数時間で計算できる。これは、前項のビットベクトルよりも、\(u\) への依存度が小さい。
+                </p>
+                <br>
+                <u>
+                    2 手続き
+                </u>
+                <p>
+                    \(n\) はビットベクトルに登場する \(1\) の個数です。ここで、以下の変数を定めます。
+                    <ul>
+                        <li>
+                            \(d = \lfloor \sqrt{\log{n}}\rfloor\)
+                        </li>
+                        <li>
+                            \(c := \) \(0.5\) の倍数の定数。ただし、ここでは後述する別の条件が存在する。
+                        </li>
+                        <li>
+                            \(l = \frac{\log{n}}{2c\log{\log{n}}}\)
+                        </li>
+                    </ul>
+                    これから紹介するアルゴリズムは、\(u = n\cdot d^{2c}\) の場合に活用できる。\(u\) がこの式を満たさない場合、\(u\) 以上で最も近い \(n\cdot d^{2c}\) になるまで \(0\) 埋めする (要議論)。
+                </p>
+                <p>
+                    \(n = 14424224343 , \) \(c\) を \(\frac{1}{2},1,\frac{3}{2},2\) で手元で試した結果、\(u\) は以下になった。
+                    <pre>
+                        <br>n = 14424224343 (in 174)
+                        <br>u = 72121121715 (in 183)
+                        <br>u = 360605608575 (in 183)
+                        <br>u = 1803028042875 (in 183)
+                        <br>u = 9015140214375 (in 183)
+                    </pre>
+                </p>
+                <u>
+                    2.1 小ブロックへの分割
+                </u>
+                <p>
+                    ビットベクトルのサイズは \(d^{2c}\) の倍数なので、これを長さ \(d^{2c}\) の \(n\) 個のブロックに分割する。特に、ブロック内に含まれる \(1\) の個数が \(l\) 以下の場合、そのブロックを<b>小ブロック</b>という。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.001.jpeg" class = "StandardImageStyle">
+                <p>
+                    以上の例では全てのブロックが小ブロックですが、以下の例のように分割によって小ブロックでないブロック、すなわち \(1\) の個数が \(l\) より大きくなってしまうブロックが得られる場合もある。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    このとき、ブロックのサイズは \(d^{2c}\) なので、これを再帰的に \(d\) 個のブロックに分割していく。\(1\) 度目の分割で得たブロックのサイズは \(d^{2c}\) なので、以降の \(d\) 分割の処理は \(2c-1\) 回以内に終了する。
+                </p>
+                <p>
+                    また、\(i\) 回目の分割で得られるブロックの集合を、有り体に \(i\) 層目ということにする。
+                </p>
+                <p>
+                    各層に含まれる \(1\) の個数は高々 \(n\) である。小ブロックではないブロックができるためには、その様なブロック \(1\) つあたり少なくとも \(l\) 個必要である。よって、各層の分割でできる小ブロックでないブロックの個数は、\(\frac{n}{l}\) 個である。\(i\) 層目の各ブロックのサイズは \(d^{2c-i}\) なので、分割後のサイズは \(n\times d^{2c-i-1}\)。(\(2c\log{\log{n}} \leq \sqrt{\log{n}}\))
+                </p>
+                <p>
+                    各層での分割でできるブロックの個数は高々 \(n\) 個なので、全ての分割ステップを終えた時、小ブロックの個数は高々 \(2cn\) である。
+                </p>
+                <p>
+                    ブロックの分割は、\(2c-1\) 層目で打ち止めになるが、この時点まで残った全てのブロックのサイズは \(d\) である。先ほど \(l\) に追加した制約より、これらは全て小ブロックである。
+                </p>
+                <p>
+                    こうして得られたブロックとは別に、<b>区間</b> というものを定義する。
+                </p>
+                <p>
+                    以下を満たす隣接するブロックが存在する間、(任意に) それらを結合する操作を繰り返し、そうして得られたものを区間と呼ぶ。
+                    <ul>
+                        <li>
+                            結合した結果、区間内の \(1\) の個数が \(l\) を超えないかつ、サイズが \(d^{2c+2}\) を超えない。
+                        </li>
+                    </ul>
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.003.jpeg" class = "StandardImageStyle">
+                <br><u>補題 1</u>
+                <p>
+                    区間の個数は \(\frac{8cn\log{\log{n}}}{\log{n}} + \frac{2n}{d^2}\) (\(+\frac{2n}{d^2}+2\) ? ) 以下である。
+                </p>
+                <br><u>証明</u>
+                <p>
+                    長さが \(\frac{d^{2c+2}}{2}\) を超える区間の個数は、\(1\) つあたりの長さが少なくとも \(\frac{d^{2c+2}}{2}\) なので、合計で \(\frac{2u}{d^{2c+2}} = \frac{2n}{d^2}\) 以下である。ここで、長さが \(\frac{d^{2c+2}}{2}\) 以上の個数を \(x\)、その様な区間に登場する \(1\) の個数の総和を \(L_1\) とする。
+                </p>
+                <p>
+                    長さが \(\frac{d^{2c+2}}{2}\) 以下の区間の個数に関して説明します。ここでの区間の定義より、<b>隣接する \(2\) つの「長さが \(\frac{d^{2c+2}}{2}\) 以下の区間」のうちいずれかは、区間内に \(\frac{l}{2}\) 個以上の \(1\) を持つ。</b>そのような隣接する区間のペアは \(\frac{n-L_1}{\frac{l}{2}}\) 個以下である。これはペアの個数なので、区間の個数はこれを \(2\) 倍した \(\frac{4M_1}{l}\) 以下である。
+                </p>
+                <p>
+                    上記でペアに出来ない (長さが \(\frac{d^{2c+2}}{2}\) 以下の) 区間は、長さが \(\frac{d^{2c+2}}{2}\) より大きい区間のうち、左から \(i\) 番目と \(i+1\) 番目のものの間に高々 \(1\) つと、両端に高々 \(1\) つずつである。よってこの様な区間は \(x+2\) 個以下である。
+                </p>
+                <p>
+                    
+                </p>
+                <p>
+                    全ての区間の個数を合計すると、\(x + \frac{4(n-L_1)}{l} + x + 2\) 以下である。\(L_1 \geq \frac{d^{2c+2}}{2}x\) より、\(x + \frac{4(n-L_1)}{l} + x + 2 \leq (2 - \frac{ 2d^{2c+2}}{l})x + \frac{4n}{l} + 2\) である。
+                </p>
+                <p>
+                    \((2 - \frac{ 2d^{2c+2}}{l})x + \frac{4n}{l} + 2 = (2 - \frac{ 4d^{2c+2} c\log{\log{n}} }{\log{n}})x + \frac{8nc\log{\log{n}}}{\log{n}} + 2\) である。\(0 \leq x \leq \frac{2n}{d^2}\) での極値は、傾きが負であることから、\(x=0\) の場合が極値である。
+                </p>
+                <br>
+                <u>
+                    rank のアルゴリズムの手続き
+                </u>
+                <p>
+                    はじめの段階として、\(i\) 番目のビットが属する区間がわかっている状況で、\(rank_1(i)\) を計算してみます。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    必要な計算は以下の \(2\) つです。
+                    <ol>
+                        <li>
+                            \(i\) 番目のビットが属する区間の左端からのビット列に対して表引きを行い、\(1\) の個数を求める。
+                            <p>
+                                各区間は、\(\log{_{d^{2c+2}}\mathrm{C}_{l}} \leq l\log{\frac{e \log^{c+1}{n}}{l}}\) ビットで表現でき (教科書 p.12 参照)、\(n\) が十分大きければ \(\log{n}\) より小さい (\(l\) が \(\log{n}\) より小さいぐらいしか根拠がなく、うまく評価できず)。
+                            </p>
+                        </li>
+                        <li>
+                            属する区間まで \(1\) の個数の累積和を持つ必要があるが、各区間の \(1\) の個数が \(l \in \mathrm{polylog}(n)\) なので、データ構造 TY によって、補題 1 と合わせて \(O(\frac{n(\log{\log{n}})^2)}{\log{n}})\) ビットで表現できる。
+                        </li>
+                    </ol>
+                </p>
+                <p>
+                    次に、\(i\) が属する小ブロックの番号 \(b_i\) がわかっている時、そこから \(i\) が属する区間を求める。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    これは、各小ブロックの境界について、それが区間の境界であるなら \(1\)、そうでないなら \(0\) を割り振り、それをビットベクトルとして、データ構造 \(FID\) によって \(rank\) 計算を可能な状態にしておく。補題 1 より、区間の個数 (\(1\) の個数) が \(O(\frac{n\log{\log{n}}}{\log{n}})\) なので、FID は \(O(\frac{n(\log{\log{n}})^2}{\log{n}})\) ビットである。
+                </p>
+                <p>
+                    小ブロック \(b_i\) が属する区間の番号は、\(rank_1(b_i)\) でもとまる。
+                </p>
+                <p>
+                    最後に、\(i\) 番目のビットが属する小ブロックを求める。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    はじめの分割で生じたブロック全てについて、小ブロックなら \(0\) を、そうでないなら \(1\) を割り振る。
+                </p>
+                <p>
+                    \(i\) 番目のビットが属する小ブロックの番号は、そのビットがカバーする最下層のブロックについて、左優先の DFS でそのブロックに到達するまでの \(0\) の個数である。これを、ビットベクトルで計算することができる。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.007.jpeg" class = "StandardImageStyle">
+                <p>
+                    各層の \(0,1\) の情報を、左に詰めることでビットベクトルにすることができる。各層について、ブロックの個数が \(2cn\)、小ブロックでないブロックの個数は、\(\frac{n}{l} = \frac{2cn\log{\log{n}}}{\log{n}}\) なので、各層のビットベクトルは FID によって \(O(\frac{n(\log{\log{n}})^2}{\log{n}})\) ビットで表現できる。
+                </p>
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.008.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.009.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/BitVector_3_4_4_sparse/BitVector_3_4_4_sparse.010.jpeg" class = "StandardImageStyle">
+            </section>
+                
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 

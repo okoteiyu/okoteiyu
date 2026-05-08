@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>TreeDP</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    TreeDP(1)<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>木 DP</h2>
+                <p>
+                    TreeDPは、木の上でDPをするというものです。私は緑ぐらいの頃は木やグラフというものに謎の苦手意識を持っていたのですが、今では木やグラフの上でのDPはむしろ遷移の方向や道がすでに決まっているのでむしろ普通のDPよりも簡単だなという印象を持っています。
+                </p>
+                
+
+                <p>
+                    TreeDPでは木の辺の方向に従ってDPをします。例えば木の根から各頂点への距離を求めるのもTreeDPの一つです。
+                </p>
+
+                <br><img src = "./../../images/TreeDP/TreeDP.001.jpeg"  class = "StandardImageStyle">
+                <p>
+                    TreeDP は葉 (下) から根 (上) の方向に向かう場合が多いです。なぜなら、部分木に関する情報がわかれば嬉しいことが多いからです。
+                    もう少し詳しく言うと、根付き木で部分木に関する Tree DP を行う順番は<b>根からの DFS 到達順の逆順</b> です。
+                </p>
+                <h2>二乗の木 DP</h2>
+                <h3>Highlight</h3>
+                <p>
+                    ある頂点 \(u\) の部分木の集約を、\(u\) と \(u\) の子頂点それぞれ (\(c\) とする) に対して以下の処理で計算します。
+                    <ul>
+                        <li>
+                            \(u\) の部分木サイズのループと \(c\) の部分木サイズのループをネストする。
+                        </li>
+                    </ul>
+                    \((u,c)\) のペアの個数は辺の本数なので \(O(N)\) 個、その中で部分木サイズのループを 2 重で回すので直感的には全体で \(O(N^3)\) ぐらいになりそうですが、実はこれは全体で \(O(N^2)\) 時間で終わります。
+                </p>
+                <h3>コード例</h3>
+                <pre>int&nbsp;size_[N];&nbsp;//&nbsp;部分木サイズ<br>int&nbsp;parent[N];//&nbsp;親頂点<br>for(int&nbsp;u&nbsp;:&nbsp;r_dfs){//&nbsp;dfs&nbsp;の逆順&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;c&nbsp;:&nbsp;G[u]){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(parent[c]&nbsp;!=&nbsp;u)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;=&nbsp;0&nbsp;;&nbsp;x&nbsp;&lt;=&nbsp;size_[u]&nbsp;;&nbsp;x++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;y&nbsp;=&nbsp;0&nbsp;;&nbsp;y&nbsp;&lt;=&nbsp;size_[c]&nbsp;;&nbsp;y++){&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;....&nbsp;//&nbsp;何らかの処理<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;size_[parent[u]]&nbsp;+=&nbsp;size_[u];//&nbsp;サイズは親の方に加算する<br>}</pre>
+                <h3>TODO : 具体例と計算量解析</h3>
+                                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    木構造<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    木構造
+                </h3>
+                <p>
+                    木は以下を満たす、グラフの特殊なインスタンスです。
+                    <ul>
+                        <li>
+                            辺の本数が頂点数より \(1\) 少ない。
+                        </li>
+                        <li>
+                            全ての頂点は連結である。
+                        </li>
+                    </ul>
+                    また、全ての連結成分が木であるグラフを<b>森</b>と言います。
+                </p>
+                <img src = "./../../images/Tree/Tree.001.jpeg" class = "StandardImageStyle">
+                <h3>
+                    根付き木
+                </h3>
+                <p>
+                    ある頂点を根とすることで、木構造及び木構造上での処理の見通しを良くします。頂点 \(0\) を根とすると、先ほど提示した木は以下のような構造になります。
+                </p>
+                <img src = "./../../images/Tree/Tree.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    「どこが根やねん!!!」というツッコミはおいておいて、根付き木の説明します。
+                    <ul>
+                        <li>
+                            頂点 \(u\) の親 : \(u\) に隣接する頂点であり、\(u\) より根に近いもの (上側の頂点)
+                        </li>
+                        <li>
+                            頂点 \(u\) の子 : \(u\) に隣接する頂点であり、\(u\) より根から遠いもの (下側の頂点)
+                        </li>
+                        <li>
+                            頂点 \(u\) の祖先 : \(u\) から親をたどって (上移動のみで) 到達できる頂点
+                        </li>
+                        <li>
+                            頂点 \(u\) の深さ : 根から \(u\) までのパスの長さ
+                        </li>
+                        <li>
+                            根は親を持たない。
+                        </li>
+                        <li>
+                            子を持たない頂点を葉と言う。
+                        </li>
+                    </ul>
+                </p>
+                <h3>
+                    LCA (Lowest Common Ancestor)
+                </h3>
+                <p>
+                    異なる \(2\) つの頂点 \(u,v\) の LCA とは、\(u,v\) の共通の祖先のうち根から最も遠いもの (\(u,v\) から最も近いもの) です。
+                </p>
+                <img src = "./../../images/Tree/Tree.003.jpeg" class = "StandardImageStyle">
+                <u>
+                    求め方
+                </u>
+                <p>
+                    木の辺を根方向に向き付けすると、木は <b>Functional Graph</b> になります。根からは根にリンクさせておいてください。
+                </p>
+                <img src = "./../../images/Tree/Tree.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    Functional Graph では状態の遷移を<b>ダブリング</b>で管理することができます。具体的には、以下のテーブルを構築します。
+                    <ul>
+                        <li>
+                            \(\mathrm{parent}[k][v] := \) 頂点 \(v\) の \(2^k\) 個上の祖先
+                        </li>
+                    </ul>
+                    このダブリングテーブルを用いて以下の \(2\) ステップを行い、LCA を求めます。
+                </p>
+                <u>
+                    深さを合わせる。
+                </u>
+                <p>
+                    頂点 \(u,v\) の LCA の計算の際、\(u\) の深さは \(v\) の深さ以上とします。そうでない場合は \(u,v\) をスワップすれば良いです。この時、頂点 \(u\) が頂点 \(v\) と同じ深さになるまで \(u\) を親方向に移動させます。ここで \(u\) の祖先は、\(v\) と深さの大小関係が <b>以下/より大きい</b> の \(2\) つの領域に分断されるので、それらの領域の境界を見つけるために<b>二分探索</b>を行います。
+                </p>
+                <img src = "./../../images/Tree/Tree.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    ここで行う二分探索は少し特殊で、自分は<b>ダブリング二分探索</b>と呼んでいます。ダブリングテーブルで、各頂点の \(2\) の冪乗個上の祖先が何かはわかっています。よって、\(2\) の冪乗 \(2^k\) が大きい方から「\(u\) の \(2^k\) 個上の祖先が \(v\) の深さ以下であればその頂点に移動する」を繰り返すことで、頂点 \(u,v\) の深さが同じになるように \(u\) を移動させることができます。これは \(10\) 進数表示の整数を \(2\) 進数表示に変換する際の手法と同じです。
+                </p>
+                <img src = "./../../images/Tree/Tree.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    この時点で \(u=v\) ならば、LCA は \(u\) です。
+                </p>
+                <u>
+                    共通祖先を調べる
+                </u>
+                <p>
+                    \(u,v\) の深さは同じなので、共通祖先から \(u,v\) までの距離はどちらも等しいです。\(\mathrm{same}(x) := \)「\(u\) の \(x\) 個上の祖先が \(v\) の \(x\) 個上の祖先と等しいか」という判定は、Yes/No の \(2\) つの領域に分割されるので、これもダブリング二分探索で解くことができます。
+                </p>
+                <p>
+                    \(2\) の冪乗 \(2^k\) が大きい方から、\(\mathrm{same}\) の判定が No なら \(u,v\) をそれぞれ \(2^k\) 個上に移動することを繰り返すことで、\(u,v\) が境界まで移動し、\(u,v\) は<b>共通祖先の一つ下の頂点</b>になります。よって、この状態の \(u\) の親頂点が LCA です。
+                </p>
+                <h3>
+                    木圧縮 (Auxilirary Tree)
+                </h3>
+                <p>
+                    頂点数が \(N\) の木の頂点集合の部分集合 \(S\) に対して、\(S\) に含まれる頂点をカバーする部分グラフのうち、<b>頂点数が最小の木</b>を考えます。
+                </p>
+                <img src = "./../../images/Tree/Tree.007.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(S = \{2,3,13,4,5,15\}\) の場合、以下の部分グラフです。
+                </p>
+                <img src = "./../../images/Tree/Tree.008.jpeg" class = "StandardImageStyle">
+                <p>
+                    この部分グラフの頂点数は \(O(N)\) 個です。ここで、余計な一本道を圧縮することで頂点数が \(O(|S|)\) 個の木を新たに構築します。
+                </p>
+                <img src = "./../../images/Tree/Tree.009.jpeg" class = "StandardImageStyle">
+                <p>
+                    このようにして構築される木を、元の木に対して <b>Auxiliary Tree</b> と言います。Auxiliary Tree は \(S\) に含まれる頂点に加えて、\(S\) の頂点間の位置関係を補助する頂点も含みます。
+                </p>
+                <u>
+                    アルゴリズム
+                </u>
+                <p>
+                    \(S\) の頂点を、元の木の根からの DFS で初めて到達するタイミングが早い順に並べ替えます。\(S = \{2,3,13,4,5,15\}\) の場合、\(S = \{2,4,3,5,15,13\}\) が一例です (DFS の道順はいくつもあるので、そのうちなら何でも良い)。
+                </p>
+                <p>
+                    また実装の共通化のため、\(S\) の末尾には番兵として \(S_0\) を追加しておきます。以降、\(S = \{2,4,3,5,15,13,2\}\) とします。
+                </p>
+                <p>
+                    DFS の到達順に頂点を調べながら Auxiliary Tree を構築します。最後に調べた頂点を \(r\) とし、次の処理で注目する頂点の集合を以下で定義します。
+                    <ul>
+                        <li>
+                            \(\mathrm{frontline} := \) <b>「Auxiliary Tree に含まれると確定している頂点」</b>で \(r\) の最も遠い祖先から \(r\) までのパス上の<b>「Auxiliary Tree に含まれると確定している頂点」</b>を根から近い順に並べたもの。
+                        </li>
+                    </ul>
+                    補足として、Auxiliary Tree に含まれる頂点は、\(S\) に属する頂点及び \(S\) に含まれる \(2\) 頂点の LCA になりうる頂点です。Auxiliary Tree に含まれる頂点がどんなものかはわかっているのですが、\(S\) に属する \(2\) 頂点の組合せが \(O(|S|^2)\) 個なので、初めから全部列挙しておくことはできず、Auxiliary Tree の構築中に確定させていく必要があります。
+                </p>
+                <p>
+                    Auxiliary Tree の構築で行うべきことは、以下の \(3\) 点です。
+                    <ul>
+                        <li>
+                            \(\mathrm{frontline}\) を 構築/変更 する
+                        </li>
+                        <li>
+                            Auxiliary Tree に含まれる頂点を確定させていく
+                        </li>
+                        <li>
+                            確定した頂点たちに辺を張っていく (元の木のパスを圧縮していく)
+                        </li>
+                    </ul>
+                    これを踏まえてアルゴリズムの様子を図で見てみましょう。黒の破線で囲まれた領域のうち「Auxiliary Tree に含まれると確定している頂点」が \(\mathrm{frontline}\) です。はじめ、初期値として \(S_0\) のみが \(\mathrm{frontline}\) に含まれます。
+                </p>
+                <img src = "./../../images/Tree/Tree.010.jpeg" class = "StandardImageStyle">
+                <p>
+                    まず頂点 \(S_i=4\) を調べます。ここで、\(\mathrm{frontline}\) の最も下の頂点 (\(r\)) と \(S_i\) の LCA は Auxiliary Tree に含まれる頂点として確定します。そして \(\mathrm{frontline}\) が変更され、頂点 \(2\) が \(\mathrm{frontline}\) から除外されます。
+                </p>
+                <p>
+                    このとき、深さが \(\mathrm{LCA}(r,S_i)\) よりも深い頂点をすべて \(\mathrm{frontline}\) から除外します。\(\mathrm{frontline}\) から除外されることで、今後の構築で注目されることはなくなり、Auxiliary Tree での位置や隣接する頂点が確定しました。
+                </p>
+                <p>
+                    深い順に \(\mathrm{frontline}\) から除外し、除外順で隣接する頂点同士に辺を構築します。また最後に除外された頂点が \(\mathrm{LCA}(r,S_i)\) でないなら、その頂点と \(\mathrm{LCA}(r,S_i)\) の間にも辺を構築します。今回は \(2\) のみが除外され、\(2\) は \( \mathrm{LCA}(S_i,r) = 7\) ではないので、\(2\) と \(7\) の間に辺を構築します。
+                </p>
+                <img src = "./../../images/Tree/Tree.011.jpeg" class = "StandardImageStyle">
+                <p>
+                    新たに頂点 \(\mathrm{LCA}(r,S_i)\) が確定したので \(\mathrm{frontline}\) に \(7\) を追加し、その後今調べた頂点 \(S_i = 4\) も \(\mathrm{frontline}\) に追加します。
+                </p>
+                <p>
+                    補足 : このアルゴリズムのもとでは、\(\mathrm{frontline}\) に格納される頂点の深さが単調になるので、\(\mathrm{frontline}\) は末尾に追加/削除ができれば良く、stack で実現できます。
+                </p>
+                <p>
+                    次は \(S_i = 3\) を調べます。\(\mathrm{LCA}(S_i,r) = \mathrm{LCA}(3,4) = 4\) です。このとき \(\mathrm{frontline}\) からは \(4\) が除外された後、手続きに従い \( \mathrm{LCA}(S_i,r) = 4\) と \(S_i = 3\) が追加されます。除外された頂点が \( \mathrm{LCA}(S_i,r)\) と等しいので、辺の構築は行いません。
+                </p>
+                <img src = "./../../images/Tree/Tree.012.jpeg" class = "StandardImageStyle">
+                <p>
+                    次に \(S_i = 5\) を調べます。\( \mathrm{LCA}(S_i,r) = 7\) 以下の頂点が \(\mathrm{frontline}\) に存在するので、それら (\(\{3,4,7\}\)) を除外しながら辺を構築します。最後に除外された頂点が \( \mathrm{LCA}(S_i,r) = 7\) なので、\(7,7\) に辺を構築することはできません。
+                </p>    
+                <p>
+                    その後、今調べた \(7,5\) を順に \(\mathrm{frontline}\) に追加します。
+                </p>
+                <img src = "./../../images/Tree/Tree.013.jpeg" class = "StandardImageStyle">
+                <p>
+                    以降、同じ具合に構築を進めます。
+                </p>
+                <p>
+                    \(S_i = 15\) を調べると、\(5\) のみが \(\mathrm{frontline}\) から除外され、\(5\) は \(\mathrm{LCA}(S_i,r) = 14\) ではないので、\(5\) と \(14\) の間に辺を構築します。
+                </p>
+                <br><img src = "./../../images/Tree/Tree.014.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(S_i = 13\) を調べると、\(15,14,7\) が \(\mathrm{frontline}\) から除外され、\(15,14\) と \(14,7\) の間に辺が構築されます。また最後に除外された \(7\) は \(\mathrm{LCA}(S_i,r) = 0\) ではないので、\(7\) と \(0\) の間に辺を構築します。
+                </p>
+                <br><img src = "./../../images/Tree/Tree.015.jpeg" class = "StandardImageStyle">
+                <p>
+                    最後に、番兵として入れておいた \(S_0 = 2\) をもう一度調べます。このとき <b>\(\mathrm{LCA}(S_i,r) = 0\) は Auxiliary Tree 全体の根</b>です。よって、\(S_0\) を調べることで \(\mathrm{frontline}\) に残っている頂点/辺を全て確定して処理を完了させることができます。\(\mathrm{frontline}\) からは \(13,0\) を除外して \(13,0\) の間に辺を構築します。
+                </p>
+                <br><img src = "./../../images/Tree/Tree.016.jpeg" class = "StandardImageStyle">
+                <p>
+                    この時点で確定していない辺や頂点は全て除外して OK です。木圧縮ができました。
+                </p>
+                <img src = "./../../images/Tree/Tree.009.jpeg" class = "StandardImageStyle">
+                <p>
+                    木の走査に \(O(|S|)\) 時間、その中での \(\mathrm{LCA}\) のクエリごとに \(O(\log{N})\) 時間かかり、DFS 到達順でのソートに \(O(|S|\log{|S|})\) 時間かかるので、合わせて \(O(|S|(\log{|S|} + \log{N}))\) 時間かかります。なお LCA は別の方法で前処理すると、でクエリあたり定数時間になります。
+                </p>
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+                        <br>
+                        <br>
+                        <pre><br><br><br><br><br><br>/*<br>&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;static&ensp;な根付き木の基本機能。コンストラクタは&ensp;(頂点数&ensp;,&ensp;根頂点&ensp;,&ensp;頂点の値の初期値)。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;頂点番号は&ensp;0&ensp;から&ensp;m_N-1<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;reroot(r)&ensp;:=&ensp;根を&ensp;r&ensp;にして構築&ensp;(&ensp;O(m_N)&ensp;時間かかる)<br>&ensp;&ensp;&ensp;&ensp;-&ensp;辺重みや頂点重みを持つ。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;G[x]&ensp;:=&ensp;頂点&ensp;x&ensp;に隣接する&ensp;Edge&ensp;オブジェクトの集合<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;add_edge&ensp;で辺を追加している間は&ensp;m_isStatic&ensp;が&ensp;false。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;lca(),&ensp;dist()&ensp;などのクエリを処理する際に、自動で&ensp;m_isStatic&ensp;が&ensp;true&ensp;になり、木が&ensp;static&ensp;な状態になる。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;m_isStatic&ensp;が&ensp;false　の状態で&ensp;lca()&ensp;,&ensp;dist()&ensp;などが呼ばれる際に**&ensp;1&ensp;度だけ&ensp;**&ensp;必要なデータを計算する(m_parent&ensp;など)<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;AuxiliaryTree(vector&lt;int&gt;&ensp;S)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;頂点の部分集合&ensp;S&ensp;をカバーする木圧縮。計算量は&ensp;0(|S|)。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;返り値は&ensp;pair&lt;vector&lt;int&gt;&ensp;,&ensp;unordered_map&lt;int,vector&lt;int&gt;&gt;&gt;&ensp;のペア<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;補助的な頂点を含めた頂点集合&ensp;V&ensp;と、unordered_map&ensp;を使った隣接リストを&ensp;pair&ensp;で返す。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;返り値の隣接リストは、Edge&ensp;ではなく頂点番号の集合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;V&ensp;は&ensp;DFS&ensp;到達順でソートずみ<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;dist(x)&ensp;:&ensp;m_root&ensp;からの距離(辺重みの総和)&ensp;(到達不可能なら&ensp;-1)<br>&ensp;&ensp;&ensp;&ensp;-&ensp;dist(int&ensp;u&ensp;,int&ensp;v)&ensp;:&ensp;u-v&ensp;の距離(辺重みの総和)&ensp;(到達不可能なら&ensp;-1)<br>&ensp;&ensp;&ensp;&ensp;-&ensp;parent(x)&ensp;:&ensp;x&ensp;の親<br>&ensp;&ensp;&ensp;&ensp;-&ensp;dfs()&ensp;:&ensp;m_root&ensp;からの&ensp;dfs&ensp;到達順に頂点を並べた&ensp;vector<br>&ensp;&ensp;&ensp;&ensp;-&ensp;dfs_order()&ensp;:&ensp;各頂点について、dfs&ensp;到達順(0-index)をメモした&ensp;vector&ensp;を返す<br>&ensp;&ensp;&ensp;&ensp;-&ensp;lca(u,v)&ensp;:&ensp;u,v&ensp;の&ensp;LCA<br>&ensp;&ensp;&ensp;&ensp;-&ensp;[x]&ensp;:=&ensp;頂点&ensp;x&ensp;に隣接する頂点の集合&ensp;(vector)&ensp;への参照<br>&ensp;&ensp;&ensp;&ensp;-&ensp;いずれも、未定義のものは&ensp;-1&ensp;を返す<br>&ensp;&ensp;&ensp;&ensp;|&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;-&ensp;なぜ基本機能に&ensp;Auxiliary&ensp;Tree&ensp;が含まれるのか<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&gt;&ensp;LCA&ensp;を使うから<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;LCA&ensp;や&ensp;根からの&ensp;dist&ensp;を使うやつは全部ここに書く<br>&ensp;&ensp;&ensp;&ensp;-&ensp;直径の計算は？<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&ensp;最初に決めた根からの&ensp;dist&ensp;が最大の頂点を&ensp;x&ensp;として、construct(x)&ensp;で根を&ensp;x&ensp;に変更<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&gt;&ensp;x&ensp;から最長の頂点が答え<br>*/<br>template&lt;typename&ensp;type_Nodeweight&ensp;,&ensp;typename&ensp;type_Edgeweight&gt;<br>class&ensp;StaticTree{<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br><br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;struct&ensp;Edge{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;from,&ensp;to;&ensp;//&ensp;両端の頂点番号&ensp;(無向の場合も有向と捉える)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;type_Edgeweight&ensp;weight;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;id;//&ensp;辺にも&ensp;id&ensp;を割り振る場合がある<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Edge(int&ensp;f,int&ensp;t,type_Edgeweight&ensp;w):from(f),to(t),weight(w){}<br>&ensp;&ensp;&ensp;&ensp;};<br>&ensp;&ensp;&ensp;&ensp;private:<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;m_N;//&ensp;頂点数&ensp;(番号は&ensp;0~m_N-1)<br>&ensp;&ensp;&ensp;&ensp;int&ensp;m_root&ensp;=&ensp;0;//&ensp;計算を行うための暫定的な根<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;Edge&gt;&gt;&ensp;m_G;//&ensp;隣接リスト<br>&ensp;&ensp;&ensp;&ensp;vector&lt;type_Nodeweight&gt;&ensp;m_nodeVal;//&ensp;頂点が持つ値<br><br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;m_dist;//&ensp;m_root&ensp;からのパスの長さ<br>&ensp;&ensp;&ensp;&ensp;vector&lt;type_Edgeweight&gt;&ensp;m_weightsum;//&ensp;m_root&ensp;からのパス上の辺の重みの総和<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;m_dfs;//&ensp;dfs&ensp;到達順に頂点を並べたもの<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;m_dfsOrder;//&ensp;[x]&ensp;:=&ensp;頂点&ensp;x&ensp;の&ensp;dfs&ensp;到達順<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;int&gt;&ensp;&gt;&ensp;m_parent;//&ensp;[i][x]&ensp;:=&ensp;頂点&ensp;x&ensp;の&ensp;2^i&ensp;個上の親頂点&ensp;(なければ&ensp;-1)<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;LCA&ensp;とかを求めた後は&ensp;static&ensp;な状態になるので、add_edge&ensp;できない(ということを持つフラグ)<br>&ensp;&ensp;&ensp;&ensp;bool&ensp;m_isStatic&ensp;=&ensp;false;//&ensp;static&ensp;な状態、つまり&ensp;init&ensp;済みかどうか<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;static&ensp;ではないときに呼ばれたら、一度だけ&ensp;LCA&ensp;などに必要なデータを計算して、static&ensp;な状態になる<br>&ensp;&ensp;&ensp;&ensp;void&ensp;init(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(m_isStatic)return;//&ensp;すでに&ensp;static&ensp;なら、必要データは計算済み<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_isStatic&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;stack&lt;int&gt;&ensp;s;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;s.push(m_root);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_dist[m_root]&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_weightsum[m_root]&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;px&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(!s.empty()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;s.top();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;s.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_dfs.push_back(now);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(Edge&ensp;e&ensp;:&ensp;m_G[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(m_dist[e.to]&ensp;!=&ensp;-1)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_weightsum[e.to]&ensp;=&ensp;m_weightsum[now]&ensp;+&ensp;e.weight;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_dist[e.to]&ensp;=&ensp;m_dist[now]&ensp;+&ensp;1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;s.push(e.to);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_parent[0][e.to]&ensp;=&ensp;now;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;0&ensp;;&ensp;i&ensp;&lt;&ensp;m_dfs.size()&ensp;;&ensp;i++)m_dfsOrder[m_dfs[i]]&ensp;=&ensp;i;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;1&ensp;;&ensp;i&ensp;&lt;&ensp;m_parent.size()&ensp;;&ensp;i++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;=&ensp;0&ensp;;&ensp;x&ensp;&lt;&ensp;m_N&ensp;;&ensp;x++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(m_parent[i-1][x]&ensp;==&ensp;-1)m_parent[i][x]&ensp;=&ensp;-1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;m_parent[i][x]&ensp;=&ensp;m_parent[i-1][m_parent[i-1][x]];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;public:<br><br>&ensp;&ensp;&ensp;&ensp;StaticTree(){}<br>&ensp;&ensp;&ensp;&ensp;StaticTree(int&ensp;N_&ensp;,&ensp;int&ensp;r&ensp;,&ensp;type_Nodeweight&ensp;init_v){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_N&ensp;=&ensp;N_;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_G&ensp;=&ensp;vector&lt;vector&lt;Edge&gt;&gt;(m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_nodeVal&ensp;=&ensp;vector&lt;type_Nodeweight&gt;(m_N,init_v);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;reroot(r);<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;根を&ensp;r&ensp;に変更する&ensp;(O(N)時間)<br>&ensp;&ensp;&ensp;&ensp;void&ensp;reroot(int&ensp;r){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;メンバを初期化するだけ。メンバの計算は、必要になった際に&ensp;init()&ensp;で一度だけ行われる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_isStatic&ensp;=&ensp;false;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_root&ensp;=&ensp;r;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_dist&ensp;=&ensp;vector&lt;int&gt;(m_N,-1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_weightsum&ensp;=&ensp;vector&lt;type_Edgeweight&gt;(m_N,-1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_parent&ensp;=&ensp;vector&lt;vector&lt;int&gt;&gt;(log2(m_N)+2,vector&lt;int&gt;(m_N,-1));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_dfs&ensp;=&ensp;vector&lt;int&gt;(0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_dfsOrder&ensp;=&ensp;vector&lt;int&gt;(m_N,-1);<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;u-v&ensp;に無向辺を追加&ensp;(多重になったり、2-連結にならないように注意)<br>&ensp;&ensp;&ensp;&ensp;void&ensp;add_edge(int&ensp;u&ensp;,&ensp;int&ensp;v&ensp;,&ensp;type_Edgeweight&ensp;w&ensp;=&ensp;type_Edgeweight(1)){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(!m_isStatic);//&ensp;static&ensp;な状態になったら&ensp;add_edge&ensp;できない<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_G[u].push_back(Edge(u,v,w));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_G[v].push_back(Edge(v,u,w));&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点&ensp;u&ensp;の持つ値を&ensp;x&ensp;にする<br>&ensp;&ensp;&ensp;&ensp;void&ensp;update_val(int&ensp;u&ensp;,&ensp;type_Nodeweight&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(!m_isStatic);//&ensp;現状&ensp;static&ensp;でなくても良いが、念の為<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&ensp;&lt;=&ensp;u&ensp;&amp;&amp;&ensp;u&ensp;&lt;=&ensp;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;m_nodeVal[u]&ensp;=&ensp;x;<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;根頂点の番号<br>&ensp;&ensp;&ensp;&ensp;int&ensp;root(){return&ensp;m_root;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点の値<br>&ensp;&ensp;&ensp;&ensp;type_Nodeweight&ensp;node_v(int&ensp;u){return&ensp;m_nodeVal[u];}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点数<br>&ensp;&ensp;&ensp;&ensp;int&ensp;size(){return&ensp;m_N;}<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;root()&ensp;からの距離<br>&ensp;&ensp;&ensp;&ensp;int&ensp;dist(int&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=x&amp;&amp;x&lt;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();//&ensp;static&ensp;じゃないタイミングに、1&ensp;度だけ呼ばれる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(m_dist[x]&ensp;&gt;=&ensp;0);//&ensp;到達可能を保証<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_dist[x];<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;root()&ensp;からのパス上の辺の重みの総和&ensp;<br>&ensp;&ensp;&ensp;&ensp;type_Edgeweight&ensp;path_weight(int&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=x&amp;&amp;x&lt;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(dist(x)&ensp;&gt;=&ensp;0);//&ensp;到達可能を保証<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_weightsum[x];<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;u-v&ensp;の距離&ensp;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;dist(int&ensp;u&ensp;,&ensp;int&ensp;v){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=u&amp;&amp;u&lt;m_N&ensp;&amp;&amp;&ensp;0&ensp;&lt;=&ensp;v&ensp;&amp;&amp;&ensp;v&ensp;&lt;&ensp;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(dist(u)&gt;=&ensp;0&ensp;&amp;&amp;&ensp;dist(v)&ensp;&gt;=&ensp;0);//&ensp;到達可能を保証<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;dist(u)+dist(v)-2*dist(lca(u,v));<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;u-v&ensp;パス上の辺の重みの総和&ensp;<br>&ensp;&ensp;&ensp;&ensp;type_Edgeweight&ensp;path_weight(int&ensp;u&ensp;,int&ensp;v){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=u&amp;&amp;u&lt;m_N&ensp;&amp;&amp;&ensp;0&ensp;&lt;=&ensp;v&ensp;&amp;&amp;&ensp;v&ensp;&lt;&ensp;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(dist(u,v)&gt;=0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;path_weight(u)+path_weight(v)-2*path_weight(lca(u,v));<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;root()&ensp;を根とする場合の親頂点&ensp;(存在しなければ&ensp;-1)<br>&ensp;&ensp;&ensp;&ensp;int&ensp;parent(int&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=x&amp;&amp;x&lt;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();//&ensp;static&ensp;じゃないタイミングに、1&ensp;度だけ呼ばれる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_parent[0][x];<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;root()&ensp;からの&ensp;dfs&ensp;到達順に頂点番号を返す<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;dfs(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();//&ensp;static&ensp;じゃないタイミングに、1&ensp;度だけ呼ばれる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_dfs;<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;各頂点について、root()&ensp;からの&ensp;dfs&ensp;到達順で何番目かをメモした配列を返す(root()&ensp;から到達不可能なら&ensp;-1&ensp;とする)<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;dfs_order(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();//&ensp;static&ensp;じゃないタイミングに、1&ensp;度だけ呼ばれる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_dfsOrder;<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;x&ensp;に隣接する頂点の&ensp;vector&ensp;(参照)&ensp;を返す&ensp;(_static&ensp;じゃなくても呼び出せる)<br>&ensp;&ensp;&ensp;&ensp;//&ensp;これによって、普通の隣接リストのように扱える<br>&ensp;&ensp;&ensp;&ensp;const&ensp;vector&lt;Edge&gt;&amp;&ensp;operator&ensp;[](int&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&ensp;&lt;=&ensp;x&ensp;&amp;&amp;&ensp;x&ensp;&lt;&ensp;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_G[x];<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;u,v&ensp;の&ensp;LCA<br>&ensp;&ensp;&ensp;&ensp;int&ensp;lca(int&ensp;u,&ensp;int&ensp;v)&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=u&amp;&amp;u&lt;m_N&ensp;&amp;&amp;&ensp;0&ensp;&lt;=&ensp;v&ensp;&amp;&amp;&ensp;v&ensp;&lt;&ensp;m_N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();//&ensp;static&ensp;じゃないタイミングに、1&ensp;度だけ呼ばれる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(m_dist[u]&ensp;&lt;&ensp;0&ensp;||&ensp;m_dist[v]&ensp;&lt;&ensp;0)return&ensp;-1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if&ensp;(m_dist[u]&ensp;&lt;&ensp;m_dist[v])&ensp;swap(u,&ensp;v);&ensp;//&ensp;dist(u)&ensp;&gt;=&ensp;dist(v)&ensp;となるようにする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;K&ensp;=&ensp;m_parent.size();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for&ensp;(int&ensp;k&ensp;=&ensp;0;&ensp;k&ensp;&lt;&ensp;K;&ensp;k++)&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if((m_dist[u]&ensp;-&ensp;m_dist[v])&amp;(1&lt;&lt;k))u&ensp;=&ensp;m_parent[k][u];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if&ensp;(u&ensp;==&ensp;v)&ensp;return&ensp;u;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for&ensp;(int&ensp;k&ensp;=&ensp;K&ensp;-&ensp;1;&ensp;k&ensp;&gt;=&ensp;0;&ensp;k--)&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if&ensp;(m_parent[k][u]&ensp;!=&ensp;m_parent[k][v])&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;u&ensp;=&ensp;m_parent[k][u];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;v&ensp;=&ensp;m_parent[k][v];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;m_parent[0][u];<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;r&ensp;を根とした際の、u,v&ensp;の&ensp;LCA&ensp;(不思議な論理式でもとまる)<br>&ensp;&ensp;&ensp;&ensp;int&ensp;lca(int&ensp;r&ensp;,&ensp;int&ensp;u&ensp;,&ensp;int&ensp;v){return&ensp;lca(r,u)^lca(r,v)^lca(u,v);}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点集合&ensp;S&ensp;に含まれる頂点を、dfs&ensp;到達順でソートする<br>&ensp;&ensp;&ensp;&ensp;template&lt;class&ensp;Integer&gt;<br>&ensp;&ensp;&ensp;&ensp;void&ensp;sort_dfs_order(vector&lt;Integer&gt;&amp;&ensp;S){sort(S.begin(),S.end()&ensp;,&ensp;[&amp;](int&ensp;u&ensp;,&ensp;int&ensp;v){return&ensp;m_dfsOrder[u]&ensp;&lt;&ensp;m_dfsOrder[v];});}<br><br>&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(要素がユニークな)&ensp;頂点集合&ensp;S&ensp;をカバーする最小の部分グラフにおいて、一本道のパス上の頂点を全て圧縮した木を作る。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&ensp;圧縮後の木は隣接リストで表現&ensp;:&ensp;unordered_map&ensp;res[x]&ensp;:=&ensp;x&ensp;に隣接する頂点&ensp;(Edge&ensp;ではなく隣接する頂点番号)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&ensp;返り値は&ensp;{新たな頂点集合&ensp;,&ensp;隣接リスト}&ensp;とする。新たな頂点集合は、元の木の&ensp;root()&ensp;からの&ensp;dfs&ensp;到達順でソートされたもの。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;先頭の要素が、圧縮された木の頂点で、root()&ensp;に最も近い&ensp;(最も祖先)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&ensp;int&ensp;,&ensp;long&ensp;long&ensp;どっちも受け取れるように、テンプレートで抽象化する。ただし内部実装は&ensp;int&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;template&lt;class&ensp;Integer&gt;<br>&ensp;&ensp;&ensp;&ensp;pair&lt;vector&lt;Integer&gt;&ensp;,&ensp;unordered_map&lt;Integer,vector&lt;Integer&gt;&gt;&gt;&ensp;AuxiliaryTree(vector&lt;Integer&gt;&ensp;S){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(S.size()&ensp;!=&ensp;0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init();//&ensp;static&ensp;じゃないタイミングに、1&ensp;度だけ呼ばれる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;unordered_set&lt;Integer&gt;&ensp;subnodes;//&ensp;圧縮後の木の頂点集合&ensp;(重複を回避するための&ensp;set)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;unordered_map&lt;Integer,vector&lt;Integer&gt;&gt;&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;m_dfs&ensp;到達順に調べて構築していく<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sort_dfs_order(S);<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;これまでに見た最も祖先から、最後に見た頂点までにパス上の&ensp;(採用が確定している)&ensp;頂点<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;frontline(1,S.front());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;S.push_back(S.front());//&ensp;番兵&ensp;(圧縮後の木の根以下の未確定の辺を最後に確定させるため)<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;1&ensp;;&ensp;i&ensp;&lt;&ensp;S.size();&ensp;i++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;LCA&ensp;=&ensp;this-&gt;lca(S[i-1],S[i]);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;頂点集合に追加。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;subnodes.insert(S[i]);//番兵があるので&ensp;S&ensp;の要素は過不足なく全部含まれる。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;subnodes.insert(LCA);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(LCA&ensp;!=&ensp;S[i-1]){//&ensp;最後に見た頂点が&ensp;LCA&ensp;にならないなら辺の確定を行う<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(frontline.size()&ensp;!=&ensp;0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;stack&ensp;のうち&ensp;LCA&ensp;以下の辺を確定させる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while&ensp;(frontline.size()&ensp;!=&ensp;0){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(m_dist[LCA]&ensp;&gt;&ensp;m_dist[frontline.back()])break;//&ensp;LCA&ensp;以下の頂点だけ見る<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;par&ensp;=&ensp;LCA;//&ensp;frontline.back()&ensp;の親頂点候補<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(frontline.size()&ensp;&gt;=&ensp;2){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(m_dist[frontline[frontline.size()-2]]&ensp;&gt;=&ensp;m_dist[LCA])par&ensp;=&ensp;frontline[frontline.size()-2];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(frontline.back()!=par){//&ensp;辺が確定<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res[par].push_back(frontline.back());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res[frontline.back()].push_back(par);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;frontline.pop_back();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;frontline.push_back(LCA);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;frontline.push_back(S[i]);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;Integer&gt;&ensp;nV;//&ensp;圧縮後の頂点集合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;:&ensp;subnodes)nV.push_back(x);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sort_dfs_order(nV);//&ensp;新たな頂点集合を&ensp;m_dfs&ensp;到達順にソート<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;{nV,res};<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>};<br><br><br><br><br><br></pre>
+                        <br>
+                        <br>
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

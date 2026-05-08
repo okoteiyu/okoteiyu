@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>部分列DP</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    部分列DP<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>課題</h3>
+                <p>
+                    以下のような問題を考えます。
+                </p>
+                <div class = "Box">
+                    <p>
+                        文字列 \(S\) の部分列の種類数を \(\mathrm{mod}\space 998244353\) で答えなさい。 
+                    </p>
+                    <p>
+                        ただし \(S\) の部分列とは、\(S\) から \(0\) 個以上の文字を抜き出して、残った文字をその順に繋げた文字列のことです。
+                    </p>
+                </div>
+                <h3>解法</h3>
+                <p>
+                    以下の DP テーブルを構築します。
+                </p>
+                <ul>
+                    <li>
+                        \(DP_i := \) 最初の文字が \(S\) の \(i\) (1-indexed) 文字目である部分列の種類数。
+                    </li>
+                    <li>
+                        \(DP_0\) は空文字から始まる部分列、つまり、空文字列を含む全ての部分列の種類数を指します。
+                    </li>
+                </ul>
+                <p>
+                    DP テーブルを埋める前に、以下の補助的なデータを用意します。
+                </p>
+                <ul>
+                    <li>
+                        \( \mathrm{nex}_{{i,c}} :=\)  \(S\) の \(i\) (1-indexed) 文字目<b>よりも後</b>で初めて文字 \(c\) が出てくる index
+                    </li>
+                    <li>
+                        \( \mathrm{nex}_{{0,c}} :=\) \(S\) において、文字 \(c\) が初めて登場する index
+                    </li>
+                </ul>
+                <p>
+                    また、\(nex_{i,c}\) の計算は、
+                    <ul>
+                        <li>
+                            \(S\) の \(i+1\) 文字目が \(c\) の場合 : \(\mathrm{nex}_{i,c} = i + 1\)
+                        </li>
+                        <li>
+                            そうで無い場合: \(\mathrm{nex}_{i,c} = \mathrm{nex}_{i+1,c} \)
+                        </li>
+                    </ul>
+                    として、\(i\) が大きい順に計算できます。ただし、\(i\) などを 1-index で考えていることに注意してください。また、\(\mathrm{nex}\) の初期値には、解が存在しないことを表す \(\infty\) を採用すると直感的だと思います。
+                </p>
+                <p>
+                    ここで、\(S_i = S_j\) である \( i , j \space(i \lt j)\) について、\(S_i\) から始めて生成可能な部分列 \(T_i\) は、\(S_j\) から始めて生成可能な部分列 \(T_j\) を含んでいます ( \(S_i\) から始めて、\(T_j\) の先頭より後の文字を \(T_j\) と同じように選ぶことで、\(T_j\) を構築できるから ) 。また定義より、\(DP_i\) の結果は \(DP_j\) もカウントしています。
+                </p>
+                <p>
+                    さて、\(DP\) の遷移なのですが、\(DP_i\) は \(S_i\) のみの場合を含むので、\(DP_i = 1\) で初期化しておきます。
+                </p>
+                <p>
+                    ここで、\(DP_i\) で数え上げる文字列 \(T_i\) は、\(T_i = S_i + T\prime \) という形の文字列で表せます。\(T\prime\) というのは、\(S_{i+1}\) 以降の文字を使った文字列です。
+                </p>
+                <p>
+                    \(T\prime\) は \(S_{i+1}\) 以降の文字を使ってできる文字列なので、\(T\prime\) の数え上げは \(DP_j \space (i \lt j )\) を使って表せます。
+                </p>
+                <p>
+                    \(S_i = S_j\) である \( i , j (i \lt j)\) について、\(DP_i\) の結果は \(DP_j\) を含んでいることと、<b>先頭が異なる文字で始まる文字列同士は必ず異なるものであることから、</b>\(T\prime\) としてカウントする文字列は、各文字 \(c\) ( 'a' ~ 'z' ) に対して、\(S_i\) の次に選ぶ文字が、\(i\) より後で初めて \(c\) が登場する箇所から始まる部分列に限定して良いです。
+                </p>
+                <p>
+                    つまり、\(S_{i+1}\) 以降の文字から始まる文字列のうち、先頭の文字が異なるものを足し合わせることを考えます。
+                </p>
+                <p>
+                    \(\mathrm{nex}\) を構築してあるので、このような部分列を以下の式でカウントできます。
+                </p>
+                <ul>
+                    <li>
+                        \(DP_i = \sum DP[\mathrm{nex}_{i,c}]+1 \)
+                    </li>
+                </ul>
+                <p>
+                    \(DP_i\) の計算には \(i\) より後ろの DP テーブルが必要なので、DP テーブルは \(i\) が大きい方から埋めていく必要があります。
+                </p>
+                <p>
+                    最終的な答えは \(DP_0\) (空文字から始まる部分列の数え上げ) となります。
+                </p>
+                
+            </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+
+
+                        <br>
+                        <br>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n&nbsp;=&nbsp;s.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vll&gt;&nbsp;nex(n+2&nbsp;,&nbsp;vll(26&nbsp;,&nbsp;-1));<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;n&nbsp;-&nbsp;1&nbsp;;&nbsp;i&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;i--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(c,26){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(s[i]&nbsp;==&nbsp;&apos;a&apos;&nbsp;+&nbsp;c)nex[i][c]&nbsp;=&nbsp;i+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;nex[i][c]&nbsp;=&nbsp;nex[i+1][c];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;vll&nbsp;dp(n+1,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;n&nbsp;;&nbsp;i&gt;=&nbsp;0&nbsp;;&nbsp;i--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i]&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(c,26){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(nex[i][c]&nbsp;!=&nbsp;-1)dp[i]+=dp[nex[i][c]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i]%=998244353;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;(dp[0]-1+998244353)%998244353&nbsp;&lt;&lt;&nbsp;endl;<br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

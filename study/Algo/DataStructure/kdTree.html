@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>kdTree</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    kdTree<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <p>
+                    KdTreeというデータ構造があります。KdTree は \(k\) 次元空間内の点(座標)を二分木で管理して高速な検索を可能にするデータ構造です。KdTreeでは、点の集合を中央値で二分して分割統治します。
+                </p>
+                <br><img src = "./../../images/KdTree/KdTree.001.jpeg"  class = "StandardImageStyle"> 
+                <p>
+                    しかし、点は \(k\) 次元空間の座標なので探索の Key となる値は \(k\) 個あり、\(k\) 個の座標それぞれについて上手く分割しければ探索することができません。
+                </p>
+                <p>
+                    そこで、<b>ノードの深さによって、中央値によって分割する Key(座標) を変える</b>という構築方法にします。つまり、<b>二分木で深さが \(i\) の領域の分割は、\(i \mod{k}\) 番目の座標の値を見て分割</b>することにします。
+                </p>
+                <p>
+                    例えば座標が \((x,y,z)\) で表される 3 次元空間における KdTree では以下のような分割になります。
+                    <ul>
+                        <li>深さが \(0\) の領域は \(x\) 座標の中央値で分割</li>
+                        <li>深さが \(1\) の領域は \(y\) 座標の中央値で分割</li>
+                        <li>深さが \(2\) の領域は \(z\) 座標の中央値で分割</li>
+                        <li>深さが \(3\) の領域は \(x\) 座標の中央値で分割</li>
+                        <li>深さが \(4\) の領域は \(y\) 座標の中央値で分割</li>
+                    </ul>
+                </p>
+
+                <br><img src = "./../../images/KdTree/KdTree.002.jpeg"  class = "StandardImageStyle"> 
+                <p>
+                    二分木での分割は、元の座標上の直線の仕切りと対応づけられます。
+                </p>
+                <br><img src = "./../../images/KdTree/KdTree.003.jpeg"  class = "StandardImageStyle"> 
+                <p>
+                    このように構築した KdTree 上では、点に関する探索を高速に行うことができます。例えば、ある点 \(X\) に最も近い点を探索する動作は、ランダムに点が配置された \(k\) 次元の空間であれば \(O(k\log{N})\) 時間で可能です (ハックケースでは \(O(N^2)\) になります😢) 。
+                </p>
+                <br><img src = "./../../images/KdTree/KdTree.004.jpeg"  class = "StandardImageStyle"> 
+                <br><img src = "./../../images/KdTree/KdTree.005.jpeg"  class = "StandardImageStyle"> 
+                <br><img src = "./../../images/KdTree/KdTree.006.jpeg"  class = "StandardImageStyle"> 
+                <br><img src = "./../../images/KdTree/KdTree.007.jpeg"  class = "StandardImageStyle"> 
+                <br><img src = "./../../images/KdTree/KdTree.008.jpeg"  class = "StandardImageStyle"> 
+                <br>
+                <br>
+                <br><a target = "_blank" href = "https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_2_C">こちらの問題</a>でverifyしました。以下はコードです。
+                <br>
+                <br>
+                <br>
+                <br>
+
+                                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        TODO : ライブラリ
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+                
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

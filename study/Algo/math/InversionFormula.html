@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>包除原理</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    包除原理<br></h2>
+            </section>
+
+
+            <section class = "Explanation">
+
+                <h3>
+                    包除原理
+                </h3>
+                <p>
+                    大前提として、ここでいう集合とは重複する要素を持たず、\(2\) つの集合の和集合 \(A \cup B\) は ( \(A\) または \(B\) ) に登場する要素を重複せずに持つ集合です。
+                </p>
+                <p>
+                    \(N\) 個の集合 \(A_1,A_2,\dots,A_N\) に対して、これらの和集合の要素数 \(\left| A_1 \cup A_2 \dots \cup A_N \right|\) を \(\sum_{I \subset \{1,2,\dots,N\}} \left|\bigcap_{i\in I}A_i \right| \times (-1)^{\left| I \right|+1} \) と書くことができます。これを包除原理と言います。
+                </p>
+                <p>
+                    例えば \(N=3\) の場合、\(\left|A_1 \cup A_2 \cup A_3 \right| = \left| A_1 \right| + \left| A_2 \right| + \left| A_3 \right|\) \( - \left| A_1 \cap A_2\right| - \left| A_1 \cap A_3 \right| - \left| A_2 \cap A_3\right| + \left| A_1  \cap A_2 \cap A_3\right|\) となります。例からも分かる通り、積集合の要素数ごとにひとまとまりの項と捉えた時、奇数個の集合の積の項は加算、偶数個の集合の積の項は減算となっています。
+                </p>
+                <br><img src = "./../../images/Set/Set.001.png" class = "StandardImageStyle">
+                <p>
+                    和集合のサイズを計算するとき、それぞれの集合で共通する要素をちょうど \(1\) 回ずつ数える必要があります。包除原理を使うと、重複する要素の分を足し引きしてうまく調節することができます。
+                </p>
+                <p>
+                    これを、集合を受け取るモジュラ関数 \(f\) に拡張して考えます。関数 \(f\) が以下を満たすとき、\(f\) をモジュラ関数といいます。
+                </p>
+                <ul>
+                    <li>
+                        \(f(A\cup B) = f(A) + f(B) - f(A\cap B)\)
+                    </li>
+                </ul>
+                <p>
+                    このとき、\(f(A_1 \cup A_2 \dots \cup A_N) = \sum_{I \subset \{1,2,\dots,N\}} f(\bigcap_{i\in I}A_i )\times (-1)^{\left| I \right|+1} \) です。具体的には、以下の手続きで \(f(A_1 \cup A_2 \cup \dots \cup A_N)\) を得ることができます。
+                </p>
+                <ol start = "0">
+                    <li>
+                        \(\mathrm{prod} = 0\) とする。
+                    </li>
+                    <li>
+                        \(A_1,A_2,\dots,A_N\) から異なる \(1\) つの集合 \(X_1\) を選ぶ選び方 \(_N\mathrm{C}_1\) 個全てに対して、\(\mathrm{prod}\) に \(f(X_1)\) を加算する。
+                    </li>
+                    <li>
+                        \(A_1,A_2,\dots,A_N\) から異なる \(2\) つの集合 \(X_1,X_2\) を選ぶ選び方 \(_N\mathrm{C}_2\) 個全てに対して、\(\mathrm{prod}\) に \(-f(X_1\cap X_2)\) を加算する。
+                    </li>
+                    <li>
+                        \(A_1,A_2,\dots,A_N\) から異なる \(3\) つの集合 \(X_1,X_2,X_3\) を選ぶ選び方 \(_N\mathrm{C}_3\) 個全てに対して、\(\mathrm{prod}\) に \(f(X_1\cap X_2\cap X_3)\) を加算する。
+                    </li>
+                    <li>
+                        \(A_1,A_2,\dots,A_N\) から異なる \(4\) つの集合 \(X_1,X_2,X_3,X_4\) を選ぶ選び方 \(_N\mathrm{C}_4\) 個全てに対して、\(\mathrm{prod}\) に \(-f(X_1\cap X_2\cap X_3 \cap X_4)\) を加算する。
+                    </li>
+                    <p>
+                        \(\vdots\)
+                    </p>
+                </ol>
+                <p>
+                    \(f(A_1 \cup A_2 \dots \cup A_N)\) の計算のために、\(\{A_1 \cup A_2 \dots \cup A_N\}\) の部分集合 \(X\) に対する \(f(X)\) の結果を用いていることから、包除原理による \(f\) の計算は DP のひとつと言えます。
+                </p>
+                <p>
+
+                </p>
+                <p>
+                    また、和 (\(+\)) 以外の<b>群の演算 (\(\times , \oplus\) など) </b>についても同様のアルゴリズムを適用<b>できる場合</b>がありますが、自分が出会ったのは今のところ全て和の場合のみでした。アルゴリズムが適用可能かどうかが \(f\) に依存することに注意してください。
+                </p>
+                <br>
+                <h3>
+                    約数包除
+                </h3>
+                <p>
+                    似たような話で、整数 \(x\) の<b>約数の集合</b>に対して値を返す関数 \(f\) を用いたアルゴリズムが存在します。
+                </p>
+                <u>
+                    メビウスの反転公式
+                </u>
+                <div class = "Box">
+                    整数 \(n\) に対して、以下を定義します。
+                    <p>
+                        <ul>
+                            <li>
+                                \(g( n )\) := ちょうど \(n\) を対象とする数え上げ
+                            </li>
+                        </ul>
+                    </p>
+                    \(d\) を \(n\) の約数とし、全ての約数に対して \(g(d)\) を足し合わせたものを \(f(n) := \sum_{d|n} g(d) \) とします。このとき、\(f(x)\) は \(x\) の約数に対する数え上げと捉えることができます。\(f(n)\) が \(g(n)\) より簡単に計算できるなら、以下の公式によって \(g(n)\) も計算することができます。
+                    <ul>
+                        <li>
+                            \(g(n) = \sum_{d|n} \mu(d)\cdot f(\frac{n}{d}) \)
+                        </li>
+                        <li>
+                            \(
+                                \mu(x) :=
+                                \begin{cases}
+                                        0 & \text{if x が 1 でない平方数で割り切れるとき,} \\
+                                        (-1)^{k} & \text{else : (k は x の素因数の個数).}
+                                \end{cases}
+                            \)
+                        </li>
+                    </ul>
+                </div>
+                <p>
+                    ある整数<b>ちょうど</b>を対象に数え上げることは難しく、ある整数の<b>約数全て</b>に対して数え上げることは簡単な場合がしばしばあります。例えば以下の問題はメビウスの反転公式を用いた約数包除の式変形によって簡単に回答できます。
+                </p>
+                <u>
+                    問題文
+                </u>
+                <p>
+                    以下の関数を<b>オイラーのトーシェント関数</b>と言います。
+                    <ul>
+                        <li>
+                            \(\varphi(n) := 1\) 以上 \(n\) 以下の整数のうち、\(n\) と互いに素な整数の個数
+                        </li>
+                    </ul>
+                    \(\varphi(n)\) を計算してください。
+                </p>
+                <u>
+                    解法
+                </u>
+                <p>
+                    証明はしませんが、\(n\) の約数全てに対して \(\varphi\) 関数を足し合わせたら \(n\) になります。
+                    <ul>
+                        <li>
+                            \( \sum_{d|n} \varphi(d) = n \)
+                        </li>
+                    </ul>
+                    \(\sum_{d|n} \varphi(d)\) が簡単に計算できるので、この結果を \(f(n) = n\) とすると、メビウスの反転公式によって以下の式が得られます。
+                    <ul>
+                        <li>
+                            \(\varphi(n) = \sum_{d|n} \mu(d)\cdot f(\frac{n}{d}) = \sum_{d|n} \frac{\mu(d)\cdot n}{d}\)
+                        </li>
+                    </ul>
+                </p>
+
+            
+            </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+                <br>
+                <br>
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

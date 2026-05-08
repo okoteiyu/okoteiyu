@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    列の平方分割<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <br>
+                列の平方分割のテンプレート
+
+                
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre><br><br><br><br>template&lt;class&nbsp;T&gt;<br>class&nbsp;SqDivision{<br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;A;//&nbsp;元の列&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;T&gt;&gt;&nbsp;&nbsp;block;//&nbsp;区分けした列たち<br><br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;N;//&nbsp;列サイズ&nbsp;(サイズを平方数に整形しておく)<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;partition;//&nbsp;1&nbsp;区画のサイズ<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;block_num;//&nbsp;区画の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;集約値たち<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;sum;//&nbsp;[x]&nbsp;:=&nbsp;x&nbsp;番目の区画内の要素の総和<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;min_;//&nbsp;[x]&nbsp;:=&nbsp;x&nbsp;番目の区画内の要素の&nbsp;min<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;初期化<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build(int&nbsp;N_&nbsp;,&nbsp;T&nbsp;init_){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;(N_,init_).swap(A);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;partition&nbsp;=&nbsp;sqrt(N_)+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;block_num&nbsp;=&nbsp;(N_+partition-1)/partition;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N&nbsp;=&nbsp;partition*block_num;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;T&gt;&gt;(block_num,vector&lt;T&gt;(partition)).swap(block);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;(block_num,T(0)).swap(sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;(block_num,T(INF)).swap(min_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;N&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;block[i/partition][i%partition]&nbsp;=&nbsp;A[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum[i/partition]&nbsp;+=&nbsp;A[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min_[i/partition]&nbsp;=&nbsp;min(min_[i/partition],A[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;A&nbsp;の半開区間&nbsp;[l,r)&nbsp;に対して<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;first&nbsp;&nbsp;=&nbsp;完全に含まれる区画の&nbsp;index&nbsp;たち&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;second&nbsp;=&nbsp;残りの部分それぞれが属する&nbsp;{&nbsp;区画の&nbsp;index&nbsp;,&nbsp;その区画内での&nbsp;index&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;pair&lt;vector&lt;int&gt;&nbsp;,&nbsp;vector&lt;pair&lt;int,int&gt;&gt;&gt;&nbsp;div_sub(int&nbsp;l&nbsp;,&nbsp;int&nbsp;r){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;F;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;pair&lt;int,int&gt;&gt;&nbsp;S;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;lb&nbsp;=&nbsp;l/partition;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;rb&nbsp;=&nbsp;r/partition;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l%partition&nbsp;!=&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;block[lb].size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l&nbsp;&lt;=&nbsp;partition*lb&nbsp;+&nbsp;i&nbsp;&amp;&amp;&nbsp;partition*lb&nbsp;+&nbsp;i&nbsp;&lt;&nbsp;r)S.push_back({lb,i});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lb++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(r%partition&nbsp;!=&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;block[rb].size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l&nbsp;&lt;=&nbsp;partition*rb&nbsp;+&nbsp;i&nbsp;&amp;&amp;&nbsp;partition*rb&nbsp;+&nbsp;i&nbsp;&lt;&nbsp;r)S.push_back({rb,i});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;lb&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;rb&nbsp;;&nbsp;i++)F.push_back(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{F,S};<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;N_&nbsp;以上の平方数に整形される。init_&nbsp;は&nbsp;A&nbsp;の初期化値<br>&nbsp;&nbsp;&nbsp;&nbsp;SqDivision(int&nbsp;N_&nbsp;,&nbsp;T&nbsp;init_){build(N_,init_);}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;update_val(int&nbsp;i&nbsp;,&nbsp;T&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;b&nbsp;=&nbsp;i/partition;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum[b]&nbsp;+=&nbsp;x&nbsp;-&nbsp;A[i];&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[i]&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;block[b][i%partition]&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min_[b]&nbsp;=&nbsp;block[b][0];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;j&nbsp;=&nbsp;1;&nbsp;j&nbsp;&lt;&nbsp;block[b].size()&nbsp;;&nbsp;j++)min_[b]&nbsp;=&nbsp;min(min_[b]&nbsp;,&nbsp;block[b][j]);<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間和<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;rsum(int&nbsp;l&nbsp;,&nbsp;int&nbsp;r){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;&amp;&amp;[f,s]&nbsp;=&nbsp;div_sub(l,r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;res&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;:&nbsp;f)res&nbsp;+=&nbsp;sum[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;pr&nbsp;:&nbsp;s)res&nbsp;+=&nbsp;block[pr.first][pr.second];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間&nbsp;min<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;rmin(int&nbsp;l&nbsp;,&nbsp;int&nbsp;r){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;&amp;&amp;[f,s]&nbsp;=&nbsp;div_sub(l,r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;res&nbsp;=&nbsp;T(INF);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;:&nbsp;f)res&nbsp;=&nbsp;min(res,min_[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;pr&nbsp;:&nbsp;s)res&nbsp;=&nbsp;min(block[pr.first][pr.second],res);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;read-only&nbsp;access<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;operator&nbsp;[](int&nbsp;i){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;A[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>};<br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

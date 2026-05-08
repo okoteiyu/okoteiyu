@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    Wavelet Matrix <br></h2>
+            </section>
+
+
+            <section class = "Explanation">
+                <div class = "Highlight">
+                    <h3>
+                        <u>概要</u>
+                    </h3>
+                    <p>
+                        Wavelet Matrix なんて全然怖くないのに... 天下り的に手続きを読むと理解に苦しむだけで、はじめにちゃんと Wavelet Matrix のアイデアを理解さえすれば、Wavelet Matrix 上の操作は全て直感で理解できるはずなんでち。
+                    </p>
+                </div>
+                <br>
+                <h2>
+                    目次
+                </h2>
+                <ol>
+                    <li>
+                        ビットベクトル
+                        <ol>
+                            <li>
+                                概要
+                            </li>
+                            <li>
+                                空間計算量
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        Wavelet Matrix
+                        <ol>
+                            <li>
+                                アイデア
+                            </li>
+                            <li>
+                                構築
+                            </li>
+                            <li>
+                                Wavelet Matrix
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        二次元矩形取得
+                        <ol>
+                            <li>
+                                座標圧縮
+                            </li>
+                            <li>
+                                Wavelet Matrix にのせる
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+                <br>
+                <h2>
+                    1 ビットベクトル
+                </h2>
+                <p>
+                    \(01\) 列のことをビットベクトルと呼びます。適切に実装すれば、長さ \(N\) のビットベクトルのデータサイズは \(N\) ビットです。ここでは、長さ \(N\) のビットベクトルに対して以下の操作を定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{rank0}(B,i) := \) ビットベクトル \(B\) の先頭 \(i\) 個のビットに含まれる \(0\) の個数
+                    </li>
+                    <li>
+                        \(\mathrm{rank1}(B,i) := \) ビットベクトル \(B\) の先頭 \(i\) 個のビットに含まれる \(1\) の個数
+                    </li>
+                </ul>
+                <br>
+                <h3>
+                    1.1 概要
+                </h3>
+                <p>
+                    この処理を行うために以下の図のようなデータ構造を作ります。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.001.jpeg" class = "StandardImageStyle">
+                <p>
+                    まず、\(\mathrm{lb}\) ビットごとにそれまでの \(1\) のビットの個数を記録した配列 \(L\) を作ります。この配列のサイズは \(\frac{N}{lb}\) です。
+                </p>
+                <p>
+                    次に、\(\mathrm{b}\) ビットごとに「最後に \(L\) に記録された位置」以降の \(1\) のビットの個数を記録した配列 \(S\) を作ります。この配列のサイズは \(\frac{N}{b}\) です。ただし、\(L\) と重なる部分に記録する値は未定義とします。実装しやすいように自身でよしなにしてください。
+                </p>
+                <p>
+                    最後に、元のビット列を \(\mathrm{b}\) ビットごと \(\mathrm{b}\) ビット整数にビットマスクしておきます。ただし、図では<b>左のビットが小さい桁になる</b>ようにビットマスクしています。
+                </p>
+                <p>
+                    このデータ構造を用いることで、先述の \(\mathrm{rank1}\) の計算を以下のように実行できます。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    配列 \(L\) と配列 \(S\) を使用可能な部分に関しては、それらから \(1\) のビットの個数を取得します。その後、はみ出ている部分 (長さを \(x\) とする) の \(1\) の個数を、ビットマスクした整数の先頭 \(x\) ビットの \(\mathrm{pop\_count}\) で取得し、それらを全て足し合わせます。
+                </p>
+                <p>
+                    \(\mathrm{pop\_count}\) は整数の \(1\) のビットの個数を取得する操作なので、先頭 \(x\) ビットに対してこれを実行するためにビットシフトを行う必要があります。厳密にはわかりませんが、ビットシフトも \(\mathrm{pop\_count}\) も高速に実行可能です。
+                </p>
+                <br>
+                <h3>
+                    1.2 空間計算量
+                </h3>
+                <p>
+                    配列 \(L\) のサイズは \(O(\frac{N}{lb})\) であり、要素の大きさは \(O(N)\) なので \(O(\frac{N\log{N}}{lb})\) ビット必要です。また配列 \(S\) も同様に \(O(\log{lb})\) ビットを \(O(\frac{N}{b})\) 個格納するので \(O(\frac{N\log{lb}}{b})\) ビット必要です。
+                </p>
+                <p>
+                    \(b,lb\) はデータ構造のパラメータなので、これを適切に設定することで空間計算量を \(O(N)\) ビットに抑えることができます。自分は \(lb = 65536 , b = 64\) としています。(計算すると、\(1.3N\) ビット程度で済むことが分かります。)
+                </p>
+                <br>
+                <h2>
+                    2 Wavelet Matrix
+                </h2>
+                <p>
+                    さて、ここで本記事の主役の登場です。Wavelet Matrix です。いきますよ!! いいですか!? いきますよ!!?!? ばーーーーーーん!!!!!!! ブラウザバックはもう少々お持ちください。見た目に惑わされてはいけません。Wavelet Matrix は見た目は怖いけど実は優しいタイプなのです。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.003.jpeg" class = "StandardImageStyle">
+                <br>
+                <h3>
+                    2.1 アイデア
+                </h3>
+                <p>
+                    Wavelet Matrix は非負整数からなる数列 \(A\) を元に構築するものであり、図では最上段の (data) が数列 \(A = \{1,0,9,2,6,4,12,0,9,7,9,6\}\) に対応します。また、Wavelet Matrix は \(\lceil \log{(\mathrm{max}(A))}\rceil + 1\) 段からなります。
+                </p>
+                <p>
+                    各段に格納されているそれぞれのデータは<b>ビットのパターン</b>によってブロックに分類されます。図で示す矢印は、その矢印の根元の要素が次の段でどのビットパターンのブロックに分類されるかを示しており、<b>最上段からの矢印の経路がビットパターンに対応</b>します。
+                </p>
+                <p>
+                    破線の矢印は次のビットが \(0\) のパターンの移動先を示しており、実践の矢印は \(1\) のパターンの移動先を示しています。例えば以下の図では、最上段から \(01\) のパターンに対応する矢印の経路を辿ることで、数列 \(A\) の要素のうちビットパターンが \(01??\) の要素のみを格納したブロックにたどりつきます。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    最上段から矢印の経路を辿ることはビットパターンの上の桁からビットを確定していく意味を持ち、段々とパターンに当てはまる整数の<b>取りうる値の範囲が二分されていく</b>ことから、Wavelet Matrix は実は数列要素の値の範囲を分割統治するセグメントツリーのような構造であることが理解できます。
+                </p>
+                <p>
+                    このことがわかると、数列 \(A\) の値の範囲に関する条件を付きのクエリを実行することができます。セグメント木のように、調べたい値の範囲に収まる値のみを含むブロックを探索し、見つけた \(O(\log{(\mathrm{max}(A))})\) 個のブロックごとに処理を行うことができます。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    また数列 \(A\) の値を条件にするのではなく、ほかの何らかの条件から、その条件(性質)を満たす要素(値)を見つける操作も可能です。
+                </p>
+                <p>
+                    例えば最上段からの探索において、未到達のブロックのうち含まれる要素数が最大のものを優先して探索を行う場合を考えます(探索済み経路の末端に隣接するブロックを優先度付きキューに入れて探索)。最下段のブロックはビットパターンが全て確定しており、含まれる要素は全てそのビットパターンと一致することから、要素数が最大のブロックを優先する探索で初めて到達した最下段のブロックのビットパターンは、登場する値の最頻値となります。
+                </p>
+                <p>
+                    例えば他にも、要素数が \(k\) 以上のブロックのみを探索し、移動ルートは \(0\) の矢印を優先することで、\(A\) の要素のうち登場回数が \(k\) 以上の要素の最小値が求まります。ただし、これらの操作はいずれも Wavelet Matrix 上での操作として可能なものの例を示すためのものであり、競技プログラミングで使用するには時間計算量が大きいという点に注意が必要です。
+                </p>
+                <p>
+                    このように Wavelet Matrix での探索方法をうまく工夫することで、数列 \(A\) から特定の要素及びそれに付随するデータを取得することが可能です。できることのバリエーションは沢山ありますが、Wavelet Matrix のアイデアさえ理解できていれば特に困ることはないと思います。
+                </p>
+                <br>
+                <h3>
+                    2.2 構築
+                </h3>
+                <p>
+                    まず、各段の各要素に対して、その段までで確定したビットパターンの<b>次の桁のビット</b>をビットベクトルで管理します。たとえば最上段のビットパターンは何も確定していないので、最上段では各要素の最上位ビットの情報をビットベクトルで管理します。同様に次の段では最上ビットの次のビットを管理します。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.003.jpeg" class = "StandardImageStyle">
+                <p>
+                    ある段の各ブロックは、そのブロックのビットパターンで明らかになっている最右のビットが <b>\(0\) なら左</b>に、<b>\(1\) なら右</b>に配置されます。要素のビットパターンを分類したものがブロックなので、一つ上の段で管理しているビットに注目して要素の安定ソートを行うことで、この並び順を得ることができます。また、安定ソートなのでビットが同じ要素同士は<b>一つ上の段の順序を保持したまま配置</b>されます。
+                </p>
+                <p>
+                    ビットの \(0/1\) でソートすることがブロックの分割に寄与し、先述の通り値の範囲の分割統治の構造が構築されます。また安定ソートなので同じブロック内の要素の順は<b>元の数列 \(A\) における登場順と同じ</b>になります。このことから、数列 \(A\) の<b>指定した区間内であるという条件を保持したまま </b>Wavelet Matrix を探索することが可能になります。以下の図は \(A\) の区間 \([1,8)\) 内の要素のみに注目して探索を行う様子です。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    各段の要素はビットの \(0/1\) で左右に分けられるという情報から、移動先のブロックにおける (元の数列 \(A\) でのポジションを保持した) ポジションを復元することができます。図で示す通り、\(\mathrm{BV}[p]\) を管理する段で \(i\) 番目のポジションは次の段で以下のポジションに移動します。
+                </p>
+                <ul>
+                    <li>
+                        \(0\) の矢印を辿る場合 : \(\mathrm{rank0}(\mathrm{BV}[p] , i)\)
+                    </li>
+                    <li>
+                        \(1\) の矢印を辿る場合 : \(\mathrm{rank0}(\mathrm{BV}[p] , |A|) + \mathrm{rank1}(\mathrm{BV}[p] , i)\)
+                    </li>
+                </ul>
+                <p>
+                    このように構築した Wavelet Matrix では、これまでに述べたとおり数列 \(A\) に対して、<b>指定した区間内</b>の要素に対して、<b>値の範囲を指定して</b>データを取得することができます。たとえば以下の図は \(A\) の区間 \([1,8)\) 内の要素で \(6\) 以下の要素に注目して Wavelet Matrix を探索する様子です。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.007.jpeg" class = "StandardImageStyle">
+                <p>
+                    より一般に、指定する値の範囲を \([a,b)\) とするとき、調べているブロックのビットパターンを持つ整数の範囲と \([a,b)\) を比較して探索を枝刈りすることで、探索セグメントツリーと同様の計算量で終了することがわかります。
+                </p>
+                <ul>
+                    <li>
+                        調べているブロックのビットパターンを持つ整数が全て値の範囲 \([a,b)\) に収まるなら、調べている領域の要素は全て条件を満たすので採用し、探索を打ち切る。
+                        調べているブロックのビットパターンを持つ整数が全て値の範囲 \([a,b)\) に収まるなら、調べている領域の要素は全て条件を満たすので採用し、このパターン以降の探索を打ち切る。
+                    </li>
+                    <li>
+                        ビットパターンの範囲と値の範囲が重ならない時、調べている領域に条件を満たす要素は存在しないので、ここで探索を打ち切る。
+                        ビットパターンの範囲と値の範囲が重ならない時、調べている領域に条件を満たす要素は存在しないので、このパターン以降の探索を打ち切る。
+                    </li>
+                    <li>
+                        上記のいずれでもない時、すなわち今調べている領域に条件を満たす要素と満たさない要素のどちらも含まれている可能性がある時、\(0\) の行き先と \(1\) の行き先の二手に別れて探索を続行する。
+                    </li>
+                </ul>
+                <p>
+                    また、前節の最後で説明したことと同様に、数列 \(A\) の<b>指定した区間内の</b>要素の中から何らかの性質(条件)を満たす要素を見つける操作も可能です。例えば前節と同様に最頻値を求める場合、<b>\(A\) の指定した区間内の要素を最も多く含む</b>ブロックを優先して探索を行うことで、指定した区間内という条件付きで最頻値を求めることができます。各ブロックの \(A\) の指定した区間に含まれる要素数は、そのブロック内の区間のポジションを先述の通りに復元して計算することができます。
+                </p>
+                <br>
+                <h3>
+                    2.3 Wavelet Matrix
+                </h3>
+                <p>
+                    さて皆さんお気づきでしょうか。これまで説明した処理では、値の範囲の絞り込みをビットパターンで行い、区間の条件の保持をビットベクトルの \(\mathrm{rank}\) 機能で行いました。つまり、これまで説明した処理に必要なのものは実は<b>各段のビットベクトルのみ</b>なのです。
+                </p>
+                <p>
+                    よって Wavelet Matrix は以下のような構造になります。ただし、ビットパターンが全て確定したブロックのために、最下段に仮想的な段を設けています。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.008.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(O(|A|)\) ビットのビットベクトルが \(\lceil \log{(\mathrm{max}(A))}\rceil\) 段あるので、Wavelet Matrix のビット数は \(O(|A|\log{(\mathrm{max}(A))})\) ビットとなり、できることに対してかなり省メモリなデータ構造であることがわかります。
+                </p>
+                <p>
+                    先述の通り、これらのビットベクトルの情報のみで先ほどと同様の探索を実行することができます。以下は先ほどと同様に \(A\) の区間 \([1,8)\) 内の要素で \(6\) 以下の要素に注目して Wavelet Matrix を探索する様子です。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.009.jpeg" class = "StandardImageStyle">
+                <p>
+                    また、数列 \(A\) の各段における並び順を記録し、それぞれの段ごとに区間取得データ構造を用意することで、Wavelet Matrix 上の探索で辿り着いた {段 , 区間} の情報からさまざまなデータを取得することができます。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.010.jpeg" class = "StandardImageStyle">
+                <p>
+                    たとえば各段の並び順で累積和テーブルを用意した場合、数列 \(A\) に対して区間と値の範囲の条件を満たす要素の総和を取得することができます。ほかにも、ペアの列に対して要素の一つ目の値の範囲を指定し、二つ目の値の集約を取得するなどの処理を行うこともできます。
+                </p>
+                </p>
+                <p>
+                    ただし用意するデータ構造の空間計算量に注意する必要があります。たとえば上記の累積和のテーブル \(1\) つのビット数は \(O(|A|\log{(\mathrm{max}(A))})\) ビットなので、全ての段についてこれを用意すると全体で \(O(|A|\log^{2}{(\mathrm{max}(A))})\) ビットになります。累積和であればそこまで大きくはなりませんが、これがもし Sparse Table なら \(O(|A|\log{|A|}\log^{2}{(\mathrm{max}(A))})\) ビット必要になります。
+                </p>
+                <p>
+                    Sparse Table の代わりとして、Cartesian Tree を用いて定数時間で区間 Min/Max を取得できる省メモリなデータ構造があるらしいですが、Wavelet Matrix とは別の話なので興味があれば各自記事などを探してみてください。
+                </p>
+                <br>
+                <h2>
+                    3 二次元矩形取得
+                </h2>
+                <p>
+                    \(xy\) 座標系上の重み付きの \(N\) 個の点に対して、矩形内の点の重みの集約を取得する処理を Wavelet Matrix を用いて実現します。
+                </p>
+                <br>
+                <h3>
+                    3.1 座標圧縮
+                </h3>
+                <p>
+                    与えられた点の \(x\) 座標と \(y\) 座標をそれぞれ独立に以下を定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{comp}(X) := N\) 個の点のうち、\(x\) 座標が \(X\) 未満の<b>点の個数</b>。
+                    </li>
+                    <li>
+                        \(\mathrm{comp\_y}(Y) := N\) 個の点のうち、\(y\) 座標が \(Y\) 未満の<b>点の \(y\) 座標の種類数</b>。
+                    </li>
+                </ul>
+                <p>
+                    今回、以下の図のように点の座標 \((X,Y)\) を \((\mathrm{comp}(X),\mathrm{comp\_y}(Y))\) に変換したものを考えます。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.011.jpeg" class = "StandardImageStyle">
+                <p>
+                    この方法のもとでは、元の座標上の点の \(x\) 座標の条件 \(l \leq x \leq r\) を、圧縮後の座標 \(x\prime\) に関して \(\mathrm{comp}(l) \leq x\prime \leq \mathrm{comp}(r)\) と言い換えることができます。\(y\) 座標についても同様です (\(\mathrm{comp\_y}\) で変換する)。
+                </p>
+                <br>
+                <h3>
+                    3.2 Wavelet Matrix にのせる
+                </h3>
+                <p>
+                    座標圧縮した点を \(x\) 座標の昇順でソートし、その順で点の \(y\) 座標を Wavelet Matrix で表現します。またこのとき、各段にはその段における要素の並び順で点の重みを保存します。
+                </p>
+                <p>
+                    すると、座標圧縮後の \(x\) 座標に関する範囲の条件と Wavelet Matrix が表現する点の並び順における区間の条件がマッチします。すなわち、元の座標で \(x\) 座標が \(l\) 以上 \(r\) 未満の点を対象にする場合、Wavelet Matrix 上の区間 \([\mathrm{comp}(l) , \mathrm{comp}(r))\) を調べれば良いのです。
+                </p>
+                <br><img src = "./../../images/WaveletMatrix/WaveletMatrix.012.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(y\) 座標の範囲の条件に関しても同様に \(\mathrm{comp\_y}\) で変換し、Wavelet Matrix 上で値の条件で絞り込みながらブロックを探索します。あとは普通の Wavelet Matrix と同様に探索し、採用した {段 , 区間} の情報に対して重みの区間取得を行うことで、点の重みの集約を行うことができます。
+                </p>
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+
+
+
+
+
+
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre><br><br><br><br><br><br>/*<br>&nbsp;&nbsp;&nbsp;&nbsp;静的ライブラリ<br>*/<br>namespace&nbsp;StaticStructure{<br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2025.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;与えられた&nbsp;T&nbsp;型列を&nbsp;unsigned&nbsp;int&nbsp;に座標圧縮<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;add&nbsp;で一つずつ登録していく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;与えられた列を昇順に並べて、&nbsp;ID&nbsp;を割り振っていく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;ex.&nbsp;{4,2,2,4,4,5}&nbsp;-&gt;&nbsp;{&nbsp;2-&gt;0&nbsp;,&nbsp;4-&gt;1&nbsp;,&nbsp;5-&gt;2&nbsp;}&nbsp;(それぞれに&nbsp;ID&nbsp;を割り振る)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;multiple&nbsp;が&nbsp;true&nbsp;なら、ソート後の重複を排除せずに&nbsp;ID&nbsp;を割り振る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;ex.&nbsp;{4,2,2,4,4,5}&nbsp;-&gt;&nbsp;{2,0,0,2,2,5}&nbsp;({&nbsp;4-&gt;2&nbsp;,&nbsp;2-&gt;0&nbsp;,&nbsp;5-&gt;5&nbsp;}&nbsp;の意味)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;raw(x)&nbsp;:=&nbsp;圧縮後に&nbsp;x&nbsp;になる、圧縮前の値&nbsp;(存在しなければエラー)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;compress(x)&nbsp;:=&nbsp;圧縮後の&nbsp;ID&nbsp;割り振りで、x&nbsp;未満の個数&nbsp;(&nbsp;multiple&nbsp;が&nbsp;true&nbsp;なら重複も考慮&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;圧縮前の列に&nbsp;x&nbsp;が含まれるなら、compress(x)&nbsp;は圧縮後の&nbsp;x&nbsp;と一致<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;圧縮前のソートされた列で、値の範囲が&nbsp;[l,r)&nbsp;に含まれるものは、圧縮後は&nbsp;[compress(l),compress(r))&nbsp;に含まれる<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;T&nbsp;,&nbsp;bool&nbsp;multiple&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;Compresser{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;m_V;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;圧縮前の値として&nbsp;x&nbsp;を登録<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add(T&nbsp;x){m_V.emplace_back(x);}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;計算<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort(m_V.begin(),m_V.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!multiple)m_V.erase(unique(m_V.begin(),m_V.end()),m_V.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;圧縮後に&nbsp;x&nbsp;になる、圧縮前の値&nbsp;(存在しなければエラー)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;raw(int&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_V.size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_V[x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;圧縮後の&nbsp;ID&nbsp;割り振りで、x&nbsp;未満の個数&nbsp;(&nbsp;multiple&nbsp;が&nbsp;true&nbsp;なら重複も考慮&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;compress(T&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;typename&nbsp;vector&lt;T&gt;::const_iterator&nbsp;it&nbsp;=&nbsp;lower_bound(m_V.begin(),m_V.end(),x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;int(it&nbsp;-&nbsp;m_V.begin());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;割り振られた&nbsp;ID&nbsp;の最大値&nbsp;(build&nbsp;してない、または空なら未定義動作)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;max_id(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;int(m_V.size())-1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;PrefixSum{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_N;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;m_A;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;m_R;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrefixSum()&nbsp;=&nbsp;default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrefixSum(const&nbsp;vector&lt;T&gt;&amp;&nbsp;a_)&nbsp;:&nbsp;m_A(a_)&nbsp;,&nbsp;m_N(a_.size())&nbsp;,&nbsp;m_R(a_.size()+1,T(0))&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++)m_R[i+1]&nbsp;=&nbsp;m_R[i]&nbsp;+&nbsp;m_A[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;半開区間&nbsp;[l,r)&nbsp;の総和<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;query(int&nbsp;l&nbsp;,&nbsp;int&nbsp;r){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(l&nbsp;&lt;&nbsp;r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_R[r]&nbsp;-&nbsp;m_R[l];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2025.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;SparseTable{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2025.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;data_{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;Min,Max;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_(T&nbsp;x):Min(x),Max(x){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;const&nbsp;data_&nbsp;operator+(const&nbsp;data_&amp;&nbsp;a&nbsp;,&nbsp;const&nbsp;data_&amp;&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.Min&nbsp;=&nbsp;min(a.Min,b.Min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.Max&nbsp;=&nbsp;max(a.Max,b.Max);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_N;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;m_A;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//[i][x]&nbsp;:=&nbsp;左端が&nbsp;i&nbsp;から&nbsp;2^x&nbsp;個の集約<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;data_&gt;&gt;&nbsp;m_table;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;x&nbsp;以上で最小の&nbsp;2&nbsp;冪の整数と、その指数部分<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;pair&lt;int,int&gt;&gt;&nbsp;_sub_upper_power;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SparseTable()&nbsp;=&nbsp;default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SparseTable(const&nbsp;vector&lt;T&gt;&amp;&nbsp;a_)&nbsp;:&nbsp;m_A(a_)&nbsp;,&nbsp;m_N(a_.size())&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sub_upper_power.resize(m_A.size()&nbsp;+&nbsp;1&nbsp;,&nbsp;{-1,-1});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;k&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;s&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(s&nbsp;&lt;&nbsp;m_A.size()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sub_upper_power[s]&nbsp;=&nbsp;{s,k};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s&nbsp;&lt;&lt;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;k&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sub_upper_power[m_A.size()]&nbsp;=&nbsp;{s,k};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;int(m_A.size())&nbsp;-&nbsp;1&nbsp;;&nbsp;i&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;i--&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(_sub_upper_power[i].first&nbsp;!=&nbsp;-1)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sub_upper_power[i]&nbsp;=&nbsp;_sub_upper_power[i+1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_table.resize(m_N&nbsp;,&nbsp;vector&lt;data_&gt;(k+1));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++)m_table[i][0]&nbsp;=&nbsp;m_A[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;=&nbsp;1&nbsp;;&nbsp;x&nbsp;&lt;=&nbsp;k&nbsp;;&nbsp;x++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;mid&nbsp;=&nbsp;i&nbsp;+&nbsp;(1&lt;&lt;(x-1));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(mid&nbsp;&gt;=&nbsp;m_N)m_table[i][x]&nbsp;=&nbsp;m_table[i][x-1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;m_table[i][x]&nbsp;=&nbsp;m_table[i][x-1]&nbsp;+&nbsp;m_table[mid][x-1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間&nbsp;[l,r)&nbsp;内要素をマージしたデータ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_&nbsp;query(int&nbsp;l&nbsp;,&nbsp;int&nbsp;r){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;l&nbsp;&amp;&amp;&nbsp;l&nbsp;&lt;&nbsp;r&nbsp;&amp;&amp;&nbsp;r&nbsp;&lt;=&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(r-l&nbsp;==&nbsp;1)return&nbsp;m_table[l][0];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(l&nbsp;+&nbsp;1&nbsp;&lt;&nbsp;r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;l2&nbsp;=&nbsp;r&nbsp;-&nbsp;_sub_upper_power[r-l].first/2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;k&nbsp;=&nbsp;_sub_upper_power[r-l].second&nbsp;-&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_table[l][k]&nbsp;+&nbsp;m_table[l2][k];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2025.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;静的簡潔ビットベクトル&nbsp;(簡潔データ構造)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;m_B_&nbsp;ビットごとに配列&nbsp;_V_&nbsp;に&nbsp;01&nbsp;列をビットマスク&nbsp;(左のビットを小さい桁にする)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;m_LB_&nbsp;ビットごとに、配列&nbsp;m_L_&nbsp;にそれまでの&nbsp;1&nbsp;の個数を記録<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;m_B_&nbsp;&nbsp;ビットごとに、配列&nbsp;m_S_&nbsp;に最後に&nbsp;m_L_&nbsp;に記録した以降の&nbsp;1&nbsp;の個数を記録<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;m_L_&nbsp;,&nbsp;m_S_&nbsp;のデータと、はみ出た部分のビットマスクデータから、接頭辞の&nbsp;1&nbsp;の個数を計算<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;使い方<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;はじめ、列&nbsp;m_V_&nbsp;の全ての要素は&nbsp;0&nbsp;である。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;set1(i)&nbsp;で&nbsp;i&nbsp;番目の要素を&nbsp;1&nbsp;にする&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;1&nbsp;にしたい要素を全て&nbsp;1&nbsp;にしたら、build&nbsp;を呼び出して構築を行う<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;get(i)&nbsp;:=&nbsp;i&nbsp;番目のビットを取得&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;rank1(i)&nbsp;:=&nbsp;半開区間&nbsp;[0,i)&nbsp;に&nbsp;1&nbsp;がいくつあるか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;select1(i)&nbsp;:=&nbsp;ビットが&nbsp;1&nbsp;の&nbsp;index&nbsp;のうち、小さいものから&nbsp;i&nbsp;番目&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;BitVector{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ビットマスクや分割のパラメータ&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;static&nbsp;const&nbsp;int&nbsp;m_B_&nbsp;=&nbsp;64;//&nbsp;でかい方がいいが、ビット演算&nbsp;&amp;&nbsp;ビットマスク可能なサイズ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;bitmask_int&nbsp;=&nbsp;uint64_t;//&nbsp;m_B_&nbsp;ビット符号なし整数。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;static&nbsp;const&nbsp;int&nbsp;m_LB_&nbsp;=&nbsp;65536;//&nbsp;m_B_&nbsp;の倍数。でかい方がいいが、下の&nbsp;smallblock_int&nbsp;と相談<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;smallblock_int&nbsp;=&nbsp;uint16_t;//&nbsp;小ブロックに関する累積和を表現できる整数型。小さい方がいいが、LB_&nbsp;未満を表現できる必要がある。<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ビット演算するので表引きはなくて良いが、あるとするならば、クラスで一貫して使用するテーブルのポインタを&nbsp;static&nbsp;に確保する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;inline&nbsp;bitmask_int&nbsp;uint8_t&nbsp;pattern[(1&lt;&lt;m_B_)][m_B_+1];<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;メンバ<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ビット数&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;m_N_;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;半開区間&nbsp;[&nbsp;x*m_B_&nbsp;,&nbsp;(x+1)*m_B_&nbsp;)&nbsp;をビットマスクした整数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;bitmask_int&gt;&nbsp;m_V_;&nbsp;//&nbsp;m_V_[x]&nbsp;の区間の左から&nbsp;i&nbsp;番目のビットは&nbsp;m_V_[x]&nbsp;&amp;&nbsp;(1&lt;&lt;i)&nbsp;(下から&nbsp;i&nbsp;ビット目)&nbsp;である。<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;大ブロック&nbsp;t&nbsp;を、区間&nbsp;[t*m_LB_&nbsp;,&nbsp;(t+1)*m_LB_)&nbsp;とする。余った部分については未定義<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;unsigned&nbsp;int&gt;&nbsp;m_L_;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;先頭から&nbsp;x&nbsp;個の大ブロックに含まれる&nbsp;1&nbsp;の個数の総和<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;小ブロック&nbsp;t&nbsp;を、区間&nbsp;[t×B_&nbsp;,&nbsp;(t+1)×B_)&nbsp;とする。余った部分については未定義<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;先頭から&nbsp;x&nbsp;個の小ブロックに含まれる&nbsp;1&nbsp;の個数から、それらがカバーする大ブロックに登場する&nbsp;1&nbsp;の個数を引いたもの<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;smallblock_int&gt;&nbsp;m_S_;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BitVector(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BitVector(unsigned&nbsp;int&nbsp;n):m_N_(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_V_.resize((m_N_+m_B_-1)/m_B_,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_L_.resize((m_N_+m_LB_-1)/m_LB_&nbsp;+&nbsp;1,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_S_.resize((m_N_+m_B_-1)/m_B_&nbsp;+&nbsp;1,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;on&nbsp;による初期化が終わったら、諸々のメンバを計算<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;bitsum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_L_[0]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_S_[0]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(unsigned&nbsp;int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N_&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;get(i))bitsum++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;m_LB_&nbsp;ごとに、これまでの&nbsp;1&nbsp;の個数の総和をメモ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((i+1)%m_LB_&nbsp;==&nbsp;0)m_L_[(i+1)/m_LB_]&nbsp;=&nbsp;bitsum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;m_B_&nbsp;ごとに、直近の大ブロック終了地点からの差をメモ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((i+1)%m_B_&nbsp;==&nbsp;0)m_S_[(i+1)/m_B_]&nbsp;=&nbsp;bitsum&nbsp;-&nbsp;m_L_[(i+1)/m_LB_];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;列要素数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;size()&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_N_;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;i&nbsp;番目のビットを立てる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;set1(unsigned&nbsp;int&nbsp;i){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&lt;=i&amp;&amp;i&lt;m_N_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_V_[i/m_B_]&nbsp;|=&nbsp;(bitmask_int(1)&lt;&lt;(i%m_B_));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;i&nbsp;番目のビットを取得<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;get(unsigned&nbsp;int&nbsp;i)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&lt;=i&amp;&amp;i&lt;m_N_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;bool(m_V_[i/m_B_]&amp;(bitmask_int(1)&lt;&lt;(i%m_B_)));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間&nbsp;[0,i)&nbsp;:=&nbsp;先頭&nbsp;i&nbsp;要素&nbsp;の&nbsp;1&nbsp;の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;rank1(unsigned&nbsp;int&nbsp;i)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&lt;=i&amp;&amp;i&lt;=m_N_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;res&nbsp;=&nbsp;m_L_[i/m_LB_]&nbsp;+&nbsp;m_S_[(i/m_B_)]&nbsp;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i%m_B_&nbsp;!=&nbsp;0)res&nbsp;+=&nbsp;popcount&lt;bitmask_int&gt;(bitmask_int(bitmask_int(m_V_[i/m_B_])&nbsp;&lt;&lt;&nbsp;(m_B_-i%m_B_)));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間&nbsp;[0,i)&nbsp;:=&nbsp;先頭&nbsp;i&nbsp;要素&nbsp;の&nbsp;0&nbsp;の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;rank0(unsigned&nbsp;int&nbsp;i)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&lt;=i&amp;&amp;i&lt;=m_N_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;i&nbsp;-&nbsp;rank1(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[l,r)&nbsp;内の&nbsp;1&nbsp;の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;count1(unsigned&nbsp;int&nbsp;l&nbsp;,&nbsp;unsigned&nbsp;int&nbsp;r)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;l&nbsp;&amp;&amp;&nbsp;l&nbsp;&lt;&nbsp;r&nbsp;&amp;&amp;&nbsp;r&nbsp;&lt;=&nbsp;m_N_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;rank1(r)-rank1(l);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[l,r)&nbsp;内の&nbsp;0&nbsp;の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;count0(unsigned&nbsp;int&nbsp;l&nbsp;,&nbsp;unsigned&nbsp;int&nbsp;r)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;l&nbsp;&amp;&amp;&nbsp;l&nbsp;&lt;&nbsp;r&nbsp;&amp;&amp;&nbsp;r&nbsp;&lt;=&nbsp;m_N_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;rank0(r)-rank0(l);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;i&nbsp;番目に&nbsp;1&nbsp;が登場する&nbsp;index&nbsp;(&nbsp;i&nbsp;も返り値も&nbsp;0-index&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;存在しなければ&nbsp;-1&nbsp;を返す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;select1(unsigned&nbsp;int&nbsp;i)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&lt;=i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(rank1(m_N_)&lt;=i)return&nbsp;-1;//&nbsp;上限を超える場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;二分探索の制約&nbsp;:&nbsp;1&nbsp;の個数が&nbsp;境界&nbsp;以下である。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;lef&nbsp;=&nbsp;0;//&nbsp;Yes&nbsp;領域<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;rig&nbsp;=&nbsp;m_N_;//&nbsp;No&nbsp;領域<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(rig-lef&nbsp;&gt;&nbsp;1){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;mid&nbsp;=&nbsp;lef&nbsp;+&nbsp;(rig-lef)/2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(rank1(mid)&lt;=i)lef&nbsp;=&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;rig&nbsp;=&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;lef;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;i&nbsp;番目に&nbsp;0&nbsp;が登場する&nbsp;index&nbsp;(&nbsp;i&nbsp;も返り値も&nbsp;0-index&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;存在しなければ&nbsp;-1&nbsp;を返す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;select0(unsigned&nbsp;int&nbsp;i)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&lt;=i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(rank0(m_N_)&lt;=i)return&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;lef&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;rig&nbsp;=&nbsp;m_N_;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(rig-lef&nbsp;&gt;&nbsp;1){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;mid&nbsp;=&nbsp;lef&nbsp;+&nbsp;(rig-lef)/2;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(rank0(mid)&lt;=i)lef&nbsp;=&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;rig&nbsp;=&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;lef;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;静的ウェーブレット行列<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;数列&nbsp;A&nbsp;の最大値&nbsp;M&nbsp;に対して、logM&nbsp;+2&nbsp;段の層を作る&nbsp;(最下段は仮想的なもの)。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;段の移動は上から下方向に&nbsp;0&nbsp;の矢印か&nbsp;1&nbsp;の矢印を辿って移動し、経路上の矢印の&nbsp;01&nbsp;のビットパターンで分割された仮想的なブロックに到達する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;各段の各ブロックは、それまでのビットパターンに合致する&nbsp;A&nbsp;の要素を管理し、ブロック内の要素の並び順は元の&nbsp;A&nbsp;での並び順に一致する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;最上段からの探索によってビットパターンを絞るため、Wavelet&nbsp;Matrix&nbsp;上の探索は、値の範囲の条件を絞り込みながら探索することと等価<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;特に、上のビットからパターンを確定するので、パターンのあり得る値の範囲がセグメント木のように分割される。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;値の範囲の条件を満たすもののみを含むブロックを採用する。この枝刈りによって、計算量への影響がセグメント木と同様に対数時間となる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;適切に探索することで、元の&nbsp;A&nbsp;の区間に関する条件を保持したまま探索可能である。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;詳しくは自分の記事を参照。<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;int_type&nbsp;=&nbsp;long&nbsp;long,&nbsp;int&nbsp;_maxbit_&nbsp;=&nbsp;61&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;WaveletMatrix{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static_assert((int_type(1)&lt;&lt;(_maxbit_+1))&nbsp;&gt;&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;要素数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_N;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[p]&nbsp;:=&nbsp;p&nbsp;桁目のビットの情報を管理するビットベクトル<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BitVector&nbsp;m_BV[_maxbit_+1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築済みかどうかを管理<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;built&nbsp;=&nbsp;false;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;列&nbsp;A&nbsp;から&nbsp;WM&nbsp;を構築し、maxbit+2&nbsp;段の各段における元の列&nbsp;A&nbsp;の並び順を、元の&nbsp;A&nbsp;の&nbsp;index&nbsp;の順列で返す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&gt;&nbsp;build(vector&lt;int_type&gt;&nbsp;A){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_N&nbsp;=&nbsp;A.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&gt;&nbsp;res(_maxbit_+2,vector&lt;int&gt;(m_N));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最上段は&nbsp;A&nbsp;の並びのまま<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++)res[_maxbit_+1][i]&nbsp;=&nbsp;i;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;索引を構築<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;b&nbsp;=&nbsp;_maxbit_&nbsp;;&nbsp;b&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;b--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_BV[b]&nbsp;=&nbsp;BitVector(m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;安定ソート用バッファ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;pair&lt;int_type,int&gt;&gt;&nbsp;lef,rig;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;b&nbsp;ビットの情報を保存する&nbsp;BitVector&nbsp;と、A&nbsp;の並び順の保存<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;A.size()&nbsp;;&nbsp;i++&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((int_type(1)&lt;&lt;b)&amp;(A[i])){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_BV[b].set1(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rig.emplace_back(A[i],res[b+1][i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lef.emplace_back(A[i],res[b+1][i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;lef.size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[i]&nbsp;=&nbsp;lef[i].first;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res[b][i]&nbsp;=&nbsp;lef[i].second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;rig.size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[lef.size()+i]&nbsp;=&nbsp;rig[i].first;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res[b][lef.size()+i]&nbsp;=&nbsp;rig[i].second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_BV[b].build();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;元の列&nbsp;A&nbsp;での区間&nbsp;[L,R)&nbsp;内の要素で、P&nbsp;以上&nbsp;Q&nbsp;未満の要素を過不足なく含む、Wavelet&nbsp;Matrix&nbsp;上のいくつかの区間を以下の形式のデータで返す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;(b,l,r)&nbsp;:=&nbsp;WM&nbsp;において、b&nbsp;ビット以上のビットパターンの順で並ぶ段の区間&nbsp;[l,r)&nbsp;に含まれる要素が答えに含まれる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;tuple&lt;int,int,int&gt;&gt;&nbsp;segments(int&nbsp;L&nbsp;,&nbsp;int&nbsp;R&nbsp;,&nbsp;int_type&nbsp;P&nbsp;,&nbsp;int_type&nbsp;Q)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(L&nbsp;&lt;&nbsp;R);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(P&nbsp;&lt;&nbsp;Q);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;(b,l,r)&nbsp;:=&nbsp;b&nbsp;ビット以上のビットパターンを特定した段における、区間&nbsp;[l,r)&nbsp;内の要素が答えに含まれる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;tuple&lt;int,int,int&gt;&gt;&nbsp;ranges;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Wavelet&nbsp;Tree&nbsp;上を&nbsp;DFS<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;(b&nbsp;,&nbsp;l&nbsp;,&nbsp;r&nbsp;,&nbsp;b_ly&nbsp;,&nbsp;b_ry)&nbsp;:=&nbsp;&nbsp;Wavelet&nbsp;Matrix&nbsp;上の&nbsp;(b,l,r)&nbsp;の区間にいる状態。この区間に格納される値の範囲は&nbsp;[b_ly,b_ry)&nbsp;である。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stack&lt;tuple&lt;int,int,int,int_type,int_type&gt;&gt;&nbsp;st;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;はじめ、何も確定していないパターンから探索開始&nbsp;(_maxbit_+1&nbsp;桁目以上が確定)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.emplace(_maxbit_+1,L,R,0,(int_type(1)&lt;&lt;(_maxbit_+1)));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(!st.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tuple&lt;int,int,int,long&nbsp;long&nbsp;,&nbsp;long&nbsp;long&gt;&nbsp;now&nbsp;=&nbsp;st.top();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.pop();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;b&nbsp;=&nbsp;std::get&lt;0&gt;(now);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;l&nbsp;=&nbsp;std::get&lt;1&gt;(now);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;r&nbsp;=&nbsp;std::get&lt;2&gt;(now);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(l&nbsp;&lt;&nbsp;r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int_type&nbsp;b_ly&nbsp;=&nbsp;std::get&lt;3&gt;(now);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int_type&nbsp;b_ry&nbsp;=&nbsp;std::get&lt;4&gt;(now);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間内の要素が必ず&nbsp;[P,Q)&nbsp;の条件を満たさない場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(b_ry&nbsp;&lt;=&nbsp;P&nbsp;||&nbsp;Q&nbsp;&lt;=&nbsp;b_ly)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間内の要素が必ず&nbsp;[P,Q)&nbsp;の条件を満たす場合&nbsp;(全て採用)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(P&nbsp;&lt;=&nbsp;b_ly&nbsp;&amp;&amp;&nbsp;b_ry&nbsp;&lt;=&nbsp;Q){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ranges.emplace_back(b,l,r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(1&nbsp;&lt;=&nbsp;b);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ここまでで確定しなければ、b-1&nbsp;ビットまでのビットパターンで分割して探索する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[l0,r0)&nbsp;:=&nbsp;b-1&nbsp;桁目(次のビット)が&nbsp;0&nbsp;のパターンが向かう区間<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;l0&nbsp;=&nbsp;m_BV[b-1].rank0(l);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;r0&nbsp;=&nbsp;m_BV[b-1].rank0(r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[l1,r1)&nbsp;:=&nbsp;b-1&nbsp;桁目(次のビット)が&nbsp;1&nbsp;のパターンが向かう区間<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;l1&nbsp;=&nbsp;m_BV[b-1].rank0(m_BV[b-1].size())&nbsp;+&nbsp;m_BV[b-1].rank1(l);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;r1&nbsp;=&nbsp;m_BV[b-1].rank0(m_BV[b-1].size())&nbsp;+&nbsp;m_BV[b-1].rank1(r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l0&nbsp;&lt;&nbsp;r0)st.emplace(b-1,l0,r0,b_ly,(b_ly+b_ry)&gt;&gt;1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l1&nbsp;&lt;&nbsp;r1)st.emplace(b-1,l1,r1,(b_ly+b_ry)&gt;&gt;1,b_ry);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ranges;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;static&nbsp;constexpr&nbsp;int&nbsp;maxbit(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;_maxbit_;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;size()&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_N;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;BV[p]&nbsp;の情報にアクセスできるようにする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;BitVector&amp;&nbsp;operator[](int&nbsp;p)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_BV[p];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;静的ウェーブレット行列を用いた矩形クエリ処理<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;数列&nbsp;A&nbsp;の最大値&nbsp;M&nbsp;に対して、logM&nbsp;段のビット列を作る。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;格段は対応するビットを持ち、要素のビットに対して、次の段における進む位置を計算する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;格段における要素の並びは、その段までのビットパターンで分割されており、<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;根からのパスが要素の範囲の絞り込みを表すことになる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;加えて、ビットベクトルの機能を用いることで、最上段で指定した&nbsp;index&nbsp;の区間の情報をそのまま、格段に適用することができる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;最上段から対象の区間の情報を保存しながらビットパターンを追いながら探索する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;BV[p]&nbsp;:=&nbsp;上位&nbsp;++p&nbsp;ビット以上++&nbsp;のビットパターンの並び順における&nbsp;p-1&nbsp;ビット目のビットの情報<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;BV[p]&nbsp;自体は、要素の&nbsp;p-1&nbsp;ビット目の情報をもつ。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;p-1&nbsp;ビットの情報を持つためには、p&nbsp;ビット以上のビットパターンを特定する必要があるため。<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;typename&nbsp;I&nbsp;,&nbsp;typename&nbsp;T&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;StaticRectangleQuery{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private:<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;座標圧縮用<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compresser&lt;I,true&gt;&nbsp;comp_X;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compresser&lt;I,false&gt;&nbsp;comp_Y;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;点の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_N;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;(x,y,w)&nbsp;:=&nbsp;座標&nbsp;(x,y)&nbsp;に重みが&nbsp;w&nbsp;の点がある<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;tuple&lt;I,I,T&gt;&gt;&nbsp;m_Points;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ウェーブレット行列<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WaveletMatrix&lt;int,29&gt;&nbsp;WM;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;重み和取得用の累積和テーブル<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;PrefixSum&lt;T&gt;&gt;&nbsp;m_PrefixSum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;スパーステーブルはメモリがやばくなるので、不要なら構築ごと消しておく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;SparseTable&lt;T&gt;&gt;&nbsp;m_SparseTable;&nbsp;<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;set_point(I&nbsp;x&nbsp;,&nbsp;I&nbsp;y&nbsp;,&nbsp;T&nbsp;w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Points.emplace_back(x,y,w);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_N&nbsp;=&nbsp;m_Points.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;Y(m_N);//&nbsp;y&nbsp;座標(座標圧縮)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;W(m_N);//&nbsp;重み<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;座標の昇順でソート<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort(m_Points.begin()&nbsp;,&nbsp;m_Points.end()&nbsp;,&nbsp;[&amp;](tuple&lt;I,I,T&gt;&amp;&nbsp;a&nbsp;,&nbsp;tuple&lt;I,I,T&gt;&amp;&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(std::get&lt;0&gt;(a)&nbsp;==&nbsp;std::get&lt;0&gt;(b))return&nbsp;bool(std::get&lt;1&gt;(a)&nbsp;&lt;&nbsp;std::get&lt;1&gt;(b));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;bool(std::get&lt;0&gt;(a)&nbsp;&lt;&nbsp;std::get&lt;0&gt;(b));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;座標圧縮<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comp_X.add(std::get&lt;0&gt;(m_Points[i]));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comp_Y.add(std::get&lt;1&gt;(m_Points[i]));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W[i]&nbsp;=&nbsp;std::get&lt;2&gt;(m_Points[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comp_X.build();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comp_Y.build();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++)Y[i]&nbsp;=&nbsp;comp_Y.compress(std::get&lt;1&gt;(m_Points[i]));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ウェーブレット行列&nbsp;(&amp;補助データ)&nbsp;構築<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&gt;&nbsp;line_order&nbsp;=&nbsp;WM.build(Y);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_PrefixSum.resize(WM.maxbit()+2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SparseTable.resize(WM.maxbit()+2);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;b&nbsp;=&nbsp;WM.maxbit()+1&nbsp;;&nbsp;b&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;b--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;Wt(WM.size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;WM.size()&nbsp;;&nbsp;i++)Wt[i]&nbsp;=&nbsp;W[line_order[b][i]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_PrefixSum[b]&nbsp;=&nbsp;PrefixSum&lt;T&gt;(Wt);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SparseTable[b]&nbsp;=&nbsp;SparseTable&lt;T&gt;(Wt);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[lx,rx)&nbsp;×&nbsp;[ly,ry)&nbsp;に含まれる点の重みの総和<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;Sum(I&nbsp;lx&nbsp;,&nbsp;I&nbsp;rx&nbsp;,&nbsp;I&nbsp;ly&nbsp;,&nbsp;I&nbsp;ry){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp_Y.compress(ly)&nbsp;==&nbsp;comp_Y.compress(ry))return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp_X.compress(lx)&nbsp;==&nbsp;comp_X.compress(rx))return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;tuple&lt;int,int,int&gt;&gt;&nbsp;seg_data&nbsp;=&nbsp;WM.segments(comp_X.compress(lx),comp_X.compress(rx),comp_Y.compress(ly),comp_Y.compress(ry));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(seg_data.size()&nbsp;==&nbsp;0)return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;res&nbsp;=&nbsp;T(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(tuple&lt;int,int,int&gt;&nbsp;data&nbsp;:&nbsp;seg_data)res&nbsp;+=&nbsp;m_PrefixSum[std::get&lt;0&gt;(data)].query(std::get&lt;1&gt;(data),std::get&lt;2&gt;(data));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[lx,rx)&nbsp;×&nbsp;[ly,ry)&nbsp;に含まれる点の重みの&nbsp;Min<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;Min(I&nbsp;lx&nbsp;,&nbsp;I&nbsp;rx&nbsp;,&nbsp;I&nbsp;ly&nbsp;,&nbsp;I&nbsp;ry){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;tuple&lt;int,int,int&gt;&gt;&nbsp;seg_data&nbsp;=&nbsp;WM.segments(comp_X.compress(lx),comp_X.compress(rx),comp_Y.compress(ly),comp_Y.compress(ry));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(seg_data.size()&nbsp;&gt;&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;res&nbsp;=&nbsp;m_SparseTable[std::get&lt;0&gt;(seg_data[0])].query(std::get&lt;1&gt;(seg_data[0]),std::get&lt;2&gt;(seg_data[0])).Min;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;1&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;seg_data.size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;+=&nbsp;min(res,m_SparseTable[std::get&lt;0&gt;(seg_data[i])].query(std::get&lt;1&gt;(seg_data[i]),std::get&lt;2&gt;(seg_data[i])).Min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[lx,rx)&nbsp;×&nbsp;[ly,ry)&nbsp;に含まれる点の重みの&nbsp;Max<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;Max(I&nbsp;lx&nbsp;,&nbsp;I&nbsp;rx&nbsp;,&nbsp;I&nbsp;ly&nbsp;,&nbsp;I&nbsp;ry){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;tuple&lt;int,int,int&gt;&gt;&nbsp;seg_data&nbsp;=&nbsp;WM.segments(comp_X.compress(lx),comp_X.compress(rx),comp_Y.compress(ly),comp_Y.compress(ry));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(seg_data.size()&nbsp;&gt;&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;res&nbsp;=&nbsp;m_SparseTable[std::get&lt;0&gt;(seg_data[0])].query(std::get&lt;1&gt;(seg_data[0]),std::get&lt;2&gt;(seg_data[0])).Max;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;1&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;seg_data.size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;+=&nbsp;max(res&nbsp;,&nbsp;m_SparseTable[std::get&lt;0&gt;(seg_data[i])].query(std::get&lt;1&gt;(seg_data[i]),std::get&lt;2&gt;(seg_data[i])).Max&nbsp;);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br><br><br>};<br><br><br><br></pre>
+                        <br>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

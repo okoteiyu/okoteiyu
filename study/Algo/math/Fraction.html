@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    有理数型 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    有理数クラス
+                </h3>
+                <p>
+                    C++ で分数を数値計算するとどうしても誤差がでます。また \(\infty , \varepsilon\) などの特殊な値を表現することができません。そこで、有理数クラスを自作しました。
+                </p>
+                <h3>
+                    概要
+                </h3>
+                <p>
+                    整数型 (__int128_t などのオーバーフローしづらいもの) の \(A,B\) に対して有理数 \(\frac{A}{B}\) を表現します (普通にオーバーフローしやすいから注意)。
+                    <ul>
+                        <li>
+                            値を \(\mathrm{T}\) 型で取り出したい場合は val() を呼び出すか、\(\mathrm{T}\) 型に明示的にキャストする (\(\mathrm{T}\) が整数ならあまりは切り捨て)。
+                        </li>
+                        <li>
+                            \(A,B\) を取り出したいときは raw_pair() でアクセス。
+                        </li>
+                    </ul>
+                </p>
+                <h3>
+                    Fraction がとる値
+                </h3>
+                <p>
+                    冒頭で説明した通り、Fraction は整数 \(A,B\) で \(\frac{A}{B}\) の形で定義されます。Fraction は通常の数値に加え、無限大/微少量 などの値をとりうる特殊な型です。特殊な値 (インスタンス) は以下の通りです。
+                    <ul>
+                        <li>
+                            \(\mathrm{amb} := \frac{0}{0}\) (ゼロ徐算や無限大同士の減算など)
+                        </li>
+                        <li>
+                            \(\mathrm{inf} := \infty\) (無限大)
+                        </li>
+                        <li>
+                            \(\varepsilon := \frac{1}{\infty}\) (微少量)
+                        </li>
+                    </ul>
+                    \(\mathrm{amb},\mathrm{inf}\) は特殊インスタンスとして明示的に宣言/定義しますが、\(\varepsilon\) は \(\mathrm{inf}\) から導出されるので明示的に宣言/定義しません。
+                </p>
+                <h3>
+                    表現と計算
+                </h3>
+                <p>
+                    実数有理数の計算であれば、ただやるだけです。Fraction クラスのメインは、先に定義した \(\mathrm{amb},\mathrm{inf},\varepsilon\) に対して計算規則をうまく決めて、矛盾がないような 有理数+特殊インスタンス の計算を実現することです。
+                </p>
+                <p>
+                    Fraction クラスによる有理数 + \(\alpha\) の表現は、メンバ \(A,B\) および補助的なメンバ \(\mathrm{eps\_sign}\) によって以下で定められます。
+                    
+                    <ol>
+                        <li>
+                            \((A,B) = (0,0)\) の場合
+                            <ul>
+                                <li>
+                                    \(\frac{A}{B} = \) 不定値 (\(\mathrm{amb}\)) として定義する。
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            \((A,B) = (0,1)\) の場合、\(\mathrm{eps\_sign}\) というメンバの値で場合分けする。
+                            <ul>
+                                <li>
+                                    \(\mathrm{eps\_sign} = 0\) なら \(\frac{A}{B} = 0\)
+                                </li>
+                                <li>
+                                    \(\mathrm{eps\_sign} = 1\) なら \(\frac{A}{B} = \varepsilon\)
+                                </li>
+                                <li>
+                                    \(\mathrm{eps\_sign} = -1\) なら \(\frac{A}{B} = -\varepsilon\)
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            \((A,B) = (\pm 1 ,0)\) の場合、\(A\) の符号で場合分けする。
+                            <ul>
+                                <li>
+                                    \(A = 1\) なら \(\frac{A}{B} = \infty\)
+                                </li>
+                                <li>
+                                    \(A = -1\) なら \(\frac{A}{B} = -\infty\)
+                                </li>
+                            </ul>
+                            \(B=0\) かつ \(|A|\) が \(0\) 以外なら、符号だけ保存して \(|A| = 1\) の形にフォーマットする。
+                        </li>
+                        <li>
+                            上記の \(1,2,3\) のいずれでもない場合、\(\frac{A}{B}\) は実数有理数を表す。<b>ただし符号は \(A\) につける方針で統一する。</b>
+                        </li>
+                    </ol>
+                </p>
+                <u>計算規則</u>
+                <p>
+                    Fraction オブジェクト \(x,y\) に対して、数学的に矛盾がないように四則演算を定義します。結果が \(\mathrm{amb}\) になる場合の計算さえ分かれば、あとは数学の規則に則って計算するだけです。
+                    <ol>
+                        <li>
+                            \(\mathrm{amb}\) に対してどの演算を行っても結果は \(\mathrm{amb}\)
+                        </li>
+                        <li>
+                            \(x + y\) の計算
+                            <ul>
+                                <li>
+                                    \(\infty\) と \(-\infty\) が混在するなら \(x + y = \mathrm{amb}\)
+                                </li>
+                                <li>
+                                    \(\varepsilon\) と \(-\varepsilon\) が混在するなら \(x + y = \mathrm{amb}\)
+                                </li>
+                            </ul> 
+                        </li>
+                        <li>
+                            \(x \times y\) の計算
+                            <ul>
+                                <li>
+                                    片方が \(\pm \varepsilon\) で他方が \(\pm \infty\) なら \(x \times y = \mathrm{amb}\)
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            \(x-y\) の計算は \(x+(-y)\) の計算と等しいです。\(-y\) は \(y\times (-1)\) です。
+                        </li>
+                        <li>
+                            \(\frac{x}{y}\) は \(x \times y^{-1}\) なので \(y\) の逆数が分かればよく、\(y\) の逆数は以下の計算規則で計算可能です。
+                            <ul>
+                                <li>
+                                    \(y = 0\) または \(y = \mathrm{amb}\) なら \( y^{-1} =\mathrm{amb}\) 
+                                </li>
+                                <li>
+                                    \(y = \pm\varepsilon \) なら符号に合わせた \(y^{-1} =\infty\)
+                                </li>
+                                <li>
+                                    \(y = \pm\infty \) なら符号に合わせた \(y^{-1} =\varepsilon\)
+                                </li>
+                                <li>
+                                    上記のいずれでもないなら \(y\) のメンバ \(A,B\) をスワップし、<b>符号を \(A\) につけたもの</b>が \(y^{-1}\)。
+                                </li>
+                            </ul>
+                        </li>
+                    </ol>
+                    ただし、\(\varepsilon - \varepsilon + \infty\) は明らかに \(\infty\) ですが、この計算規則ではこれを計算できません。この点には注意が必要です。
+                </p>
+                <h3>
+                    設計
+                </h3>
+                <u>
+                    キャストについて
+                </u>
+                <p>
+                    <ul>
+                        <li>
+                            自作クラスの機能を優先させたいので、<b>C++ 標準型 \(\rightarrow\) Fraction のキャストは暗黙的。</b>
+                        </li>
+                        <li>
+                            当てはまる演算子オーバーロードなどが複数存在する状況を避けるため、<b>Fraction \(\rightarrow\) C++ 標準型 のキャストは明示的。</b>
+                        </li>
+                    </ul> 
+                </p>
+                <u>
+                    メンバの持ち方について
+                </u>
+                <p>
+                    以下の制約を満たすように \(A,B\) を整形する format 関数を用意し、コンストラクタなどでの初期化時に呼び出す。演算などを行うたびに Fraction オブジェクトを生成し、コンストラクタを通すことで常に format されるようにする。
+                    <ul>
+                        <li>
+                            \(\frac{A}{B}\) が有理数の場合、\(\frac{A}{B}\) は常に既約であるように設計 (gcd で割る)
+                        </li>
+                        <li>
+                            符号は \(A\) につける。分母 \(B\) は常に非負整数。
+                        </li>
+                    </ul>
+                </p>
+                <u>
+                    比較演算
+                </u>
+                <p>
+                    三方演算子 <code>std::partial_ordering &lt;=>(T a , T b)</code> を使います (C++ 20 からの機能)。
+                </p>
+                <p>
+                    <ul>
+                        <li>
+                            <code>&lt;=></code> の実装が返す以下の結果から、<code>&lt;</code> , <code>&lt;=</code> , <code>></code> , <code>>=</code> 演算の結果を作るすごいやつ。
+                            <ul>
+                                <li>
+                                    <code>std::partial_ordering::equivalent</code> : <code>a</code> と <code>b</code> が等しい   
+                                </li>
+                                <li>
+                                    <code>std::partial_ordering::less</code> : <code>a</code> が <code>b</code> 未満  
+                                </li>
+                                <li>
+                                    <code>std::partial_ordering::greater</code> : <code>a</code> が <code>b</code> より大きい  
+                                </li>
+                                <li>
+                                    <code>std::partial_ordering::unordered</code> : <code>a</code> と <code>b</code> の順序が未定義
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            例えば、<code>0 &lt;=> ∞ </code> が <code>less</code> を返すように実装する。すると、<code>0 &lt; ∞</code> の結果が true になる。
+                        </li>
+                        <li>
+                            <code>unordered</code> について
+                            <ul>
+                                <li>
+                                    <code>a</code>,<code>b</code> の順序比較ができない時、<code>unordered</code> を返し、全ての順序演算が false を返す(無限大同士の比較など)。
+                                    <ul>
+                                        <li>
+                                            <code>unordered</code> な順序があるバブルソートは永遠に終わらない
+                                        </li>
+                                        <li>
+                                            <code>unordered</code> な順序がある列をソートすると、unordered な順序以外の要素も正しくソートされない
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    できるだけ <code>unordered</code> な順序がある要素を比較しない
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <u>
+                    その他
+                </u>
+                <p>
+                    
+                    <ul>
+                        <li>
+                            各演算の両辺は必ず整数 or Fraction
+                        </li>
+                        <li>
+                            演算の規則は一般の数学の規則に準拠
+                        </li>
+                        <li>
+                            コンストラクタで明示的に分子が非ゼロ、分母がゼロを与えた場合、それは無限大/無限小 になる。
+                        </li>
+                    </ul>
+                </p>
+
+
+                
+
+
+
+
+
+
+
+                
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+
+
+
+
+
+                        
+                        <br>
+                        <br>
+                        <pre><br><br><br><br><br><br><br><br><br>/*<br>&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;-&ensp;整数型&ensp;(Integer&ensp;=&ensp;__int128_t)&ensp;の&ensp;A&ensp;,B&ensp;に対して&ensp;A/B&ensp;を表現&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;普通にオーバーフローしやすいから注意。基本的にオーバーフローする。<br>&ensp;&ensp;&ensp;&ensp;|&ensp;<br>&ensp;&ensp;&ensp;&ensp;-&ensp;値を&ensp;T&ensp;型で取り出したい場合は、val&lt;T&gt;()&ensp;を呼び出す&ensp;(T&ensp;が整数なら切り捨てられた値になることもある)<br>&ensp;&ensp;&ensp;&ensp;-&ensp;生の値を取り出したい場合は、raw_pair()&ensp;(&ensp;long&ensp;long&ensp;のペア&ensp;)&ensp;を呼び出す&ensp;<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;設計&ensp;:&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;整数&ensp;-&gt;&ensp;Fraction&ensp;のキャストは&ensp;OK&ensp;は暗黙<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;Fraction&ensp;-&gt;&ensp;なにか&ensp;のキャストは明示的にする必要がある<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;別のクラスのメンバ型として使う時、そのクラスのキャストはメンバ型のキャストを明示的にする必要がある<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;内部の値は&ensp;__int128_t&ensp;型なので&ensp;分母/分子&ensp;が&ensp;64&ensp;bit&ensp;整数の範囲を超えなければ処理できる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;A/B&ensp;の値が、{0&ensp;,&ensp;微少量&ensp;,&ensp;有理数&ensp;,&ensp;無限大/無限小&ensp;,&ensp;0/0&ensp;(曖昧)&ensp;}&ensp;のどれかで処理を分ける<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;A/B&ensp;が有理数の場合、A/B&ensp;は常に既約であるように設計&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;分母&ensp;B&ensp;は常に正整数&ensp;0&ensp;より大きい)&ensp;&ensp;とする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;A/B&ensp;が&ensp;0&ensp;or&ensp;微少量の際、(A,B)&ensp;=&ensp;(0,1)&ensp;で統一し、eps_sign&ensp;で分別する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;A/B&ensp;が無限大/無限小の場合、(A,B)&ensp;=&ensp;(符号&ensp;,&ensp;0)&ensp;で統一する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;A/B&ensp;が曖昧の場合、(A,B)&ensp;=&ensp;(0,0)&ensp;とする&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;各演算の両辺は必ず整数&ensp;or&ensp;Fraction。<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;仕様&ensp;:&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;演算の規則は一般の数学の規則に準拠<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;0&ensp;で割った値は&ensp;amb()&ensp;=&ensp;0/0&ensp;になる。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;ただし、コンストラクタで明示的に分母が&ensp;0&ensp;の値を与えた場合、それは無限大/無限小&ensp;になる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;EX.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;Fraction(4)/0&ensp;→&ensp;amb&ensp;(0/0)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;Fraction(9,0)&ensp;=&ensp;∞&ensp;(1/0)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;Fraction(-2,0)&ensp;=&ensp;-∞&ensp;(-1/0)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;-0&ensp;,&ensp;0&ensp;,&ensp;+0&ensp;を区別する&ensp;(特に、-0,+0&ensp;を微少量&ensp;-ε&ensp;,&ensp;ε&ensp;と呼ぶ)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;0&ensp;徐算は&ensp;amb&ensp;になるが、-0&ensp;や&ensp;+0&ensp;で割ったら無限大/無限小になる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;0&ensp;は何をかけても、0&ensp;以外の何で割っても&ensp;0&ensp;のまま<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;(+0)&ensp;+&ensp;(-0)&ensp;は&ensp;amb&ensp;になる<br>*/<br>class&ensp;Fraction{<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br><br><br>&ensp;&ensp;&ensp;&ensp;protected:<br>&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;内部用のメンバ。!!!!&ensp;依存関係が内部用メンバ関数のみで完結&ensp;!!!!<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;using&ensp;Integer&ensp;=&ensp;__int128_t;//&ensp;内部でもつ整数<br>&ensp;&ensp;&ensp;&ensp;Integer&ensp;A,B;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;(ε&ensp;なら&ensp;1&ensp;,&ensp;-ε&ensp;なら&ensp;-1,&ensp;0&ensp;なら&ensp;0)<br>&ensp;&ensp;&ensp;&ensp;Integer&ensp;m_eps_sign&ensp;=&ensp;0;//&ensp;デフォルト&ensp;(A&ensp;==&ensp;0&ensp;の時のみアクセス可能)<br>&ensp;&ensp;&ensp;&ensp;Integer&ensp;gcd(Integer&ensp;x,&ensp;Integer&ensp;y)&ensp;{&ensp;return&ensp;(y!=0)&ensp;?&ensp;gcd(y,&ensp;x&ensp;%&ensp;y)&ensp;:&ensp;x;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;A&ensp;,B&ensp;の形を制約通りに整える<br>&ensp;&ensp;&ensp;&ensp;void&ensp;format(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(A&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;B&ensp;==&ensp;0){}//&ensp;0/0&ensp;は未定義<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(A&ensp;==&ensp;0)B&ensp;=&ensp;1;&ensp;//&ensp;A&ensp;が&ensp;0&ensp;の時、B&ensp;は&ensp;1&ensp;(微少量かどうかは&ensp;m_eps_sign&ensp;を見る)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(B&ensp;==&ensp;0){//&ensp;∞&ensp;,&ensp;-∞&ensp;の時、A&ensp;は&ensp;1&ensp;or&ensp;-1&ensp;とする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Integer&ensp;sign_&ensp;=&ensp;1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;A&ensp;&lt;&ensp;0)sign_&ensp;=&ensp;-1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;this-&gt;&ensp;A&ensp;=&ensp;sign_;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else{&ensp;//&ensp;有理数として評価できる場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;A/B&ensp;は規約分数。B&ensp;は常に正整数&ensp;(非零)&ensp;とする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Integer&ensp;g&ensp;=&ensp;gcd(A,B);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;A/=g;B/=g;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(B&ensp;&lt;&ensp;0){A*=-1;B*=-1;}&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;//&ensp;特殊インスタンス<br>&ensp;&ensp;&ensp;&ensp;inline&ensp;static&ensp;const&ensp;Fraction&ensp;inf(){return&ensp;Fraction(1,0);}//&ensp;無限大<br>&ensp;&ensp;&ensp;&ensp;inline&ensp;static&ensp;const&ensp;Fraction&ensp;ninf(){return&ensp;Fraction(-1,0);}//&ensp;無現小<br>&ensp;&ensp;&ensp;&ensp;inline&ensp;static&ensp;const&ensp;Fraction&ensp;amb(){return&ensp;Fraction(0,0);}//&ensp;0/0<br>&ensp;&ensp;&ensp;&ensp;inline&ensp;static&ensp;const&ensp;Fraction&ensp;zero(){return&ensp;Fraction(0,1);}//&ensp;0<br>&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;コンストラクタやコピー。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;依存先が内部メンバのみの最も基本的な関数<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;Fraction(){}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;A,B&ensp;に入る値は&ensp;64&ensp;bit&ensp;整数じゃないと演算内でオーバーフローする<br>&ensp;&ensp;&ensp;&ensp;//&ensp;Integer&ensp;to&ensp;Fraction&ensp;()<br>&ensp;&ensp;&ensp;&ensp;Fraction(Integer&ensp;a):A(a),B(1),m_eps_sign(0){this-&gt;format();}//&ensp;通常の整数型からのキャスト用<br>&ensp;&ensp;&ensp;&ensp;//&ensp;Fraction<br>&ensp;&ensp;&ensp;&ensp;Fraction(Integer&ensp;a&ensp;,&ensp;Integer&ensp;b):A(a),B(b),m_eps_sign(0){this-&gt;format();}<br>&ensp;&ensp;&ensp;&ensp;Fraction(const&ensp;Fraction&amp;&ensp;x):A(x.A),B(x.B),m_eps_sign(x.m_eps_sign){this-&gt;format();}<br>&ensp;&ensp;&ensp;&ensp;Fraction&amp;&ensp;operator&ensp;=(const&ensp;Fraction&amp;&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;this-&gt;m_eps_sign&ensp;=&ensp;x.m_eps_sign;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;this-&gt;A&ensp;=&ensp;x.A;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;this-&gt;B&ensp;=&ensp;x.B;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;this-&gt;format();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;(*this);<br>&ensp;&ensp;&ensp;&ensp;}&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;補助機能。外部でも使う。<br>&ensp;&ensp;&ensp;&ensp;*/<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;Fraction&ensp;型の絶対値<br>&ensp;&ensp;&ensp;&ensp;Fraction&ensp;abs()&ensp;const&amp;&ensp;{return&ensp;(*this)*this-&gt;sign();}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;0/0&ensp;かどうか<br>&ensp;&ensp;&ensp;&ensp;bool&ensp;is_ambiguous()&ensp;const&amp;&ensp;{return&ensp;bool(this-&gt;A&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;this-&gt;B&ensp;==&ensp;0);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;∞&ensp;または&ensp;-∞&ensp;かどうか<br>&ensp;&ensp;&ensp;&ensp;bool&ensp;is_infinite()&ensp;const&amp;&ensp;{return&ensp;bool(this-&gt;B==0);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;符号&ensp;(負なら&ensp;-1&ensp;,&ensp;正なら&ensp;1&ensp;,0&ensp;なら&ensp;0)<br>&ensp;&ensp;&ensp;&ensp;//&ensp;is_ambiguous&ensp;の場合は&ensp;エラー&ensp;(注意)<br>&ensp;&ensp;&ensp;&ensp;Integer&ensp;sign()&ensp;const&amp;&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(!this-&gt;is_ambiguous());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;A&ensp;==&ensp;0)return&ensp;this-&gt;m_eps_sign;;//&ensp;0&ensp;or&ensp;±ε&ensp;の場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;A&ensp;&lt;&ensp;0)return&ensp;-1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;1;<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;アクセス/キャスト<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;実数型にして返す関数&ensp;(整数だと切り捨てが発生してしまうのでだめ)<br>&ensp;&ensp;&ensp;&ensp;template&lt;typename&ensp;real&gt;constexpr&ensp;real&ensp;to_real()&ensp;const&amp;&ensp;{return&ensp;real(A)/real(B);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;{A,B}&ensp;のペアを返す<br>&ensp;&ensp;&ensp;&ensp;pair&lt;Integer,Integer&gt;&ensp;raw_pair()&ensp;const&amp;&ensp;{return&ensp;make_pair(A,B);}<br>&ensp;&ensp;&ensp;&ensp;//<br>&ensp;&ensp;&ensp;&ensp;//&ensp;実姿へのキャスト&ensp;(明示的)。別のクラスに入れる場合は、そのクラスのキャスト処理内で明示的にする。詳細は&ensp;okoteiyu&ensp;ライブラリ設計規則<br>&ensp;&ensp;&ensp;&ensp;//&ensp;(整数だと切り捨てが発生してしまうのでだめ)<br>&ensp;&ensp;&ensp;&ensp;//&ensp;<br>&ensp;&ensp;&ensp;&ensp;template&lt;typename&ensp;real&gt;explicit&ensp;operator&ensp;real()&ensp;const&amp;&ensp;{return&ensp;real(A)/real(B);}<br>&ensp;&ensp;&ensp;&ensp;//<br>&ensp;&ensp;&ensp;&ensp;//&ensp;逆数を返す<br>&ensp;&ensp;&ensp;&ensp;Fraction&ensp;inv()&ensp;const&amp;&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;is_ambiguous())return&ensp;amb();//&ensp;曖昧なやつはそのまま<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;A&ensp;==&ensp;0){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;sign()&ensp;==&ensp;0)return&ensp;amb();//&ensp;0&ensp;で割るのは曖昧<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;Fraction(this-&gt;sign(),0);//&ensp;微少量は、同じ符号の無限大に<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;B&ensp;==&ensp;0){//&ensp;無限大は同じ符号の微少量に<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Fraction&ensp;res(0,1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.m_eps_sign&ensp;=&ensp;this-&gt;sign();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;Fraction(this-&gt;B,this-&gt;A);//&ensp;逆数<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//<br>&ensp;&ensp;&ensp;&ensp;//&ensp;代入演算たち<br>&ensp;&ensp;&ensp;&ensp;//&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;primary&ensp;な演算は&ensp;+&ensp;と&ensp;*&ensp;で、これらは他の&ensp;Fraction&ensp;型演算に依存しない。<br>&ensp;&ensp;&ensp;&ensp;//<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;たし算。他の演算に依存してはいけない<br>&ensp;&ensp;&ensp;&ensp;Fraction&amp;&ensp;operator&ensp;+=(Fraction&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;is_ambiguous()&ensp;||&ensp;x.is_ambiguous())&ensp;[[unlikely]]&ensp;(*this)&ensp;=&ensp;amb();//&ensp;0/0&ensp;は変わらない<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(this-&gt;is_infinite()&ensp;&amp;&amp;&ensp;x.is_infinite())&ensp;[[unlikely]]&ensp;{//&ensp;両方とも無限大/小&ensp;の場合&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;sign()&ensp;!=&ensp;x.sign())(*this)&ensp;=&ensp;amb();//&ensp;∞&ensp;-&ensp;∞&ensp;は曖昧<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(this-&gt;sign()&ensp;==&ensp;-1)(*this)&ensp;=&ensp;ninf();//&ensp;符号がどちらもマイナス<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;(*this)&ensp;=&ensp;inf();&ensp;//&ensp;符号がどちらもプラス<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;if(this-&gt;is_infinite())&ensp;[[unlikely]]&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;代入される側のみ無限大の場合、何も代入しなくて&ensp;OK<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;if(x.is_infinite())&ensp;[[unlikely]]&ensp;(*this)&ensp;=&ensp;x;//&ensp;代入する側が無限大ならそのまま代入<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(this-&gt;A&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;x.A&ensp;==&ensp;0)&ensp;[[unlikely]]&ensp;{//&ensp;両方とも&ensp;0&ensp;or&ensp;±ε&ensp;の場合&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;sign()&ensp;==&ensp;x.sign()){}//&ensp;同じ符号&ensp;(または両方&ensp;0)&ensp;ならそのまま<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(this-&gt;sign()&ensp;==&ensp;0)(*this)&ensp;=&ensp;x;//&ensp;片方&ensp;0&ensp;なら、0&ensp;じゃない方に合わせる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.sign()&ensp;==&ensp;0){}//&ensp;片方&ensp;0&ensp;なら、0&ensp;じゃない方に合わせる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;(*this)&ensp;=&ensp;amb();//&ensp;反対の符号なら曖昧になる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;[[likely]]{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;(0&ensp;or&ensp;微少量は&ensp;0/1&ensp;の形なので、片方が&ensp;0&ensp;でも&ensp;微少量でもない時はそのまま計算可能)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(*this)&ensp;=&ensp;Fraction(this-&gt;A*x.B&ensp;+&ensp;this-&gt;B*x.A&ensp;,&ensp;this-&gt;B*x.B);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;(*this);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;かけ算。他の演算に依存してはいけない<br>&ensp;&ensp;&ensp;&ensp;Fraction&amp;&ensp;operator&ensp;*=(Fraction&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;is_ambiguous()&ensp;||&ensp;x.is_ambiguous())&ensp;[[unlikely]]&ensp;(*this)&ensp;=&ensp;amb();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(this-&gt;is_infinite()&ensp;||&ensp;x.is_infinite())&ensp;[[unlikely]]&ensp;{//&ensp;どちらかが無限の場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;A&ensp;!=&ensp;0&ensp;&amp;&amp;&ensp;x.A&ensp;!=&ensp;0){//&ensp;どちらも&ensp;0&ensp;でも&ensp;微少量でもない場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;sign()&ensp;==&ensp;x.sign())(*this)&ensp;=&ensp;inf();//&ensp;符号に依存する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;(*this)&ensp;=&ensp;ninf();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else{//&ensp;どちらかが&ensp;0&ensp;or&ensp;微少量の場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;sign()&ensp;==&ensp;0&ensp;||&ensp;x.sign()&ensp;==&ensp;0)(*this)&ensp;=&ensp;0;//&ensp;0&ensp;にかけたらなんでも&ensp;0&ensp;になる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;(*this)&ensp;=&ensp;amb();&ensp;//&ensp;±ε&ensp;×&ensp;無限&ensp;は&ensp;is_ambiguous<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}//&ensp;以降,両方とも無限ではない<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(this-&gt;A&ensp;==&ensp;0&ensp;||&ensp;x.A&ensp;==&ensp;0)&ensp;[[unlikely]]&ensp;{//&ensp;少なくとも一方が&ensp;0&ensp;or&ensp;±ε&ensp;の時<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(this-&gt;sign()&ensp;==&ensp;0&ensp;||&ensp;x.sign()&ensp;==&ensp;0)(*this)&ensp;=&ensp;0;//&ensp;0&ensp;にかけたらなんでも&ensp;0&ensp;になる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Fraction&ensp;new_eps&ensp;=&ensp;0;//&ensp;微少量になる場合。片方は&ensp;ε&ensp;でも&ensp;0&ensp;でもないかもしれないので&ensp;sign&ensp;を参照<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;new_eps.m_eps_sign&ensp;=&ensp;this-&gt;sign()*x.sign();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(*this)&ensp;=&ensp;new_eps;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;[[likely]]&ensp;{(*this)&ensp;=&ensp;Fraction(&ensp;this-&gt;A*x.A,&ensp;this-&gt;B*x.B&ensp;);}//&ensp;実数<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;(*this);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;-&ensp;の値&ensp;(*&ensp;演算に投げる。)<br>&ensp;&ensp;&ensp;&ensp;Fraction&ensp;operator&ensp;-(){Fraction&ensp;res(*this);return&ensp;res*Fraction(-1);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;減算&ensp;(&ensp;+&ensp;に投げる)<br>&ensp;&ensp;&ensp;&ensp;Fraction&amp;&ensp;operator&ensp;-=(Fraction&ensp;x){return&ensp;((*this)&ensp;+=&ensp;(-x));}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;割り算は&ensp;inv&ensp;を使う<br>&ensp;&ensp;&ensp;&ensp;Fraction&amp;&ensp;operator&ensp;/=(Fraction&ensp;x){return&ensp;((*this)&ensp;*=&ensp;x.inv());}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;徐算&ensp;(有理数で割っても&ensp;OK&ensp;な特殊なやつ)<br>&ensp;&ensp;&ensp;&ensp;//&ensp;整数&ensp;m&ensp;で&ensp;(this)&ensp;=&ensp;m*x&ensp;+&ensp;r&ensp;と表せる&ensp;r&ensp;を返す&ensp;(返す&ensp;r&ensp;の規則は&ensp;int&ensp;の&ensp;%&ensp;と同じ挙動)<br>&ensp;&ensp;&ensp;&ensp;Fraction&amp;&ensp;operator&ensp;%=(Fraction&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;収束した値同士でないといけない<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(!this-&gt;is_ambiguous()&ensp;&amp;&amp;&ensp;!this-&gt;is_infinite()&ensp;&amp;&amp;&ensp;!x.is_ambiguous()&ensp;&amp;&amp;&ensp;!x.is_infinite());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(x.A!=&ensp;0);//&ensp;0&ensp;徐算はだめで、ε&ensp;も不定なのでだめ<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Fraction&ensp;tmp&ensp;=&ensp;(*this);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;tmp/=x;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Integer&ensp;m&ensp;=&ensp;tmp.raw_pair().first/tmp.raw_pair().second;//&ensp;m&ensp;は整数に丸める<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(*this)&ensp;-=&ensp;m*x;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;(*this);<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;二項演算。整数&ensp;→&ensp;Fraction&ensp;のキャストは暗黙なので、これらの演算は、片方が整数でも&ensp;OK。<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;Fraction&ensp;operator&ensp;+(Fraction&ensp;a&ensp;,&ensp;Fraction&ensp;b){return&ensp;a+=b;}<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;Fraction&ensp;operator&ensp;-(Fraction&ensp;a&ensp;,&ensp;Fraction&ensp;b){return&ensp;a-=b;}<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;Fraction&ensp;operator&ensp;*(Fraction&ensp;a&ensp;,&ensp;Fraction&ensp;b){return&ensp;a*=b;}<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;Fraction&ensp;operator&ensp;/(Fraction&ensp;a&ensp;,&ensp;Fraction&ensp;b){return&ensp;a/=b;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;徐算&ensp;(有理数で割っても&ensp;OK&ensp;な特殊なやつ)&ensp;(収束している値同士である必要がある)<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;Fraction&ensp;operator&ensp;%(Fraction&ensp;a&ensp;,&ensp;Fraction&ensp;b){return&ensp;a%=b;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;比較演算たち&ensp;<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&ensp;&lt;=&gt;&ensp;が返す&ensp;less&ensp;/&ensp;greater&ensp;/&ensp;equivalent&ensp;の結果から、&lt;&ensp;,&ensp;&lt;=&ensp;,&ensp;&gt;&ensp;,&ensp;&gt;=&ensp;演算の結果を作るすごいやつ<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;-&ensp;順序が定義できるものにしか使えない。unordered&ensp;を返すケースではソートなどがうまくいかないので注意。<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;partial_ordering&ensp;operator&ensp;&lt;=&gt;(const&ensp;Fraction&amp;&ensp;x&ensp;,&ensp;const&ensp;Fraction&amp;&ensp;y){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;どちらかが&ensp;0/0&ensp;なら比較は不可能。プログラム内部での値も異なるので、unordered&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.is_ambiguous()&ensp;||&ensp;y.is_ambiguous())&ensp;[[unlikely]]&ensp;return&ensp;partial_ordering::unordered;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;符号が異なる場合、符号で判定して&ensp;OK&ensp;.&ensp;(符号は&ensp;-1,0,1&ensp;のいずれか)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.sign()&ensp;!=&ensp;y.sign())&ensp;[[unlikely]]&ensp;return&ensp;(x.sign()&ensp;&lt;=&gt;&ensp;y.sign());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;ここからは、符号は同じとして&ensp;OK&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.A&ensp;==&ensp;0&ensp;||&ensp;y.A&ensp;==&ensp;0)&ensp;[[unlikely]]&ensp;{//&ensp;いずれかが&ensp;0&ensp;または&ensp;微少量の場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.sign()&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;y.sign()&ensp;==&ensp;0)return&ensp;partial_ordering::equivalent;//&ensp;0&ensp;同士<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;両方とも微少量の場合&ensp;(本来比較は無理だが、プログラム内部では同じなので、equivalent&ensp;として&ensp;OK)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.A&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;y.A&ensp;==&ensp;0)return&ensp;partial_ordering::equivalent;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.A&ensp;==&ensp;0){//&ensp;x&ensp;のみ微少量なら、y&ensp;の符号で決める<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(y.sign()&ensp;==&ensp;-1)return&ensp;partial_ordering::greater;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;partial_ordering::less;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else{//&ensp;y&ensp;のみ微少量の場合、x&ensp;の符号で決める<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.sign()&ensp;==&ensp;-1)return&ensp;partial_ordering::less;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;partial_ordering::greater;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;以降、どちらも&ensp;0&ensp;でも微少量でもないとして&ensp;OK&ensp;(&ensp;&amp;&ensp;符号も同じ&ensp;)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;符号が同じ無限大の比較は不可能。しかし、プログラム内部では同じなので&ensp;equivalent&ensp;として&ensp;OK<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.is_infinite()&ensp;&amp;&amp;&ensp;y.is_infinite())&ensp;[[unlikely]]&ensp;return&ensp;partial_ordering::equivalent;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.is_infinite())&ensp;[[unlikely]]&ensp;{//&ensp;x&ensp;のみ無限大&ensp;or&ensp;無限小<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.sign()&ensp;==&ensp;-1)return&ensp;partial_ordering::less;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;partial_ordering::greater;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;if(y.is_infinite())&ensp;[[unlikely]]&ensp;{//&ensp;y&ensp;のみ無限大&ensp;or&ensp;無限小<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(y.sign()&ensp;==&ensp;-1)return&ensp;partial_ordering::greater;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;partial_ordering::less;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;[[likely]]&ensp;return&ensp;((x.A)*(y.B)&ensp;&lt;=&gt;&ensp;(y.A)*(x.B));<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;/*0&ensp;周りの挙動が特殊なので注意が必要*/<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;bool&ensp;operator&ensp;==(const&ensp;Fraction&amp;&ensp;x,const&ensp;Fraction&amp;&ensp;y){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;収束していない値同士を比較できない。この場合、false&ensp;を返すものとする。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.is_ambiguous()&ensp;||&ensp;x.is_infinite()&ensp;||&ensp;y.is_ambiguous()&ensp;||&ensp;y.is_infinite())return&ensp;false;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.A&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;y.A&ensp;==&ensp;0){//&ensp;(0&ensp;or&ensp;微少量)&ensp;同士を比較する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.sign()&ensp;==&ensp;0&ensp;&amp;&amp;&ensp;y.sign()&ensp;==&ensp;0)return&ensp;true;//&ensp;0&ensp;同士のみ&ensp;true<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;false;//&ensp;符号が同じ&ensp;ε&ensp;同士は曖昧な関係&ensp;&amp;&ensp;ε&ensp;!=&ensp;0&ensp;&amp;&ensp;ε&ensp;!=&ensp;-ε<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;0&ensp;も&ensp;微少量も&ensp;0/1&ensp;の形なので、片方が有理数なら単純比較して&ensp;OK<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;bool(x.A&ensp;==&ensp;y.A&ensp;&amp;&amp;&ensp;x.B&ensp;==&ensp;y.B);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;bool&ensp;operator&ensp;!=(const&ensp;Fraction&amp;&ensp;x,const&ensp;Fraction&amp;&ensp;y){return&ensp;!(x==y);}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;有理数形式で出力<br>&ensp;&ensp;&ensp;&ensp;//&ensp;分母分子ともに&ensp;64&ensp;bit&ensp;を超えない前提<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;ostream&amp;&ensp;operator&ensp;&lt;&lt;&ensp;(ostream&amp;&ensp;os,&ensp;const&ensp;Fraction&amp;&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;os.precision(40);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.is_ambiguous())os&ensp;&lt;&lt;&ensp;&quot;?&quot;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.A&ensp;==&ensp;0){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.sign()&lt;0)os&ensp;&lt;&lt;&ensp;&quot;-ε&quot;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(x.sign()&gt;0)os&ensp;&lt;&lt;&ensp;&quot;ε&quot;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;os&ensp;&lt;&lt;&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;if(x.is_infinite()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(x.sign()&ensp;&lt;&ensp;0)os&ensp;&lt;&lt;&ensp;&quot;-∞&quot;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;os&ensp;&lt;&lt;&ensp;&quot;∞&quot;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;os&ensp;&lt;&lt;&ensp;double(x.A)&ensp;&lt;&lt;&ensp;&quot;/&quot;&ensp;&lt;&lt;&ensp;(long&ensp;long)(x.B);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;os;<br>&ensp;&ensp;&ensp;&ensp;}&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//<br>&ensp;&ensp;&ensp;&ensp;//&ensp;64bit&ensp;整数型なら入力ストリームから受け取れる<br>&ensp;&ensp;&ensp;&ensp;friend&ensp;istream&amp;&ensp;operator&ensp;&gt;&gt;&ensp;(istream&amp;&ensp;is,&ensp;Fraction&amp;&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;long&ensp;long&ensp;tmp;//&ensp;64bit&ensp;整数の受け皿<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;is&ensp;&gt;&gt;&ensp;tmp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x&ensp;=&ensp;Fraction(tmp);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;is;<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>};<br><br><br><br><br><br><br><br></pre>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>文字列トレーニング 1</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    文字列トレーニング 1 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    概要
+                </h3>
+                <p>
+                    ここでは掛け算の簡単なトレーニングをできます。
+                </p>
+                <p>
+                    掛け算の計算を早く計算したければ、まずは九九を速攻で計算できるようにならないといけないと思います。九九を計算するためには、九九の計算をいちいち頭の中で暗唱してはいけません。\(a\times b\) という 視覚的な input が与えられたとき、頭のメモリの \(a\times b\) の領域にアクセスして答えを即座に output しないといけません。
+                </p>
+                <h3>
+                    ルール
+                </h3>
+                <ul>
+                    <li>
+                        九九の式が表示されるので、その計算式が合っているならば <code>YES</code>を、間違っているなら <code>NO</code> を選びます。
+                    </li>
+                    <li>
+                        正解した速度が計測されます。その速度が自分の中でベストになるように頑張ってください。
+                    </li>
+                </ul>
+
+
+                
+
+
+                <div class = "Highlight">
+                    <div style = "display: flex;">
+                        <div id ="result" style = "text-align: center; flex:1; border-bottom: 2px solid black; font-size: 25px;">
+                            下のボタンを押して問題を開始してね
+                        </div>
+                    </div>
+                    <div style = "display: flex;">
+                        <input type="button" id = "NewQueryButton" value="NewQuery" onclick="NewQuery()"  style = "font-size: 25px; flex: 1;">
+                    </div>
+                    <div id = "question" style = "display:none;">
+                        <div id = "Question" style = "text-align: center; font-size: 25px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+                        </div>
+                        <br>
+                        <!--この行長いです-->
+                        <div style = "display: flex;">
+                            <input type="button" value="NO" onclick="select_NO()" id ="Select_NO" style = " font-size: 25px; flex: 1;">
+                            <input type="button" value="YES" onclick="select_YES()" id ="Select_YES" style =" font-size: 25px; flex: 1;">
+                        </div>
+                    </div>    
+                </div>
+
+            </section>
+
+
+
+        
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+<script>
+
+    var start_time;
+    var end_time;
+                    
+
+    var correct;/*次の問題の正誤*/
+    function newQuestion(){
+    
+        var a = Math.floor(Math.random()*9)+1;
+        var b = Math.floor(Math.random()*9)+1;
+        var c = a*b;
+        var res= new String("");
+        var x = Math.floor(Math.random()*3)-1;
+        var dif = Math.floor(Math.random()*10)+1;
+        c += x*dif;
+        res+=String(a);
+        res += 'x';
+        res += String(b);
+        res += "=";
+        res += String(c);
+        
+        if(x!=0)correct = 0;
+        else correct = 1;
+        
+        return res;
+    }
+    
+
+    function NewQuery(){
+        document.getElementById("question").style.display = "block" ;
+        document.getElementById("NewQueryButton").style.display = "none" ;
+        document.getElementById("result").style.display = "none" ;
+        document.getElementById("Question").innerText = newQuestion();
+        start_time = Date.now();
+    }
+
+    function select_NO(){
+        if(correct == 0){
+            end_time = Date.now();
+            result = String("正解!!かかった時間は");
+            result += String(Math.floor((end_time-start_time)/1000));
+            result+=".";
+            result += String(Math.floor((end_time-start_time)%1000));
+            result += "秒です。";
+            document.getElementById("result").innerText = result;
+        }else{
+            document.getElementById("result").innerText = "不正解..スピードよりも正確さですよ...";
+        }
+        document.getElementById("question").style.display = "none" ;
+        document.getElementById("result").style.display = "block" ;
+        document.getElementById("NewQueryButton").style.display = "block" ;
+    }
+
+    function select_YES(){
+        if(correct == 1){
+            end_time = Date.now();
+            let result = String("正解!!かかった時間は");
+            result += String(Math.floor((end_time-start_time)/1000));
+            result+=".";
+            result += String(Math.floor((end_time-start_time)%1000));
+            result += "秒です。";
+            document.getElementById("result").innerText = result;
+        }else{
+            document.getElementById("result").innerText = "不正解..スピードよりも正確さですよ...";
+        }
+        document.getElementById("question").style.display = "none" ;
+        document.getElementById("result").style.display = "block" ;
+        document.getElementById("NewQueryButton").style.display = "block" ;
+
+        
+    }
+    
+
+
+
+</script>

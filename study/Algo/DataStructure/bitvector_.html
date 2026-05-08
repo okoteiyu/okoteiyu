@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    自主ゼミ資料 (簡潔データ構造 \(3\) 章 \(2\) 項) <br></h2>
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    はじめに
+                </h3>
+                <p>
+                    ビットベクトル \(B\) に対して、\(rank\) , \(select\) を行うための補助データ構造を \(I_B\) と書くことにする。(以下は \(rank\) のための補助データ構造。本来は表引きのためのテーブルもある。)
+                </p>
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.001.jpeg" class = "StandardImageStyle">
+                <p>
+                    この補助データ構造を用いることで、\(rank\) や \(select\) の計算ができるということが、前の項で説明された。
+                </p>
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.002.jpeg" class = "StandardImageStyle">
+
+                <div class = "Box">
+                    <h4>
+                        定理 \(3.1\)
+                    </h4>
+                    <p>
+                        長さ \(n\) のビットベクトルが与えられたとき、\(O(n)\) 時間の前処理で \(O(n \frac{\log\log{n}}{\log{n}})\) ビットの補助データ構造を用意することで、\(rank_0\) , \(rank_1\) , \(select_0\) , \(select_1\) をワードサイズ \(\Omega(\log{n})\) の word RAM で定数時間で計算可能である。
+                    </p>
+                </div>
+                <p>
+                    これは 3.1 項で示された通りである。
+                </p>
+                <h3>
+                    パターン \(p\) に対する \(rank\) , \(select\)
+                </h3>
+                <p>
+                    ビットベクトル \(B\) について、長さ \(c\) のビット列 \(p \in \{0,1\}^c\) に関する \(rank\) と \(select\) を以下で定義する。
+                </p>
+                <ul>
+                    <li>
+                        \(rank(i) := \) \(B[j .. j+c-1] \) が \(p\) と等しくなる \(j (\leq i)\) の個数
+                    </li>
+                    <li>
+                        \(select(i) := \) \(B[j .. j+c-1] \) が \(p\) と等しくなる \(j \) のうち、小さいものから \(i\) 番目のもの
+                    </li>
+                </ul>
+                <h3>
+                    方法 \(1\)
+                </h3>
+                <p>
+                    \(B[j .. j+c-1] \) が \(p\) と等しくなる \(j\) の箇所のみを \(1\) としたビットベクトルを、新たに \(B_p\) とすると、\(B\) におけるパターン \(p\) の \(rank\) や \(select\) は、\(B_p\) における \(rank_1\) や \(select_1\) に対応する。
+                </p>
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.003.jpeg" class = "StandardImageStyle">
+                <p>
+                    この方法で必要なデータ構造を確認すると、以下のようになる。
+                </p>
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    図を確認すると、考えたいパターン \(p\) それぞれに対して、上記の方法で新たに作成したビットベクトル \(B_p\) と、その補助データ構造 \(I_{B_p}\) の \(2\) つが必要になる。
+                </p>
+                <p>
+                    本項の主張は、考えたいパターン \(p\) それぞれに対して \(B_p\) を陽に持つ必要はなく、必要になった際に都度 \(B\) から \(B_p\) を復元しても、\(rank\) , \(select\) を定数時間で計算することができるということである。
+                </p>
+                <h3>
+                    具体的手法
+                </h3>
+                <p>
+                    実際のところ、\(B_p\) に対する補助データ構造 \(I_{B_p}\) さえあれば、\(rank\) ,\(select\) で必要になる \(B_p\) の部分は、表引きのための\(B_p\) の定数個の小ブロックのみである。
+                </p>
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    ビットベクトルを実装する上で、ビットブロックの各小ブロックは、wordRAM で一度にアクセスできる程度のワードサイズのデータにビットマスクするので、\(B_p\) のある小ブロックの復元を、ビットマスクされた整数にの bitwise な論理演算で求めることができれば、\(rank\) , \(select\) に必要な \(B_p\) の高々定数個 (\(c\) 個) の小ブロックを、定数時間で復元できたといえる。
+                </p>
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.006.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/bitvector_9_9/bitvector_9_9.007.jpeg" class = "StandardImageStyle">
+                <br>
+
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+
+
+
+
+
+
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

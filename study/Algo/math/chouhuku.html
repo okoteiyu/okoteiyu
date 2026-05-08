@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>重複組合せ</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    重複組合せ<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+               
+                <br>重複組み合わせとは、区別しないボールを、区別できる箱に入れる時の入れ方の総数です。
+                <br>
+                <br>ボールが7つ、箱が4つの場合で考えてみましょう。
+                <br>図で示すと、こうなります。
+                <br>
+
+                <br>
+
+                <br><img src = "./../../images/chouhuku.png"  class = "StandardImageStyle"> 
+
+                <br>
+                <br>
+                <br>このような単純な場合は、ボールを(箱の個数-1)本の棒で仕切れば良いとわかるのですが、
+                <br>例えば、すべての箱には必ず1個以上のボールが入っていなければならないという条件付きならどうでしょう。
+                <br>
+                <br>この場合、4つの箱に一つずつボールを入れて、残り3つのボールを先ほどと同じように棒と一緒に並べれば良いです。
+                <br>よって、答えは(7-4+3)C(3)となります。
+                <br>
+                <br>ボールが区別できないからこそ、条件を満たすように先にボールを割り当ててから考えるということができるのです。
+                <br>
+                <br>
+                <br><h2>練習問題1</h2>
+                <br>&nbsp;&nbsp;&nbsp;a + b + c &lt;= 7 という条件を満たす整数の組 (a,b,c) の総数を求めてみましょう。
+                <br>
+                <br>もし仮に a+b+c = 7であれば、7個のボールを a,b,cという箱に割り当てる問題になるのですが、残念ながら今回はそうではありません。
+                <br>そこで、W = 7-a-b-c という 変数を考えてみます。
+                <br>すると a+b+c+W = 7という式が得られます。これは 7個 のボールを a,b,c,Wという4つの箱に割り当てる重複組合せと考えることができます。
+
+                <br>
+                <br>
+                <br><h2>練習問題2</h2>
+                <br>
+                <br> 0&lt;= a &lt;= b &lt;= c &lt;= 6となるような整数の組み (a,b,c) の総数を求めてみましょう。
+                <br> 
+                <br>練習問題1では変数 a,b,c を箱としてみなしていましたが、今回は変数 a,b,c を区別しないボールとして考えます。
+                <br>以下の図を見てください。
+                <br>
+                <br><img src = "./../../images/chouhuku2.png"  class = "StandardImageStyle"> 
+                <br>
+                <br>このように、変数の間の仕切り棒の本数を変数の差(の絶対値)として並べると綺麗に対応できています。
+                <br>
+                <br>
+                <br>
+                <br><h2>まとめ</h2>
+                <br>区別できないボールは自由に並べていいので、条件がついている重複組合せの場合は、先に条件を満たすようにボールを配置してから残りのボールを並べる。
+                <br>
+                <br>整数の変数が出てくる問題は、重複組合せの問題として捉えることができることがある。
+                <br>
+                <br>
+                <br>以下はコード例です(mod計算を使用しているので、mod計算のページも参照ください)。
+                <br>
+                <br>
+                <br>
+                <br>
+                                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+                  
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

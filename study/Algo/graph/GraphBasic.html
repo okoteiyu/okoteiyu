@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    グラフ基礎<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    目次
+                </h2>
+                <ol>
+                    <li>
+                        概要
+                    </li>
+                    <li>
+                        最短経路問題
+                    </li>
+                    <li>
+                        オイラー路
+                    </li>
+                    <li>
+                        K-Coloring
+                    </li>
+                </ol>
+                <br>
+                <h2>
+                    概要
+                </h2>
+                <p>
+                    頂点と辺からなる抽象的なモデルを<b>グラフ</b>といい、道路、ネットワーク、状態遷移図など、身近な物事のモデルとして使用されています。以下の図はシンプルな形のグラフです。
+                </p>
+                <br><img src = "./../../images/Graph/Graph.001.jpeg" class = "StandardImageStyle">
+                <h3>
+                    グラフの特徴
+                </h3>
+                <p>
+                    上記のグラフは重みを持たない頂点と無向辺のみからなり、かつ全ての頂点が連結で多重辺と自己ループが存在しないグラフです。一般のグラフにおいては、以下の場合もありえます。
+                </p>
+                <ul>
+                    <li>
+                        <groupblock>連結でない場合</groupblock> : 辺を辿って移動できない頂点対が存在する場合
+                    </li>
+                    <li>
+                        <groupblock>辺が有向の場合</groupblock> : 辺に始点と終点が定義される場合。経路の方向の意味を持つ。
+                    </li>
+                    <li>
+                        <groupblock>多重辺が存在する場合</groupblock> : 同じ頂点対を繋ぐ辺が複数存在する場合
+                    </li>
+                    <li>
+                        <groupblock>自己ループがある場合</groupblock> : 同じ頂点対を繋ぐ辺が存在する場合
+                    </li>
+                    <li>
+                        <groupblock>頂点や辺に重みが存在する場合</groupblock> : グラフをモデルとした数値計算などを行う場合
+                    </li>
+                </ul>
+                <h3>
+                    グラフの表現
+                </h3>
+                <p>
+                    グラフの最も基本的な定義では、<b>頂点集合と辺集合</b>を定義します。グラフをデータで管理するためには頂点を区別できる方が都合が良いため、グラフの頂点には番号を割り振ります。この頂点番号の集合を頂点集合 \(V\) とします。\(V\) は \(V = \{0,1,\dots,|V|-1\}\) だったり、\(V = \{1,\dots,|V|\}\) だったりします。また、辺集合 \(E\) は、辺の両端の頂点対 \((u-v)\) を元とする集合です。
+                </p>
+                <p>
+                    グラフを表現するだけであれば上記をそのまま実装するだけなのですが、グラフ上で何かの処理を行う際は、<b>今見ている頂点につながる辺</b>を見る場面がほとんどです。このように、ある頂点につながる辺を管理するデータ構造として、<b>隣接リスト</b>を利用します。隣接リストは以下で定義されます。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{G}[u] := \) 頂点 \(u\) を端点に持つ辺の情報の集合
+                    </li>
+                </ul>
+                <p>
+                    ただし有向グラフの場合、上記の定義は「\(u\) を始点とする辺の情報の集合」になります。
+                </p>
+                <br>
+                <h2>
+                    最短経路問題
+                </h2>
+                <p>
+                    グラフ上で、同じ頂点を \(2\) 度以上通らない、辺で繋がれた一本道のことを<b>パス</b>と言います。パスが \(p\) 個の頂点を繋ぐ、すなわち \(p-1\) 本の辺から構成される場合、そのパスの長さは \(p-1\) です。
+                </p>
+                <p>
+                    最短経路問題では、パスの長さが最も短いものを求めることもあれば、辺の重みの総和が最小のものを求めることなど、さまざまなバリエーションがあります。
+                </p>
+                <h3>
+                    幅優先探索 (BFS)
+                </h3>
+                <p>
+                    パスの始点を決めて、その他の頂点への最短経路長を求める問題を、単一始点最短経路問題と言います。ここでは、代表的なアルゴリズムである <b>BFS(幅優先探索)</b>を説明します。BFS では、<u>始点からの最短経路長が同じ頂点を一つのクラスタ</u>として手続きを行います。
+                </p>
+                <div class = "slide_content_field">
+                    <!-- ページ番号を管理するためだけのdiv (中身の数値を JS が参照する) -->
+                    <div class = "slide_pagenum_store" id = "BFS_SLIDE"></div>
+
+                    <!-- タイトル -->
+                    <div class = "slide_title">BFS の様子</div>
+
+                    <!-- 内容 -->
+                    <img src="./../../images/BFS/BFS.001.jpeg"  class = "BFS_SLIDE">
+                    <img src="./../../images/BFS/BFS.002.jpeg"  class = "BFS_SLIDE">
+                    <img src="./../../images/BFS/BFS.003.jpeg"  class = "BFS_SLIDE">
+                    <img src="./../../images/BFS/BFS.004.jpeg"  class = "BFS_SLIDE">
+                    <img src="./../../images/BFS/BFS.005.jpeg"  class = "BFS_SLIDE">
+                    <img src="./../../images/BFS/BFS.006.jpeg"  class = "BFS_SLIDE">
+                    <img src="./../../images/BFS/BFS.007.jpeg"  class = "BFS_SLIDE">
+
+                    <!-- ボタンなどのスライド操作用ツールバー-->
+                    <div class = "slide_button_field">
+                        <button onclick="select_back(event)" name = "BFS_SLIDE" class = "slide_back_button"></button>
+                        <div class = "slide_pagenum_field" title = "BFS_SLIDE" ></div>
+                        <button onclick="select_next(event)" name = "BFS_SLIDE"  class = "slide_next_button"></button>
+                    </div>
+                </div>
+                <p>
+                    黒の頂点がすでに調査済みの頂点で、赤の頂点は周辺を調査中のクラスタです。調査中のクラスタに隣接する頂点のうち、調査済みでないもの (緑の頂点) は、赤の頂点の最短経路長 \(+1\) が最短経路長になります。
+                </p>
+                <p>
+                    そして重要な観点として、<u>最短経路になる経路は、その道中も全て最短経路である</u>という観点が重要です。このアルゴリズムでは、<u><b>現時点で分かっている経路長が小さいものから順に調査を行う</b></u>手続きをとります。当たり前のことですが、BFS もその後紹介するアルゴリズムも、この観点があると理解が容易になります。
+                </p>
+                <h4>
+                    BFS のコード
+                </h4>
+                <pre>//&nbsp;始点<br>int&nbsp;start&nbsp;=&nbsp;0;<br><br>//&nbsp;最短経路長<br>std::vector&lt;int&gt;&nbsp;dist(N+1,&nbsp;N+2);<br>dist[start]&nbsp;=&nbsp;0;<br><br>//&nbsp;クラスタを論理的に表現するキュー<br>std::queue&lt;int&gt;&nbsp;cluster;<br>cluster.push(start);<br><br>//&nbsp;調査対象が無くなるまで、その周辺の頂点の最短経路長を調査する<br>while(!cluster.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;cluster.front();<br>&nbsp;&nbsp;&nbsp;&nbsp;cluster.pop();<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;now&nbsp;に隣接する頂点を調査<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;nx&nbsp;:&nbsp;G[now]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;すでに調査ずみならスキップ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(dist[nx]&nbsp;&lt;=&nbsp;dist[now]&nbsp;+&nbsp;1)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist[nx]&nbsp;=&nbsp;dist[now]&nbsp;+&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cluster.push(nx);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</pre>
+                <p>
+                    この手続きでは、<code>cluster</code> キューの中に、最短経路長が同じ頂点群を保存して手続きを行います。最短経路長が \(X\) のクラスターの周辺を調査中の場合、<code>cluster</code> に保管されている頂点の最短経路長は、<code>cluster</code> 内の頂点の順に \(\{X,X,X,\dots,X, X+1,X+1,\dots,X+1\}\) になります。\(2\) つのクラスタに属する頂点が経路長が小さい順に <code>cluster</code> 保管されるため、上記のアルゴリズムが有効なのです。
+                </p>
+                <br>
+                <h3>
+                    ダイクストラ法
+                </h3>
+                <p>
+                    辺重みや頂点重みの総和を求める場合でも、単一始点最短経路問題を解くアルゴリズムが存在します。ここでは、最短経路長の代わりにパス上の重みの総和の最小値を求めます。ただし、<b>重みは \(0\) 以上である場合に限定します</b>。
+                </p>
+                <p>
+                    実は、辺重みが \(0\) と \(1\) しかない場合は、先述の BFS と同様の手続きによって計算を行うことができます。BFS では、キューの末尾への <code>push</code> がアルゴリズムと相性が良かったわけです。辺重みが \(0\) と \(1\) しかない場合は、<code>std::deque</code>(デック) への <code>push_front</code> と <code>push_back</code> を用いることで、経路長の順に頂点を <code>std::deque</code> に格納することができます。
+                </p>
+                <pre>int&nbsp;start&nbsp;=&nbsp;0;<br><br>std::vector&lt;int&gt;&nbsp;dist(N+1,&nbsp;N+2);<br>dist[start]&nbsp;=&nbsp;0;<br><br>//&nbsp;クラスタを論理的に表現するキュー<br>std::deque&lt;int&gt;&nbsp;cluster;<br>cluster.push_front(start);<br><br>while(!cluster.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;cluster.front();<br>&nbsp;&nbsp;&nbsp;&nbsp;cluster.pop_front();<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;now&nbsp;に隣接する頂点を調査<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;edge&nbsp;:&nbsp;G[now]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;nx&nbsp;=&nbsp;edge.first;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;w&nbsp;=&nbsp;edge.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;すでに調査ずみならスキップ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(dist[nx]&nbsp;&lt;=&nbsp;dist[now]&nbsp;+&nbsp;w)&nbsp;continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist[nx]&nbsp;=&nbsp;dist[now]&nbsp;+&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(w&nbsp;==&nbsp;0)cluster.push_front(nx);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(w&nbsp;==&nbsp;1)cluster.push_back(nx);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</pre>
+                <p>
+                    閑話休題、ダイクストラ法もこれまで同様に<u>現時点で分かっている経路長が小さいものから順に調査を行う</u>手続きを行います。
+                </p>
+                <br><img src = "./../../images/Dijkstra/Dijkstra.001.jpeg" class = "StandardImageStyle">
+                <p>
+                    結論から述べると、<b>優先度付きキュー (<code>std::priority_queue</code>)</b> を用いることで、BFS と同様の手続きで計算を行うことができます。ただし、枝刈り (探索スキップ) を行う条件を間違えると計算量が悪化するので注意が必要です。
+                </p>
+                <pre>int&nbsp;start&nbsp;=&nbsp;0;<br><br>std::vector&lt;int&gt;&nbsp;weight(N+1,&nbsp;N+2);<br>weight[start]&nbsp;=&nbsp;0;<br><br>priority_queue&lt;pair&lt;int,&nbsp;int&gt;,&nbsp;vector&lt;pair&lt;int,&nbsp;int&gt;&gt;,&nbsp;greater&lt;pair&lt;int,&nbsp;int&gt;&gt;&nbsp;&gt;&nbsp;que;<br>que.emplace(start,&nbsp;weight[start]);<br><br>while(!que.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;que.top().first;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;d&nbsp;=&nbsp;que.top().second;<br>&nbsp;&nbsp;&nbsp;&nbsp;que.pop();<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;すでに確定済みの場合&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(weight[now]&nbsp;&lt;&nbsp;d)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;now&nbsp;に隣接する頂点を調査<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;edge&nbsp;:&nbsp;G[now]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;nx&nbsp;=&nbsp;edge.first;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;w&nbsp;=&nbsp;edge.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(weight[nx]&nbsp;&lt;=&nbsp;weight[now]&nbsp;+&nbsp;w)&nbsp;continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weight[nx]&nbsp;=&nbsp;weight[now]&nbsp;+&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;que.emplace(nx,weight[nx]);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</pre>
+                <h3>
+                    条件付きの最短経路問題
+                </h3>
+                <p>
+                    一般のグラフに対する最短経路問題を用いて、以下の問題を考えてみましょう。
+                </p>
+                <div class = "Highlight">
+                    <p>
+                        \(N\) 個の都市と \(M\) 本の下道があります。また、下道とは別に \(K\) 本の高速道路があります。
+                    </p>
+                    <p>
+                        \(i\) 番目の下道は都市 \(u_i\) と都市 \(v_i\) を繋いでおり、移動するのに \(t_i\) 分かかります。\(i\) 番目の高速道路は都市 \(u_i\) と都市 \(v_i\) を繋いでおり、どの高速道路も移動するのに \(T\) 分かかります。
+                    </p>
+                    <p>
+                        いずれの都市でも、下道から高速道路に切り替えるためには \(P\) 分待機する必要があり、高速道路から下道に切り替える際の待機時間はありません。また、下道から高速道路への切り替えは一度以下しか行えません。都市 \(1\) から都市 \(N\) への移動にかかる最短時間を計算してください。
+                    </p>
+                </div>
+                <p>
+                    この問題では、下道と高速道路の切り替えと、高速道路への切り替え回数が \(1\) 回までという部分を解決する必要があります。ここで、最短経路問題自体にこれらの条件を適用するのではなく、<u>グラフの形をうまく変形して条件を表現する</u>ことにします。その様子が以下の図です。
+                </p>
+                <br><img src = "./../../images/Dijkstra/Dijkstra.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    この図では、\(N\) 個の都市が存在する世界を \(3\) つに増やして、それぞれの世界に異なる状態を割り当てています。
+                </p>
+                <ul>
+                    <li>
+                        <groupblock>世界 \(1\)</groupblock> : 動き始めに下道を利用する世界。\(N\) 個の頂点と、下道を表す辺のみが存在する。
+                    </li>
+                    <li>
+                        <groupblock>世界 \(2\)</groupblock> : 高速道路に入った世界。\(N\) 個の頂点と、高速道路を表す辺のみが存在する。
+                    </li>
+                    <li>
+                        <groupblock>世界 \(3\)</groupblock> : 高速道路を出た後に下道を利用する世界。\(N\) 個の頂点と、下道を表す辺のみが存在する。
+                    </li>
+                </ul>
+                <p>
+                    世界 \(1\) の各都市からは、世界 \(2\) の同じ都市へ重み \(P\) の辺を貼り、世界 \(2\) の各都市からは、世界 \(3\) の同じ都市へ重み \(0\) の辺を貼ります。これが道路の切り替えを表しています。
+                </p>
+                <p>
+                    もし、高速道路への切り替えを何度でも行って良い場合、世界の分け方は以下の図の通りになります。
+                </p>
+                <br><img src = "./../../images/Dijkstra/Dijkstra.003.jpeg" class = "StandardImageStyle">
+                <p>
+                    このように、特定の操作や条件をグラフの変形という形で表現することで、最短経路問題を適用することができるようになります。最後に同様の例を紹介します。以下の図は、これまでの話とは関係なく、頂点 \(X\) を通ることが条件となっている場合の最短経路問題を表現するグラフです。
+                </p>
+                <br><img src = "./../../images/Dijkstra/Dijkstra.004.jpeg" class = "StandardImageStyle">
+                <br>
+                <h2>オイラー路</h2>
+                <p>
+                    グラフの全ての辺をちょうど \(1\) 度だけ通る Walk のことを、オイラー路と言います。
+                </p>
+                <br><img src = "./../../images/Graph/Graph.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    例えば、このグラフでのオイラー路の \(1\) つは以下のような Walk です。
+                </p>
+                <br><img src = "./../../images/Graph/Graph.003.jpeg" class = "StandardImageStyle">
+                <h3><u>オイラー路が存在するための条件</u></h3>
+                <p>
+                    大前提として、グラフが連結である必要があります。オイラー路が存在すると仮定した場合、オイラー路の<b>始点と終点以外</b>の頂点に注目してみます。それらの頂点は始点でも終点でもないので、<b>その頂点に入ったら必ず出ることになり</b>、頂点に <b>入る/出る が 1 セットになっている</b>ので、<b>始点でも終点でもない頂点の次数は偶数</b>であることがわかります。
+                </p>
+                <p>
+                    次数が奇数になる頂点は 始点/終点 のみであり、始点と終点が同じ場合はそれらの次数も偶数になります。よって、オイラー路が存在する必要十分条件は、<b>次数が奇数の頂点数が \(0\) または \(2\) であること</b>です。
+                </p>
+                <br>
+                <h2>二部グラフと \(K\)-Coloring</h2>          
+                <p>
+                    辺で隣接する頂点が同じ色にならないようにグラフを K 色で塗り分けることを、\(K\) 彩色と言います。特にグラフが二部グラフであることは \(2\) 彩色可能であることの必要十分条件です。
+                </p>
+                <br><img src = "./../../images/Graph/Graph.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    グラフが \(2\) 彩色可能かどうかの判定は、DFS によって \(O(N)\) 時間で可能です。グラフを色 \(1 , 2\) の \(2\) 色で塗り分けるものとし、初めに適当な頂点を色 \(1\) で塗ってそこから DFS しながら愚直に色を塗っていきます。
+                </p>
+                <br><img src = "./../../images/Graph/Graph.005.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/Graph/Graph.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    DFS の途中で矛盾 (隣接する頂点を同じ色で塗る) が発生した場合、そのグラフは \(2\) 彩色不可能なので二部グラフではありません。  
+                </p>
+                <br><img src = "./../../images/Graph/Graph.007.jpeg" class = "StandardImageStyle">
+                <p>
+                    では \(3\) 彩色可能かどうかの判定はどうでしょうか。頂点を色 \(1,2,3\) で塗り分け可能かどうかは、ナイーヴなアルゴリズムによって \(O(N2^N)\) 時間で判定可能です。
+                </p>
+                <p>
+                    まず頂点集合 \(S\) を決めて、頂点集合 \(S\) の頂点を色 \(1\) で塗ります。当然隣接する頂点同士を色 \(1\) で塗ることはできないので、\(S\) に属する頂点は互いに隣接しない必要があります。
+                </p>
+                <br><img src = "./../../images/Graph/Graph.008.jpeg" class = "StandardImageStyle">
+                <p>
+                    <b>頂点集合 \(S\) に属さない頂点からなる誘導部分グラフが \(2\) 彩色可能なら、元のグラフは \(3\) 彩色可能と言えます。</b>
+                </p>
+                <br><img src = "./../../images/Graph/Graph.009.jpeg" class = "StandardImageStyle">
+                <p>
+                    頂点集合 \(S\) としてあり得るものを全て考えるのに \(O(2^N)\) 時間かかり、頂点集合 \(S\) それぞれに対して、二部グラフ判定などが \(O(N)\) 時間かかるので、このアルゴリズムは \(O(N2^N)\) 時間で動作します。
+                </p>
+                <p>
+                    一般化して、\(K\)-Coloring には以下のナイーヴなアルゴリズムを適用することができます。
+                </p>
+                <ul>
+                    <li>色 \(1\) で塗る頂点集合 \(S\) を決める。</li>
+                    <li>\(S\) 以外の頂点からなる誘導部分グラフが \(K-1\) 彩色可能なら、元のグラフは \(K\) 彩色可能である。</li>
+                </ul>
+                <p>
+                    以下は与えられたグラフ (隣接リスト) を \(3\) 色以内で塗り分ける方法の総数を求めるコード例です。
+                </p>
+                <pre>int&ensp;main(){<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;N,M;cin&ensp;&gt;&gt;&ensp;N&ensp;&gt;&gt;&ensp;M&ensp;;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;int&gt;&ensp;&gt;&ensp;G(N);<br>&ensp;&ensp;&ensp;&ensp;while(M--&gt;0){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;u&ensp;,&ensp;v;cin&ensp;&gt;&gt;&ensp;u&ensp;&gt;&gt;&ensp;v;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;u--;v--;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G[u].push_back(v);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G[v].push_back(u);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;long&ensp;long&ensp;ans&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;色&ensp;1&ensp;で塗る頂点集合&ensp;s&ensp;を全探索<br>&ensp;&ensp;&ensp;&ensp;for(int&ensp;s&ensp;=&ensp;0&ensp;;&ensp;s&ensp;&lt;&ensp;(1&lt;&lt;N)&ensp;;&ensp;s++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;s&ensp;以外の頂点が二部グラフかどうかを調べる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;二部グラフなら、連結成分ごとに&ensp;2&ensp;通りの塗り方があるので、<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;s&ensp;に対して&ensp;2^(連結成分の個数)&ensp;通りの塗り方がある<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;long&ensp;long&ensp;ccc&ensp;=&ensp;0;&ensp;//&ensp;(Connected&ensp;Component&ensp;Count)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;color(N,0);//&ensp;[x]&ensp;:=&ensp;頂点&ensp;x&ensp;の色&ensp;(0&ensp;=&ensp;まだ見てない)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;=&ensp;0&ensp;;&ensp;x&ensp;&lt;&ensp;N&ensp;;&ensp;x++)if((1&lt;&lt;x)&amp;s)color[x]=1;//&ensp;s&ensp;に属する頂点を色&ensp;1&ensp;で塗る<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;隣接する頂点を両方とも&ensp;1&ensp;で塗ることはできない<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;=&ensp;0&ensp;;&ensp;x&ensp;&lt;&ensp;N&ensp;;&ensp;x++)for(int&ensp;y&ensp;:&ensp;G[x])if(color[x]&ensp;==&ensp;1&ensp;&amp;&amp;&ensp;color[y]&ensp;==&ensp;1)ccc&ensp;=&ensp;NINF;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;=&ensp;0&ensp;;&ensp;x&ensp;&lt;&ensp;N&ensp;;&ensp;x++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(color[x]&ensp;!=&ensp;0)continue;&ensp;//&ensp;すでに見た頂点の場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ccc++;//&ensp;連結成分数をカウント<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;stack&lt;int&gt;&ensp;st;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.push(x);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;color[x]&ensp;=&ensp;2;&ensp;//&ensp;頂点&ensp;x&ensp;を&ensp;2&ensp;で塗ると仮定する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(!st.empty()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;st.top();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;C&ensp;=&ensp;color[now];//&ensp;今いる頂点の色<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;nx&ensp;:&ensp;G[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(color[nx]&ensp;==&ensp;0){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;color[nx]&ensp;=&ensp;(C==2)&ensp;?&ensp;3&ensp;:&ensp;2;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.push(nx);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;if(color[nx]&ensp;==&ensp;C)ccc&ensp;=&ensp;NINF;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;すでに自分と同じ色が塗られてたら二部グラフではないので&ensp;NG<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(ccc&gt;=0)ans+=(1ll&lt;&lt;ccc);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;ans&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;return&ensp;0;<br><br></pre>
+
+            
+
+
+
+
+            </section>
+                
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

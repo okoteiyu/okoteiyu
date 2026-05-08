@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    典型練習問題まとめ<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <!--
+                <div class = "Highlight">
+                    <h3>
+                        タイトル
+                    </h3>
+                    <p>
+                        問題文
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            解説
+                        </p>
+                        コード
+                    </details>
+                </div>
+                -->
+
+                <br>
+                <div class = "TitleLine"><h2>重複組み合わせ(典型90 - 15)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>F(x) : 1 ~ N の整数から、どの 2 つの差の絶対値も x 以上であるようにいくつか取り出す方法の総数
+                        <br>各 1 ≦ x ≦ N について、F(x) mod 1000000007 を計算してください。
+                        <br>・N ≦ 100000
+                    </pre>      
+                    <li>\(f(a,x)\) := \(a\) 個数取り出して、どの二つの差の絶対値も \(x\) 以上になる取り出し方の方法</li>
+                    を考えます。
+                    <br>これは、以下のように考えることができます。
+                    <ul>    
+                        <li>赤いボールが \(a\) 個、白いボールが \(N - a\) 個あるものとする</li>
+                        <li>\(a\) 個の赤いボールを一列に並べる</li>
+                        <li>
+                            隣り合う赤いボール同士の隙間全てに、\(x-1\) 個ずつ白いボールを入れる
+                            <br> &ensp;&ensp; → 白いボールは残り \(N-a-(a-1)(x-1)\) 個になる
+                            <br> &ensp;&ensp; → 赤いボール同士の距離が \(x\) になった
+                        </li>
+                        <li>
+                            残った白いボールは、赤いボール同士の間の領域 + 両端 の \(a+1\) 箇所に散りばめることができる
+                            <br> &ensp;&ensp; → 残りの<b>区別しない</b>白いボールを、\(a+1\) 種類の箱に入れる組み合わせである。
+                        </li>
+                        <li>
+                            このように並べたボールの左から、\(1 , 2 , ... , N\) と番号をつけると、
+                            <br>赤いボールにつけられた番号が、選ばれる整数に対応している。
+                        </li>
+                    </ul>
+                    <br>
+                    <pre>int&ensp;main(){<br>&ensp;&ensp;&ensp;&ensp;int&ensp;n;cin&ensp;&gt;&gt;&ensp;n;<br>&ensp;&ensp;&ensp;&ensp;ll&ensp;mod&ensp;=&ensp;1000000007;<br>&ensp;&ensp;&ensp;&ensp;ModComb&ensp;M(1000000,mod);<br>&ensp;&ensp;&ensp;&ensp;M.COMinit();<br>&ensp;&ensp;&ensp;&ensp;FOR(k,1,n+1){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;long&ensp;long&ensp;res&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;FOR(a&ensp;,&ensp;1&ensp;,&ensp;n+1){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ll&ensp;p&ensp;=&ensp;n-a-(a-1)*(k-1)&ensp;+&ensp;a;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(p&ensp;&lt;&ensp;0)break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;+=&ensp;M.COM(p,a);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;res%mod&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;return&ensp;0;<br><br></pre>
+                </div>
+
+                <br>
+                <div class = "TitleLine"><h2>交点のカウント(典型 90 - 17)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>円上で時計回りに 1 , 2 , ... , N と等間隔に並んだ N 個の点と、それらを結ぶ線分が M 本ある。
+                        <br>端点以外で線分同士が交差する交点の個数を出力せよ。
+                    </pre>
+                    <img src = "./../../images/CrossingSegments/CrossingSegments.001.jpeg" class = "StandardImageStyle">
+                    <br>円のどこかをカットして円を直線に変形させることで、数直線上での M 本の線分の問題に帰着します。  
+                    <br><img src = "./../../images/CrossingSegments/CrossingSegments.002.jpeg" class = "StandardImageStyle">
+                    <br>数直線上において、ある線分(区間) \(L\) と交差する線分は、<b>片方の端点が \(L\) の区間内にあり、もう片方の端点が \(L\) の区間外にある</b>必要があります。
+                    <br>ただし区間内とは、開区間 (端点を含まない) です。
+                    <br>
+                    <br>ここで、<b>線分の左側の端点が小さい方から</b>線分を見ていくことにし、\(i\) 番目に見る線分を \(L_i\) とします。
+                    <br>すると各 \(i\) について<b> \(i-1\) 番目以前の線分の左側の端点は全て \(L_i\) の区間外</b>となります。  
+                    <br>線分が交差する条件より、<b> \(i-1\)番目以前の線分のうち、右端の端点が \(L_i\) の区間内にある</b>ものは、\(L_i\) と交差することがわかります。
+                    <br>
+                    <br>既に調べた線分の右端の端点の位置を Set や セグメント木 に記録することで、\(L_i\) の区間内にあるものの個数をカウントできます。  
+                    <br>
+                    <br><img src = "./../../images/CrossingSegments/CrossingSegments.003.jpeg" class = "StandardImageStyle">
+                    <br><b>\(8\) が区間内なので答えに \(+1\)</b>
+                    <br><img src = "./../../images/CrossingSegments/CrossingSegments.004.jpeg" class = "StandardImageStyle">
+                    <br><b>区間内に端点は存在しない</b>
+                    <br><img src = "./../../images/CrossingSegments/CrossingSegments.005.jpeg" class = "StandardImageStyle">
+                    <br><b>\(8\) が区間内なので答えに \(+1\)</b>
+                    <br><img src = "./../../images/CrossingSegments/CrossingSegments.006.jpeg" class = "StandardImageStyle">
+                    <br>
+                    <h2>まとめ</h2>
+                    <br><b>これまでに見た線分の左端が必ず \(L_i\) の区間外であることを利用して、交点の個数を \(L_i\) の区間内にある右側端点の個数に帰着</b>した。
+                    <br>左端が \(L_i\) の区間内で、右端が区間外のパターンを見落としているように見えるが、<b>そのようなパターンがあるなら、\(i+1\) 番目以降の線分を調べる時に \(L_i\) の右側の端点がカウントされる</b>ことになるので問題ない。
+                    <br>
+                    <br>線分の端点のうち、点の番号が小さい方を左側の端点、大きい方を右側の端点とすると、円上でも同じ方法で交点を数えることができる。
+                    <br>
+                    <pre>int&ensp;main(){<br>&ensp;&ensp;&ensp;&ensp;ll&ensp;n&ensp;,&ensp;m;cin&ensp;&gt;&gt;&ensp;n&ensp;&gt;&gt;&ensp;m;<br>&ensp;&ensp;&ensp;&ensp;SplayTree&lt;int&gt;&ensp;S;<br>&ensp;&ensp;&ensp;&ensp;REP(i,n+1)S.push_back(0);<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vll&gt;&ensp;segment(n+1);//&ensp;[x]&ensp;:=&ensp;点&ensp;x&ensp;に左端点がある線分の右端の位置の一覧<br>&ensp;&ensp;&ensp;&ensp;REP(i,m){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;left&ensp;,&ensp;right;cin&ensp;&gt;&gt;&ensp;left&ensp;&gt;&gt;&ensp;right;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(left&gt;right)swap(left,right);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;segment[left].push_back(right);&ensp;//&ensp;線分を&ensp;1&ensp;始まりの数直線上の区間と捉える<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;ll&ensp;ans&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;円を点&ensp;1&ensp;から始まる数直線と捉える<br>&ensp;&ensp;&ensp;&ensp;FOR(left,1,n+1){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;right&ensp;:&ensp;segment[left])if(left&ensp;+&ensp;1&ensp;&lt;&ensp;right)ans&ensp;+=&ensp;S.RangeSumQuery(left+1,right);//&ensp;区間内の右端の個数をカウント<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;right&ensp;:&ensp;segment[left])S.update_val(right,S[right].Value+1);//&ensp;右端をメモ<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;ans&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;return&ensp;0;<br><br></pre>
+                </div>
+
+
+
+
+                <br>
+                <div class = "TitleLine"><h2>区間DP (典型 90 - 19)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>長さ N の 数列 A に対して、A が空になるまで以下の操作を繰り返す。
+                        <br>・A の要素のうち、連続する 2 つの要素を選び、A から削除する。削除された要素以外の並び順は変わらない。
+                        <br>この操作におけるコストを、選んだ要素の値の差の絶対値とする。
+                        <br>各操作で好きな隣接要素を選べる時、操作を完了するためのコストの総和としての最小値を答えでください。
+                    </pre>      
+                    \(A\) のどの区間に注目しても、考える問題は同じです。
+                    <br>ある区間に対して操作を完了するためのコストに注目すると、その結果を用いて \(A\) 全体に対する操作完了コストの最小値を計算できる。
+                    <br><img src = "./../../images/tenkei90_image/019_dp/019_dp.001.jpeg"  class = "StandardImageStyle">
+                    <br>
+                </div>
+
+
+
+
+
+            </section>
+                
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

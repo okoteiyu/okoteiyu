@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>LiChaoTree</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    線分を扱うデータ構造 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <u>
+                    イントロダクション
+                </u>
+                <p>
+                    Li-Chao-Tree というデータ構造を書きました。このデータ構造は、平面座標系に線分を追加する操作と、指定した \(x\) 座標をカバーする線分の \(y\) 座標の min/max を計算する操作をサポートします。
+                </p>
+                <p>
+                    アルゴリズムは動的双対セグメント木をベースとしております。<b>動的</b>,<b>双対</b>についてはセグメント木の記事を参照してください。min の取得と max の取得は実質的に同じことなので、今回は min の取得の解説を行います。
+                </p>
+                <p>
+                    <u><b>注意 : </b>線分を英語で<b>セグメント</b>と呼びますが、<b>この記事でセグメントといえば、セグメント木のノードがカバーする区間を指すものとします。</b></u> 
+                </p>
+                <p>
+                    双対セグメント木で大体想像がつくと思いますが、追加する線分の定義域 (線分の \(x\) 座標の区間) と対応するようにセグメントを分割します。それぞれのセグメントには線分を持たせ、ある \(x\) 座標をカバーするようなセグメントそれぞれが持つ線分の \(y\) 座標を比較することで、ある \(x\) 座標における \(y\) 座標の min を取得します。
+                </p>
+                <p>データ構造の仕組みを紹介する前に、Li-Chao-Tree の要件をまとめておきます。</p>
+                <ul>
+                    <li>セグメント木のセグメントは半開区間。追加する線分は閉区間(または開区間)。</li>
+                    <li>
+                        アクセスは整数座標のみ。よってセグメント \([l,r)\) は実際は \((l,l+1,\dots,r-2,r-1)\) を表す。
+                        <ul>
+                            <li>特にセグメント木の末端ノード \([l,l+1)\) は \(x = l\) の一点のみに対応している。</li>
+                        </ul>
+                    </li>
+                    <li>
+                        整数の \(x\) 座標を指定しても、\(y\) 座標は必ずしも整数とは限らない。
+                        <ul>
+                            <li>二点 (a,b) , (c,d) を結ぶ線分をつなげる場合など</li>
+                            <li>臨機応変に \(y\) 座標の型を設定する必要がある</li>
+                        </ul>
+                    </li>
+                </ul>
+                <br>
+                <u>
+                    データ構造の仕組み
+                </u>
+                <p>
+                    動的セグメント木は必要に応じてセグメントを動的に生成するので、はじめノードは root となるノードしか存在しません。これを、任意の線分より大きい線分 \(y = \mathrm{init}\) で初期化しておきます。(定義域が大きい場合はオーバーフロー注意ポイントです。)
+                </p>
+
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.001.jpeg" class = "StandardImageStyle">
+
+                <p>ここに以下の線分 \(S_1\) を追加してみます。</p>
+
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(S_1\) の定義域に対応するセグメントを選択し、\(S_1\) を記録しておきます。ここでとっても罠なのが、追加する線分は両端の端点も含むので、線分の定義域が \([l,r]\) なら、\([l,r+1)\) に対応するセグメントを選択する必要があります。
+                </p>
+                <p>
+                    続いて、\(S_2\) を追加します。
+                </p>
+
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.003.jpeg" class = "StandardImageStyle">
+                <p>\(S_1\) の定義域のセグメントと独立なので、スムーズに \(S_2\) を記録できました。</p>
+                <p>
+                    次は \(S_3\) を追加します。このとき \(S_1\) を持つセグメントと競合が起こります。
+                </p>
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    選択したセグメントにはすでに \(S_1\) が記録されているので、ここで線分 \(S_1\) と \(S_3\) の大小の比較が発生します。\(2\) つの線分上の \(y\) 座標の大小は交点の前後で変わることから、少しテクニカルな比較 & ノードの更新を行う必要があります。
+                </p>
+                <p>
+                    まず、セグメント木の末端 \([r,r+1)\) は \(x = r\) のちょうど \(1\) 点に対応するので、\(x = r\) における \(y\) 座標が小さい方の線分を採用することができます。下図の水色の部分がこれにあたります。
+                </p>
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    競合するセグメントが \(2\) つの線分の交点をカバーする場合、その交点がセグメントのどの領域 (子セグメント) に存在するかを計算する必要があります。セグメントの左端,中点,右端 \((l,m,r)\) における \(y\) 座標の大小関係を比較することで、交点が<b>セグメントの左側または右側</b>のどちらに存在するかを特定できます。ただし、交点がちょうど左端や中点にある場合は別の処理(後述)とします。
+                </p>
+                <p>
+                    <ul>
+                        <li>\(x = l\) における \(y\) 座標の大小関係が、\(x = m\) における \(y\) 座標の大小関係と異なる場合、交点は左側 : \([l,m)\) に存在する。</li>
+                        <li>\(x = m\) における \(y\) 座標の大小関係が、\(x = r\) における \(y\) 座標の大小関係と異なる場合、交点は右側 : \([m,r)\) に存在する。</li>
+                    </ul>
+                    また、交点が存在しない側の子セグメントに採用する線分は \(x=m\) における \(y\) 座標の大小関係を調べることで特定できます。今回は交点が存在しない側の子セグメント (右の子) に線分 \(S_3\) を採用します。
+                </p>
+                <p>
+                    このとき、交点が存在しない側の子セグメントに \(S_3\) を採用する代わりに、<b>今見ているセグメントに \(S_3\) を記録</b>します。そして、<b>採用されなかった線分 \(S_1\) を、交点が存在する領域側の子セグメントに伝播させ</b>、今と同じ処理を伝播先で再帰的に行います。
+                </p>
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    水色の部分を全て \(S_3\) で置き換えてしまいましたが問題ありません。なぜなら、ここで \(S_1\) を子セグメントに伝播させる操作は、<b>水色のセグメントの \(S_1 \leq S_3\) の区間 (定義域) に \(S_1\) を新たに追加する操作</b>と同義なので、再帰的に正当性が保証されます。
+                </p>
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.007.jpeg" class = "StandardImageStyle">
+                <p>
+                    伝播先の処理も見てみましょう。\(l,m,r\) を見ると区間内に交点が存在しないことがわかるので、\(x=l\) (セグメント内ならどこでも良い) での \(y\) 座標を参照して線分を採用します。  
+                </p>
+                <p>
+                    ただし、交点が \(x = l\) または \(x = m\) の場合は特殊な処理が必要です。
+                    <ul>
+                        <li>\(x = l\) で交差する場合 \(\rightarrow\) 線分の傾きの大小を参照し、セグメント全体の線分を置き換える。</li>
+                        <li>\(x = m\) で交差する場合 \(\rightarrow\) 線分の傾きの大小から、<b>セグメントに元々ある線分よりも \(y\) 座標が小さい領域側の子セグメントに伝播させる。</b></li>
+                    </ul>
+                </p>
+
+                <p>
+                    最終的に、動的双対セグメント木には以下のように線分が記録されます。
+                </p>
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.008.jpeg" class = "StandardImageStyle">
+                <p>
+                    このセグメントツリーを使うことで、指定した \(x\) 座標をカバーする線分の min にアクセスすることができます。
+                </p>
+                <br><img src = "./../../images/LiChaoTree/LiChaoTree.009.jpeg" class = "StandardImageStyle">
+                <br>
+                <br>
+                <u>
+                    設計
+                </u>
+                <p>
+                    線分を追加する方法ごとに、\(y\) 座標の型を変える必要がある。
+                    <ul>
+                        <li>\(x \in [l,r]\) に \(y = ax+b\) を追加 \(\rightarrow\) 整数型で良い (が、オーバーフロー注意)</li>
+                        <li>\(2\) 点 \((a,b),(c,d)\) を結ぶ線分を追加 \(\rightarrow\) 有理数型 ( 精度を要求するなら __float128 など (遅いけど) ) </li>
+                    </ul>
+                    また、追加する線分の端点を含めない場合は、単にセグメント木の範囲の両端を \(1\) 縮めれば良い。
+                    <br> 90° の線分を追加する際は、追加する \(x\) 座標に、端点の \(y\) 座標を記録する。端点を含めない場合も極限を考えて同じように追加して良い。
+                </p>
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+                        <br>
+                        <br>
+                        <pre><br><br><br><br><br><br><br><br>/*<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;LiChaoTree&nbsp;:&nbsp;動的双対セグメント木に線分を載せたもの。<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;線分の集合を管理し、与えられた&nbsp;x&nbsp;座標に対して全ての直線の&nbsp;Y&nbsp;座標の&nbsp;min/max&nbsp;を返す<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;線分の集合を、セグメントツリーに対応させる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;クエリで要求する座標は全て整数。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;取得する&nbsp;Y&nbsp;座標の型をテンプレートで指定するが、整数型で済む場合もある(後述)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;各ノードは線分&nbsp;ax+b&nbsp;と、担当する区間&nbsp;[L,R)&nbsp;を持つ。(双対セグ木の要領で持たせる)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;セグメントツリーの末端は幅&nbsp;1&nbsp;の区間&nbsp;[x,x+1)&nbsp;に対応させる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;[i,i+1)&nbsp;は、x&nbsp;座標が&nbsp;i&nbsp;にのみ対応している。(整数以外の&nbsp;x&nbsp;座標は要求されないので)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;逆に、点&nbsp;(a,b)&nbsp;の一点だけのために&nbsp;[a,a+1)&nbsp;のセグメントに直線&nbsp;y&nbsp;=&nbsp;0x&nbsp;+&nbsp;b&nbsp;を持たせて良い<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;幅が&nbsp;2&nbsp;以上のセグメントにはちゃんと要求通りの直線を持たせる必要がある&nbsp;(x&nbsp;=&nbsp;a+1&nbsp;とかにもアクセスされるので)<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;コンストラクタには以下を渡す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;L,R&nbsp;:=&nbsp;x&nbsp;座標の定義域を閉区間&nbsp;[L,R]&nbsp;で指定<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;!!!ここもオーバーフロー&nbsp;&amp;&nbsp;TLE&nbsp;の要因になる!!!&nbsp;ので必要最低限の定義域にするように注意<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;init_&nbsp;:=&nbsp;[L,R]&nbsp;の&nbsp;y&nbsp;座標の初期値が&nbsp;init_&nbsp;である。(直線&nbsp;:&nbsp;Y=init_&nbsp;が存在する)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;smaller&nbsp;を指定して、最小か最大のどちらを取得するかを指定する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;true&nbsp;&nbsp;:&nbsp;最小<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;false&nbsp;:&nbsp;最大<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;以下の&nbsp;3&nbsp;種類の関数を使う際は&nbsp;y&nbsp;座標の値にも整数型を使える&nbsp;(オーバーフローに注意)。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;f(X)&nbsp;:=&nbsp;全ての線分&amp;直線のうち、x&nbsp;座標が&nbsp;X&nbsp;において最小or最大&nbsp;(smaller&nbsp;で指定)&nbsp;の&nbsp;y&nbsp;座標を取得。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;(!!!!推奨!!!!)&nbsp;add_segment(l,r,a,b)&nbsp;:&nbsp;閉区間　[l,r]&nbsp;に線分&nbsp;y&nbsp;=&nbsp;ax+b&nbsp;を追加&nbsp;(閉区間であることに注意)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;add_line(a,b)&nbsp;:&nbsp;定義域全体に直線&nbsp;y&nbsp;=&nbsp;ax+b&nbsp;を追加<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;|x&nbsp;座標の上限|×a&nbsp;ぐらいの値になるのでオーバーフローに注意&nbsp;(できれば&nbsp;add_segment&nbsp;を使う)<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;以下の関数を使う場合は&nbsp;y&nbsp;には有理数を使わないといけない&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;誤差の関係で&nbsp;__float128&nbsp;がオススメ、ただし遅い。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;(非推奨)&nbsp;write_segment(a,b,c,d,e)&nbsp;:&nbsp;点&nbsp;(a,b)&nbsp;と&nbsp;点&nbsp;(c,d)&nbsp;をつなぐ。このとき&nbsp;exclusive&nbsp;=&nbsp;e&nbsp;(後述)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;exclusive&nbsp;が真の場合、両端の端点を含まない&nbsp;(デフォルトは含まれる)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;整数座標しか要求しないので&nbsp;90°&nbsp;の線分も追加できる。[a,a+1)&nbsp;に対応するセグメントに端点の&nbsp;y&nbsp;座標を登録する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;exclusive&nbsp;かつ&nbsp;90°&nbsp;の場合、長さが正の線分ならば極限を考えて端点の&nbsp;y&nbsp;座標を採用する&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;TLE,RE,WA,MLE&nbsp;が出たら、以下をゴネゴネすると良い。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;double&nbsp;の精度を上げる工夫(eps&nbsp;を使った誤差付き有理数の比較など)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;他も募集中<br>*/<br>template&lt;class&nbsp;T&nbsp;,&nbsp;class&nbsp;Integer_&gt;<br>class&nbsp;LiChaoTree{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true&nbsp;なら小さい方を採用、false&nbsp;なら大きい方を採用<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;smaller;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;二つの&nbsp;y&nbsp;座標&nbsp;Y1,Y2&nbsp;を比較するとき、Y1&nbsp;を優先するかどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;comp(T&nbsp;Y1&nbsp;,&nbsp;T&nbsp;Y2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(smaller)return&nbsp;Y1&nbsp;&lt;&nbsp;Y2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Y1&nbsp;&gt;&nbsp;Y2;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;/*動的なノードクラス*/<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;Node{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pair&lt;Integer_,Integer_&gt;&nbsp;range;//&nbsp;担当する区間&nbsp;(半開区間)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;left&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;right&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;parent&nbsp;=&nbsp;nullptr;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードが持つ線分の&nbsp;傾きと切片<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;A,B;//&nbsp;(A,B)&nbsp;:&nbsp;y&nbsp;=&nbsp;Ax&nbsp;+&nbsp;B&nbsp;を意味する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node(Node*&nbsp;p,&nbsp;Integer_&nbsp;l&nbsp;,&nbsp;Integer_&nbsp;r&nbsp;,&nbsp;T&nbsp;a&nbsp;,&nbsp;T&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;=&nbsp;a;B&nbsp;=&nbsp;b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent&nbsp;=&nbsp;p;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;range&nbsp;=&nbsp;{l,r};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;make_child(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(left&nbsp;==&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;right==nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left&nbsp;=&nbsp;new&nbsp;Node(this,range.first,(range.first+range.second)/2,A,B);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right&nbsp;=&nbsp;new&nbsp;Node(this,(range.first+range.second)/2,range.second,A,B);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(left&nbsp;!=&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;right!=nullptr);//&nbsp;片方だけ存在しないことはあり得ない。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードがカバーする区間の長さ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constexpr&nbsp;Integer_&nbsp;range_length(){return&nbsp;(range.second&nbsp;-&nbsp;range.first);}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードが&nbsp;i&nbsp;をカバーするか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constexpr&nbsp;bool&nbsp;cover(Integer_&nbsp;i){return&nbsp;bool(range.first&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;range.second);}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;現在このノードが葉ノードか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constexpr&nbsp;bool&nbsp;isleaf(){return&nbsp;bool(this-&gt;left&nbsp;==&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;this-&gt;right&nbsp;==&nbsp;nullptr);}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;現在構築済みのセグ木で、x&nbsp;座標が&nbsp;i&nbsp;を含む葉ノードを取得する<br>&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;access(Integer_&nbsp;i&nbsp;,&nbsp;Node*&nbsp;subr){&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(subr-&gt;cover(i));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(subr-&gt;isleaf())return&nbsp;subr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(subr-&gt;left-&gt;cover(i))return&nbsp;access(i,subr-&gt;left);&nbsp;//&nbsp;i&nbsp;を含む方に降りる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;access(i,subr-&gt;right);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;subr&nbsp;が持つ線分と&nbsp;ax&nbsp;+&nbsp;b&nbsp;を比較する。<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;EvalNode(T&nbsp;a&nbsp;,T&nbsp;b&nbsp;,Node*&nbsp;subr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer_&nbsp;l&nbsp;=&nbsp;subr-&gt;range.first;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer_&nbsp;r&nbsp;=&nbsp;subr-&gt;range.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer_&nbsp;m&nbsp;=&nbsp;(l+r)/2;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;subr&nbsp;が持つ線分の、x&nbsp;=&nbsp;l,r&nbsp;における&nbsp;y&nbsp;座標<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;ly1&nbsp;=&nbsp;subr-&gt;A*T(l)&nbsp;+&nbsp;subr-&gt;B;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;ry1&nbsp;=&nbsp;subr-&gt;A*T(r)&nbsp;+&nbsp;subr-&gt;B;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;y&nbsp;=&nbsp;ax&nbsp;+&nbsp;b&nbsp;の、x&nbsp;=&nbsp;l,r&nbsp;における&nbsp;y&nbsp;座標<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;ly2&nbsp;=&nbsp;a*T(l)+b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;ry2&nbsp;=&nbsp;a*T(r)+b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(subr-&gt;range_length()&nbsp;==&nbsp;Integer_(1)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(ly2,ly1)){subr-&gt;A&nbsp;=&nbsp;a;subr-&gt;B&nbsp;=&nbsp;b;}//&nbsp;セグメントが最小単位なら&nbsp;x&nbsp;=&nbsp;l&nbsp;だけ参照<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else&nbsp;if(subr-&gt;A&nbsp;==&nbsp;a){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(b,subr-&gt;B)){subr-&gt;A&nbsp;=&nbsp;a;subr-&gt;B&nbsp;=&nbsp;b;}//&nbsp;傾きが同じ場合、切片を見る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else&nbsp;if(ly1&nbsp;==&nbsp;ly2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(a,subr-&gt;A)){subr-&gt;A&nbsp;=&nbsp;a;subr-&gt;B&nbsp;=&nbsp;b;}//&nbsp;区間端で交わる場合、傾きの大小を見る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else&nbsp;if(ry1&nbsp;==&nbsp;ry2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(subr-&gt;A,a)){subr-&gt;A&nbsp;=&nbsp;a;subr-&gt;B&nbsp;=&nbsp;b;}//&nbsp;区間端で交わる場合、傾きの大小を見る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else&nbsp;if(comp(ly1,ly2)&nbsp;!=&nbsp;comp(ry1,ry2)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;両端で大小関係が異なるなら、区間内に交点が含まれる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;交点が存在する場所を見て、左右のどちらか片方に降りる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subr-&gt;make_child();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;bound&nbsp;=&nbsp;subr-&gt;right;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;my1&nbsp;=&nbsp;subr-&gt;A*T(m)&nbsp;+&nbsp;subr-&gt;B;//&nbsp;x&nbsp;=&nbsp;m&nbsp;の&nbsp;subr&nbsp;の線分の&nbsp;y&nbsp;座標<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;my2&nbsp;=&nbsp;a*T(m)&nbsp;+&nbsp;b;&nbsp;//&nbsp;x&nbsp;=&nbsp;m&nbsp;の&nbsp;y&nbsp;=&nbsp;ax&nbsp;+&nbsp;b&nbsp;の&nbsp;y&nbsp;座標<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;中間で交わる場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my1&nbsp;==&nbsp;my2){if(comp(subr-&gt;A,a))bound&nbsp;=&nbsp;subr-&gt;left;//&nbsp;傾きを見る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(ly1,ly2)&nbsp;!=&nbsp;comp(my1,my2))bound&nbsp;=&nbsp;subr-&gt;left;//&nbsp;左側の領域に交点があるなら左に降りる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(my2,my1)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;降りない方の領域の線分に&nbsp;y&nbsp;=&nbsp;ax&nbsp;+&nbsp;b&nbsp;を採用する場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;bound&nbsp;には&nbsp;subr&nbsp;の線分を降ろし、subr&nbsp;は&nbsp;y&nbsp;=&nbsp;ax&nbsp;+&nbsp;b&nbsp;で置き換える(かしこい)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(a,subr-&gt;A);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(b,subr-&gt;B);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EvalNode(a,b,bound);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間の完全に外側で交わるなら、x&nbsp;=&nbsp;l&nbsp;の部分だけ参照すれば&nbsp;OK<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(ly2,ly1)){subr-&gt;A&nbsp;=&nbsp;a;subr-&gt;B&nbsp;=&nbsp;b;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[l,r)&nbsp;に対応するセグメントを&nbsp;bucket&nbsp;に入れていく<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;RangeSegments(Integer_&nbsp;l&nbsp;,Integer_&nbsp;r&nbsp;,&nbsp;Node*&nbsp;subr&nbsp;,&nbsp;vector&lt;Node*&gt;&amp;&nbsp;bucket){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(r&nbsp;&lt;=&nbsp;subr-&gt;range.first)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(subr-&gt;range.second&lt;=l)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(l&nbsp;&lt;=&nbsp;subr-&gt;range.first&nbsp;&amp;&amp;&nbsp;subr-&gt;range.second&nbsp;&lt;=&nbsp;r)bucket.push_back(subr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subr-&gt;make_child();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RangeSegments(l,r,subr-&gt;left,bucket);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RangeSegments(l,r,subr-&gt;right,bucket);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[l,r]&nbsp;に&nbsp;ax+b&nbsp;を追加&nbsp;rt&nbsp;から探索<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add_segment_sub(Integer_&nbsp;l&nbsp;,&nbsp;Integer_&nbsp;r&nbsp;,&nbsp;T&nbsp;a&nbsp;,&nbsp;T&nbsp;b&nbsp;,&nbsp;Node*&nbsp;rt){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;segments;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RangeSegments(l,r+1,rt,segments);//&nbsp;セグ木のノードは半開区間なので&nbsp;r&nbsp;に&nbsp;1&nbsp;加算する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;nd&nbsp;:&nbsp;segments)EvalNode(a,b,nd);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;m_Root&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;Integer_&nbsp;_Llim,_Rlim;//&nbsp;定義域の両端<br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;LiChaoTree(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;定義域と、全ての&nbsp;x&nbsp;座標での&nbsp;y&nbsp;座標の初期値、<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;y&nbsp;座標の最小or最大のどっちを取得するかを&nbsp;smaller&nbsp;で指定する&nbsp;(true→最小&nbsp;,&nbsp;false→最大)&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;セグ木の区間は半開区間なので、[L,R_+1)&nbsp;とする<br>&nbsp;&nbsp;&nbsp;&nbsp;LiChaoTree(Integer_&nbsp;L_&nbsp;,&nbsp;Integer_&nbsp;R_&nbsp;,&nbsp;T&nbsp;init_&nbsp;,&nbsp;bool&nbsp;smaller&nbsp;=&nbsp;true):_Llim(L_),_Rlim(R_),m_Root(new&nbsp;Node(nullptr,L_,R_+1,0,init_)),smaller(smaller){}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;アクセスできる&nbsp;x&nbsp;座標の範囲&nbsp;(閉区間)&nbsp;:&nbsp;[Llimit()&nbsp;,&nbsp;Rlimit()]<br>&nbsp;&nbsp;&nbsp;&nbsp;Integer_&nbsp;Llimit(){return&nbsp;_Llim;}<br>&nbsp;&nbsp;&nbsp;&nbsp;Integer_&nbsp;Rlimit(){return&nbsp;_Rlim;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;全ての線分&amp;直線のうち、x&nbsp;座標が&nbsp;X&nbsp;において最小or最大&nbsp;(smaller&nbsp;で指定)&nbsp;の&nbsp;y&nbsp;座標を取得。<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;f(Integer_&nbsp;X){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;now&nbsp;=&nbsp;access(X,m_Root);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;res&nbsp;=&nbsp;now-&gt;A*T(X)&nbsp;+&nbsp;now-&gt;B;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(now-&gt;parent!=nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;=&nbsp;now-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(now-&gt;A*T(X)&nbsp;+&nbsp;now-&gt;B,res))res&nbsp;=&nbsp;now-&gt;A*T(X)&nbsp;+&nbsp;now-&gt;B;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;定義域が&nbsp;[l,r)&nbsp;である線分&nbsp;y&nbsp;=&nbsp;ax+b&nbsp;を追加する<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add_segment(Integer_&nbsp;l&nbsp;,&nbsp;Integer_&nbsp;r&nbsp;,&nbsp;T&nbsp;a&nbsp;,&nbsp;T&nbsp;b&nbsp;){add_segment_sub(l,r,a,b,m_Root);}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;全域に&nbsp;y&nbsp;=&nbsp;ax+b&nbsp;を追加<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add_line(Integer_&nbsp;a&nbsp;,&nbsp;Integer_&nbsp;b){add_segment(Llimit(),Rlimit(),a,b);}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;点(a,b)&nbsp;から&nbsp;点(c,d)&nbsp;に線分をひく。(y&nbsp;座標は&nbsp;T&nbsp;型で&nbsp;OK)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;exclusive&nbsp;が&nbsp;true&nbsp;なら端点は含めない<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;write_segment(Integer_&nbsp;a&nbsp;,&nbsp;T&nbsp;b&nbsp;,&nbsp;Integer_&nbsp;c&nbsp;,&nbsp;T&nbsp;d&nbsp;,&nbsp;bool&nbsp;exclusive&nbsp;=&nbsp;false){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a&nbsp;==&nbsp;c){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(exclusive&nbsp;&amp;&amp;&nbsp;b&nbsp;==&nbsp;d)assert(&nbsp;0&nbsp;&amp;&amp;&nbsp;&quot;線分の領域が&nbsp;null&nbsp;です。&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;90°&nbsp;の直線なら、端点の&nbsp;y&nbsp;座標を見る&nbsp;(exclusive&nbsp;の場合も、極限を考えて端点を採用することにする)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(comp(b,d))add_segment(a,a,0,b);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;add_segment(a,a,0,d);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(c&nbsp;&lt;&nbsp;a){swap(a,c);swap(b,d);}&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;p&nbsp;=&nbsp;T(d-b)/T(c-a);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;q&nbsp;=&nbsp;T(b-p*a);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;端点を含まない場合、線分を追加する両端を縮小<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(exclusive){a++;c--;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a&gt;c)return;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_segment(a,c,p,q);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>};<br><br><br>void&nbsp;ABC296G(){<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;テンプレート型宣言は明示的に!!!&nbsp;(日明示だとコンストラクタを優先してしまう)<br>&nbsp;&nbsp;&nbsp;&nbsp;LiChaoTree&lt;__float128,ll&gt;&nbsp;U(-1e9,1e9,NINF,false);//凸包の上側<br>&nbsp;&nbsp;&nbsp;&nbsp;LiChaoTree&lt;__float128,ll&gt;&nbsp;L(-1e9,1e9,INF,true);//凸包の下側<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n;cin&nbsp;&gt;&gt;&nbsp;n;vll&nbsp;x(n),y(n);<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;lmost&nbsp;=&nbsp;INF;ll&nbsp;rmost&nbsp;=&nbsp;NINF;&nbsp;//&nbsp;凸包の最左右の&nbsp;x&nbsp;座標<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n)cin&nbsp;&gt;&gt;&nbsp;x[i]&nbsp;&gt;&gt;&nbsp;y[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;x.push_back(x[0]);<br>&nbsp;&nbsp;&nbsp;&nbsp;y.push_back(y[0]);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lmost&nbsp;=&nbsp;min(lmost,x[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rmost&nbsp;=&nbsp;max(rmost,x[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U.write_segment(x[i],y[i],x[i+1],y[i+1]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L.write_segment(x[i],y[i],x[i+1],y[i+1]);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;q;cin&nbsp;&gt;&gt;&nbsp;q;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,q){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;X&nbsp;;ll&nbsp;Y;cin&nbsp;&gt;&gt;&nbsp;X&nbsp;&gt;&gt;&nbsp;Y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;l&nbsp;=&nbsp;L.f(X);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;u&nbsp;=&nbsp;U.f(X);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(X&nbsp;==&nbsp;lmost&nbsp;||&nbsp;X&nbsp;==&nbsp;rmost){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l&nbsp;-&nbsp;Y&nbsp;&lt;&nbsp;EPS&nbsp;&amp;&amp;&nbsp;Y&nbsp;-&nbsp;u&nbsp;&lt;&nbsp;EPS)cout&nbsp;&lt;&lt;&nbsp;&quot;ON&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;cout&nbsp;&lt;&lt;&nbsp;&quot;OUT&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(l&nbsp;-&nbsp;Y&nbsp;&lt;&nbsp;-EPS&nbsp;&amp;&amp;&nbsp;Y&nbsp;-&nbsp;u&nbsp;&lt;&nbsp;-EPS&nbsp;)cout&nbsp;&lt;&lt;&nbsp;&quot;IN&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(Y&nbsp;-&nbsp;l&nbsp;&lt;&nbsp;-EPS&nbsp;||&nbsp;u&nbsp;-&nbsp;Y&nbsp;&lt;&nbsp;-EPS)cout&nbsp;&lt;&lt;&nbsp;&quot;OUT&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;cout&nbsp;&lt;&lt;&nbsp;&quot;ON&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br><br><br><br><br><br></pre>
+                        <br>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

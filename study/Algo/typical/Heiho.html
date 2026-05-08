@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>クエリ平方分割</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    クエリ平方分割<br></h2>
+            </section>
+
+
+            <section class = "Explanation">
+               
+                <br>
+                <br>クエリ平方分割は、クエリ処理問題
+                <br>
+                <br>使用できる場面は大体以下の場合です。
+                <br>&ensp;&ensp;① : クエリが √Q 回ごとに O( N ) あたりで情報を更新できる
+                <br>&ensp;&ensp;② : 各クエリに答えるとき、最後の①の操作以降のクエリの情報を見ながらクエリの計算ができる
+                <br>
+                <br>①の操作は、O( N ) の操作を √Q 回行うので、O( N√Q ) です。
+                <br>②の操作は、最後の①以降のクエリは高々√Q 個であることから、O( Q√Q ) です。
+                <br>
+                <br><img src = "../../images/query_square/query_square.001.jpeg"  class = "StandardImageStyle">
+                <br><img src = "../../images/query_square/query_square.002.jpeg"  class = "StandardImageStyle">
+                <br><img src = "../../images/query_square/query_square.003.jpeg"  class = "StandardImageStyle">
+                <br><img src = "../../images/query_square/query_square.004.jpeg"  class = "StandardImageStyle">
+                <br>
+                <br>
+                <br>例題として、<a target = "_blank" href = >こちらの問題</a>を解きました。以下はソースコードになります。
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+
+                                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+                    
+                        <br>
+                        <br>この問題は、長さ N の数列 A に対して、
+                        <br>
+                        <br>&ensp;&ensp;取得クエリ : 区間 [x , y] の総 Xor 
+                        <br>&ensp;&ensp;更新クエリ : A[x] を A[x]^y に置き換える
+                        <br>
+                            
+
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

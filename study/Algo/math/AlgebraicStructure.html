@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>数学</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    代数的構造 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>何これ</h3>            
+                <p>
+                    代数的構造の授業内容のメモです。
+                </p>
+                <h3>
+                    第一回
+                </h3>
+                <u>
+                    Bézout の等式
+                </u>
+                <p>
+                    任意の \(m,n\) に対して、ある \((x,y)\) が存在し、以下が成り立つ。
+                    <ul>
+                        <li>
+                            \(mx+ny = \mathrm{gcd(m,n)}\)
+                        </li>
+                    </ul>
+                </p>
+                <u>
+                    Euclid の互除法
+                </u>
+                <p>
+                    みんな知ってる
+                </p>
+                <h3>
+                    第二回
+                </h3>   
+                <u>
+                    フェルマー数
+                </u>
+                <p>
+                    \(F_n := 2^{2^n}+1\)
+                </p>             
+
+
+                <h3>
+                    第三回
+                </h3>   
+                <u>
+                    一次不定方程式の回の存在
+                </u>
+                <p>
+                    係数の列 \(a_1,a_2,\dots,a_n\) に対して、以下が成り立つような列 \(x_1,x_2\dots,x_n\) が成り立つ場合を考える
+                    <ul>
+                        <li>
+                            \(a_1 x_1 + a_2 x_2 + , \dots , a_n x_n = b\)
+                        </li>
+                    </ul>
+                    この時、\(\mathrm{gcd}(a_1,a_2,\dots,a_n)\) は \(b\) の約数 (\(\mathrm{gcd}(a_1,a_2,\dots,a_n)|b\)) である。 
+                </p>             
+                <p>
+                    \(nx + my = k\) の解の一般解は、特殊解 \(x\prime , y\prime\) を用いて以下で表せる。
+                    <ul>
+                        <li>
+                            \(x = x\prime + \frac{n}{\mathrm{gcd}(n,m)}q\)
+                        </li>
+                        <li>
+                            \(y = y\prime - \frac{m}{\mathrm{gcd}(n,m)}q\)
+                        </li>
+                        <li>
+                            \(q \in Z\)
+                        </li>
+                    </ul>
+                </p>
+                <u>
+                    変数が多数ある不定方程式の解き方
+                </u>
+                <p>
+                    ユークリッドの互除法っぽい議論により、絶対値が最も小さい係数で項を括ったものを新たな変数で置き換えることで、変数の種類を減らせる。
+                </p>
+                
+
+                <h3>
+                    第四回
+                </h3>   
+                <u>
+                    mod 付き方程式
+                </u>
+                <p>
+                    \(a,p\) に対して、\(ax = 1 \mod p\) を満たす \(x\) は、不定方程式 \(ax - py = 1\) を解くことでもとまる。
+                </p> 
+                <u>
+                    中国剰余定理
+                </u>
+                <p>
+                    \(b_1,b_2,\dots,b_n\) と \(p_1,p_2,\dots,p_n\) の各 \(1 \leq i \leq n\) 全てに対して、\(x= b_i\mod{p_i}\) を満たす \(x\) の条件は、任意の \(i,j\) に対して \(\mathrm{gcd}(p_i,p_j) = 1\) である。
+                </p>
+                <u>
+                    連立不定方程式
+                </u>
+                <p>
+                    TODO
+                </p>
+                <u>
+                    用語集
+                </u>
+                <p>
+                    <ul>
+                        <li>
+                            同値類 := ある集合 \(A\) に属する要素のうち、
+                        </li>
+                        <li>
+                            位数 := \(a^d = 1 \mod{p}\) となる最小の \(d ( 1 以上)\) を \(a\) の位数という
+                        </li>
+                        <li>
+                            原始根 := 位数が \(p-1\) となる \(a\)を、\(\mathrm{mod} p\) における原始根という
+                        </li>
+                    </ul>
+                </p>
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+

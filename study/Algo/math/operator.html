@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    ライブラリに載せる演算<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                
+                <p>
+                    特定のデータ構造やアルゴリズムのライブラリを作るとき、そのライブラリが行う処理を抽象化して書く場合を想定します。
+                </p>
+                <p>
+                    例えば<b>セグメント木</b>は区間和、区間 min など様々なクエリを処理することができますが、クエリの中身を抽象化しておけば 1 つのセグ木ライブラリで全てのクエリに対応することができます。
+                </p>
+                <br>
+                <h2><u>二項演算について</u></h2>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>演算とは</h2></div>
+                <div class = "Box">
+                    二項演算を \((S , \cdot )\) のように表記します。「\(\cdot\)」 は演算子を意味し、以下を満たします。
+                    <li>\(a,b \in S\) に対して、\(a \cdot b \in S\)</li>
+                    例えば、整数の足し算は \((\mathbb{Z} , +)\) と表記します (\(\mathbb{Z}\) は整数の集合)。
+                </div> 
+                
+                <p>
+                    ライブラリに載せることができる演算はライブラリごとに制限があります。まずはよく使う以下の 2 種類を説明します。
+                </p>
+                
+                <div class = "TitleLine"><h2>群</h2></div>
+                <div class = "Box">
+                    以下の要件を満たす演算 \((S , \cdot )\) を<b>群</b>といいます。
+                    <ul>                        
+                        <li> \(\forall a,b,c \in S\) に対して \((a\cdot b)\cdot c = a\cdot (b\cdot c)\) (結合法則)</li>    
+                        <li>
+                            以下を満たす \(e \in S\) が存在する (単位元)
+                            <ul>
+                                <li>\(\forall x \in S\) に対して \((x\cdot e) = (e\cdot x) = x\) </li>
+                            </ul>
+                        </li> 
+                        <li>
+                            \(\forall x \in S\) に対して以下を満たす元 \(r\) が存在する (\(x\) の逆元)
+                            <ul>
+                                <li>\((r \cdot x) = (x \cdot r) = e\) (\(e\) は単位元)</li>
+                            </ul>
+                        </li> 
+                    </ul>              
+                    例えば、整数の足し算 \((\mathbb{Z} , +)\) は群です。
+                    <ul>
+                        <li> \((a + b) + c = a + (b + c) \dots 結合法則 \)</li>
+                        <li> \(\forall x \in S : x + 0 = 0 + x = x \dots (0 は単位元) \)</li>
+                        <li> \(\forall x \in S : x + (-x) = (-x) + x = 0 \dots  (x の逆元) \)</li>
+                    </ul>
+                    <p>
+                        ただし群は非可換かもしれないことに注意してください。例えば正則行列の積 \((M,\cdot)\) は非可換な群です。\( A,B \in M\) に関して \(A\cdot B\) は必ずしも \(B\cdot A\) と一致しません。
+                    </p>
+                    <p>
+                        可換であることが保証される群を<b>可換群</b>または<b>アーベル群</b>と呼びます。
+                    </p>
+                </div> 
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>半群(モノイド)</h2></div>
+                <div class = "Box">
+                    群の要件から逆元を無くした演算を<b>半群</b>または<b>モノイド</b>と呼びます。
+                    <ul>
+                        <li> \(\forall a,b,c \in S\) に対して \((a\cdot b)\cdot c = a\cdot (b\cdot c)\) (結合法則)</li>    
+                        <li>
+                            以下を満たす \(e \in S\) が存在する (単位元)
+                            <ul>
+                                <li>\(\forall x \in S\) に対して \((x\cdot e) = (e\cdot x) = x\) </li>
+                            </ul>
+                        </li> 
+                    </ul>          
+                    例えば整数の掛け算 \((\mathbb{Z} , \times )\) はモノイドですが群ではありません。
+                    <ul>
+                        <li> \((a \times b) \times c = a \times (b \times c) \dots 結合法則 \)</li>
+                        <li> \(\forall x \in S : x \times 1 = 1 \times x = x \dots (1 は単位元) \)</li>
+                        <li> <b>\(0\) の逆元を定義できない</b></li>
+                    </ul>
+                    こちらも非可換かもしれないことに注意してください。
+                </div> 
+                <br>
+                <p>
+                    以下の主要なライブラリに載る演算もこれらでカテゴライズできます。ライブラリに載せる演算を設計する際は、これらの要件を満たすかをよくチェックする必要があります。
+                </p>
+                <p>
+                    (両者の {可換/非可換} が一致する場合) モノイドと群では<b>モノイドの方が要件がゆるく、適用できる範囲が広い</b>ため、同じアルゴリズムのライブラリでも群よりモノイドが乗る方が優秀です。
+
+                </p>
+                <br>
+                <div class = "TitleLine"><h2>セグメント木</h2></div>
+                <div class = "Box">
+                    <p>
+                        分割統治区間の必要な部分だけ演算するので逆演算の必要がなく、列なので要素の順番が規定されているため可換である必要もありません。よってセグメント木にはモノイドが載ります。
+                    </p>
+                </div> 
+                <br>
+                <div class = "TitleLine"><h2>Splay Tree</h2></div>
+                <div class = "Box">
+                    <p>
+                        セグ木と同様、その都度必要なデータを演算するのでモノイドが載ります。
+                    </p>
+                </div> 
+                
+                <br>
+                <div class = "TitleLine"><h2>全方位木 DP</h2></div>
+                <div class = "Box">
+                    <p>
+                        部分木のマージの順番が定義されているならモノイドが載ります。普通は可換モノイドが載ります。
+                    </p>
+                    <p>
+                        要求が可換群で良いならなら実装を楽することができます。
+                    </p>
+                </div> 
+                <br>
+                <div class = "TitleLine"><h2>UnionFind + 連結成分の要素の演算の積</h2></div>
+                <div class = "Box">
+                    <p>それぞれの頂点に価値 \(v_i\) が割り当てられる状況で Union Find Tree を構築するような場合です。</p>
+                    <p>\(v\) の更新がなければ可換モノイドが載ります。</p>
+                    <p>\(v\) の更新があるなら逆演算(逆元)が必要なので可換群(アーベル群)が載ります。</p>
+                </div> 
+                <br>
+                <br>
+                <br>
+                <h2><u>遅延評価について</u></h2>
+                <p>載せたい遅延評価を抽象化することもできます。</p>
+                <p>
+                    まずは遅延評価が載る条件をまとめます。
+                    <ul>
+                        <li>1 つの値に集約できる (演算である)</li>
+                        <li>結合法則がある</li>
+                        <li>単位元がある</li>
+                    </ul>
+                    つまり遅延評価もモノイドであることが条件となります。
+                </p>
+                <br>
+                <br>続きはまた今度
+
+            </section>
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

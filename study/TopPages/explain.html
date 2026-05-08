@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/common_pc.css">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../static/css/article_pc.css">
+    <link rel="stylesheet"  href="./othello/OthelloAPI.css">
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>おこていゆアーカイブ説明ページ</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">   
+                <h2>   
+                    おこていゆアーカイブ<br></h2>
+            </section>
+            <section class = "Explanation">
+                <h3>
+                    スライドもあるよ✨
+                </h3>
+                <div class = "slide_content_field">
+                    <!-- ページ番号を管理するためだけのdiv (中身の数値を JS が参照する) -->
+                    <div class = "slide_pagenum_store" id = "contents_highlight"></div>
+
+                    <!-- タイトル -->
+                    <div class = "slide_title">コンテンツハイライト</div>
+
+                    <!-- 内容 -->
+                    <img src="./../slides/ExplainSlide/ExplainSlide.001.jpeg"  class = "contents_highlight">
+                    <img src="./../slides/ExplainSlide/ExplainSlide.002.jpeg"  class = "contents_highlight">
+                    <img src="./../slides/ExplainSlide/ExplainSlide.003.jpeg"  class = "contents_highlight">
+                    <img src="./../slides/ExplainSlide/ExplainSlide.004.jpeg"  class = "contents_highlight">
+
+                    <!-- ボタンなどのスライド操作用ツールバー-->
+                    <div class = "slide_button_field">
+                        <button onclick="select_back(event)" name = "contents_highlight" class = "slide_back_button"></button>
+                        <div class = "slide_pagenum_field" title = "contents_highlight" ></div>
+                        <button onclick="select_next(event)" name = "contents_highlight"  class = "slide_next_button"></button>
+                    </div>
+                </div>
+                <br> 
+                <h3>
+                    掲載されたソースコードのライセンス
+                </h3>
+                <p>
+                    記事内に掲載したソースコードは <b>MIT</b> ライセンス (<a href = "https://opensource.org/licenses/mit-license.php" target="_blank">https://opensource.org/licenses/mit-license.php</a>)</li> で公開しています。ソースコードのコメントにライセンスが指示する条件 (以下 \(2\) 点) を書いてあるので、消さずに使用してください。
+                </p>
+                <ul>
+                    <li>
+                        著作者の表示
+                    </li>
+                    <li>
+                        ライセンスの全文またはライセンスの原文が掲載されたページへのリンク
+                    </li>
+                </ul>
+                <br>
+                <h3>
+                    おこていゆとは何か
+                </h3>
+                <p>
+                    よく聞かれるのですが、よくわかりません。でもかわいいですよね(ニコリ)。一応プライベートなイベントをカレンダーに載せたりしようかな。
+                </p>
+                <iframe src = "./../subcontents/calendar/calendar.html" style = "width:100%; height:500px; box-sizing: border-box;"></iframe>
+                <h3>
+                    息抜き
+                </h3>
+                <div style = "margin :auto ; width:90%;">
+                    <!-- AI レベル選択 -->
+                    <div class = "oth_AILevelSelectLine">
+                        <div class = "oth_AILevelSelect_title"> AI レベル選択 </div>
+                        <select id="AI_Selector" class = "oth_AILevelSelect"></select>
+                    </div>
+                    
+
+                    <!-- 上部バー -->
+                    <div class = "oth_status_upperbar">
+                        <div class = "oth_game_message" id = "othellogame_counterID">test</div>
+                        <div class = "oth_game_message" id = "othellogame_static_stateID">test</div>
+                        <div class = "oth_game_message" id = "othellogame_nextInfoID">test</div>
+                    </div>
+
+                    <!-- 盤面 -->
+                    <div class = "oth_board" id = "othellogame_boardID"></div>
+
+                    <!-- 必要なリソースの定義 -->
+                    <div id = "firstImageLink" name = "./othello/HomeIcon.png"></div>
+                    <div id = "secondImageLink" name = "./othello/OkoFaceIcon.png"></div>
+                    <div id = "noImageLink" name = "./othello/noimage.png"></div>
+
+                    <!-- 下部バー -->
+                    <div class = "oth_status_lowerbar">
+                        <button class = "oth_board_resetbutton" id = "othellogame_resetbuttonID">Reset</button>
+                        <div class = "oth_game_message" id = "othellogame_messageBoxID"></div>
+                        <button class = "oth_passbutton" id = "othellogame_passbuttonID">パス</button>
+                        <button class = "oth_changemode_button" id = "othellogame_changemode_buttonID">モード変更</button>
+                    </div>
+                </div>
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../static/js/article_constructor.js"></script>
+<script src="./../../static/js/common_constructor.js"></script>
+<script src="./othello/OthelloAPI.js"></script>

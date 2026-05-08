@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    最強文字列データ構造<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <div class = "Highlight">
+                    <h3>
+                        概要
+                    </h3>
+                    <p>
+                        本サイトでは文字列に関する木構造をいくつか紹介しています。中でも接尾辞木 (Suffix Tree) は文字列データ構造の中で最強と言えるため、必ず理解しておく必要があります。
+                    </p>
+                    <p>
+                        本記事では Suffix Tree の構築方法を \(2\) つ紹介します。特に、<code>push_back</code> しながら構築する方法は、<b>Palindromic Tree</b> を構築する方法と似た部分がありますので、本記事を理解できなければ Palindromic Tree の記事を参照してみると良いです。
+                    </p>
+                </div>
+                <br>
+                <h2>
+                    目次
+                </h2>
+                <ol>
+                    <li>
+                        Overview
+                    </li>
+                    <li>
+                        接尾辞木の概要と静的な構築方法
+                        <ol>
+                            <li>
+                                データ構造
+                            </li>
+                            <li>
+                                前準備
+                                <ol>
+                                    <li>
+                                        必要なデータ
+                                    </li>
+                                    <li>
+                                        Suffix Array と LCP Array
+                                    </li>
+                                </ol>
+                            </li>
+                            <li>
+                                構築方法
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <code>push_back</code> でオンライン構築する方法 (Suffix Array/LCP Array 不要)
+                        <ol>
+                            <li>
+                                Suffix Link
+                            </li>
+                            <li>
+                                構築の手続き
+                            </li>
+                            <li>
+                                構築の様子
+                            </li>
+                            <li>
+                                強い形への変形
+                            </li>
+                            <li>
+                                辺ラベルのデータ構造
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        接尾辞木を用いて解ける問題の簡単な説明
+                        <ol>
+                            <li>
+                                接尾辞木を用いた符号化
+                            </li>
+                            <li>
+                                Suffix Array
+                            </li>
+                            <li>
+                                LCA を活用する問題
+                            </li>
+                            <li>
+                                Suffix Link を活用する問題 (Matching Statistics)
+                            </li>
+                            <li>
+                                木上の集約を活用する問題
+                            </li>
+                            <li>
+                                木上の作用を活用する問題
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+                <br>
+                <h2>
+                    Overview
+                </h2>
+                <p>
+                    接尾辞木(Suffix Tree) という最強データ構造を構築します。ある文字列 \(S\) の部分文字列の種類数は \(O(|S|^2)\) 個ですが、Suffix Tree は \(S\) の区間の参照をうまく木構造に乗せることで、\(O(|S|)\) words の空間計算量で実質的に \(S\) の<b>全ての種類の部分文字列に相当するデータを列挙</b>できます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.003.jpeg"  class = "StandardImageStyle">
+                <p>
+                    構築の計算量も \(O(|S|\log{\sigma})\) 時間 (\({\sigma} :=\) アルファベットサイズ) と高速なため、\(S\) の部分文字列に関する計算を行う問題ではまず Suffix Tree を考えることが有効です。実際 <a href = "https://atcoder.jp/contests/abc268/tasks/abc268_h" target="_blank">ABC268-Ex (2560 diff)</a> や Library Checker の <a href = "https://judge.yosupo.jp/problem/longest_common_substring" target="_blank">Longest Common Substring</a> は、考察が難しい部分を Suffix Tree で表現することができ、いとも簡単に解けてしまいます。
+                </p>
+                <p>
+                    後に述べますが、Suffix Array と LCP Array さえあれば Suffix Tree の構築自体はそこまで難しい話ではないです。本記事では、簡単な Suffix Tree 構築アルゴリズムと、<b>Suffix Link</b> と push_back を用いた Suffix Tree 構築アルゴリズムを紹介します。
+                </p>
+                <p>
+                    Suffix Tree の構築に関しては、\(2\) 章と \(3\) 章で異なる構築方法を示しますが、基本的に \(3\) 章で示すものの方が強いです。ただしその分若干実装が大変です。
+                </p>
+                <br>
+                <h2>
+                    接尾辞木の概要と静的な構築方法
+                </h2>
+                <h3>
+                    データ構造
+                </h3>
+                <p>
+                    文字列 \(S\) の接尾辞を全て格納した Trie を考えます。以下の図は \(S =\) <code>okookoook</code> の例です。青色で示された<b>終端ノード</b>が、接尾辞を格納したデータを示します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.002.jpeg"  class = "StandardImageStyle">
+                <p>
+                    この図を見ると、文字列長に対して頂点数が多いことがわかります。Trie の頂点数は \(O(格納している文字列サイズの和)\) 個なので、\(S\) の接尾辞を全て格納すると頂点数は \(O(|S|^2)\) になってしまいます。また、辺ラベルの文字数も同様に \(O(|S|^2)\) です。
+                </p>
+                <p>
+                    そこで、この Trie で圧縮可能な辺を全て圧縮したものを構築します。具体的には、根以外ので<b>「出次数がちょうど \(1\)」</b>の頂点を削除し、その頂点に繋がれた辺を連結して \(1\) つの辺にする操作を繰り返します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.003.jpeg"  class = "StandardImageStyle">
+                <p>
+                    このようにすることで余分な頂点と辺がなくなりました。また、複数の辺にまたがっていた文字ラベルが、一つの辺の文字列ラベルに圧縮されたことがわかります。ただし Trie で終端ノードだったものも圧縮されており、接尾辞に対応するデータが辺ラベルの途中の位置に存在することもありますが、論理的には問題ありません。
+                </p>
+                <p>
+                    上記の木では頂点数は \(2|S|\) 以下であることが言えます。この木の葉頂点は全て \(S\) の接尾辞に対応しており、またその葉の親頂点より上は他の葉頂点とパスを共有しています。よって \(S\) の接尾辞 \(1\) を格納するのに必要な頂点は、高々 \(1\) つの葉頂点と高々 \(1\) つの分岐点の合わせて \(2\) つ以下とわかります。
+                </p>
+                <p>
+                    頂点数を \(O(|S|)\) に削減することができましたが、依然として辺ラベルの文字数は \(O(|S|^2)\) のままです。辺ラベルの文字列は \(S\) <b>の部分文字列</b>であることに注目して、これらの辺ラベルを<b>参照に置き換え</b>ます。参照に必要なデータは、\(S\) 上の半開区間を表す \(2\) つの整数のみなので、上記の木は以下になります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.004.jpeg"  class = "StandardImageStyle">
+                <p>
+                    これによって、冒頭に示した Trie を \(O(|S|)\) words のデータ構造に圧縮することができました。この木を<b>接尾辞木(Suffix Tree)</b>と言います。この章では、Suffix Tree をオフラインで構築する方法を説明します。
+                </p>
+                <br>
+                <h3>
+                    前準備
+                </h3>
+                <u><b>必要なデータ</b></u>
+                <p>
+                    Suffix Tree は隣接リストで表現可能な木構造ですが、Trie と同様に<b>辺ラベルから隣接頂点を求める</b>索引を持つ必要があります。また構築中に使用したり、様々な問題を解くために使用するデータもあるので、各頂点には以下のようなデータを持たせる必要があります。以下のメンバを持つオブジェクトを <code>Node</code> クラスとして定義します。
+                </p>
+                <ul>
+                    <li>
+                        <code>parent</code> := 親頂点
+                    </li>
+                    <li>
+                        <code>child[x]</code> := この頂点から出る辺のうち、辺ラベルの先頭が <code>x</code> の辺の先にある頂点
+                    </li>
+                    <li>
+                        <code>label.first</code> := この頂点に<u>入る</u>辺のラベルの参照 (半開区間の左端)
+                    </li>
+                    <li>
+                        <code>label.second</code> := この頂点に<u>入る</u>辺のラベルの参照 (半開区間の右端)
+                    </li>
+                    <li>
+                        <code>path_label_length</code> := 根からこの頂点までの辺ラベルの文字数の和
+                    </li>
+                    <li>
+                        <code>suffix_id</code> := この頂点が対応する接尾辞が \(S\) の何文字目から始まるか。接尾辞に対応しない場合は \(-1\) とする。
+                    </li>
+                    <li>
+                        <code>prod_data</code> := この頂点以降の部分木に関する集約データ
+                    </li>
+                    <li>
+                        <code>prod_op</code> := この頂点以降の部分木に作用する遅延評価
+                    </li>
+                </ul>
+                <p>
+                    また、Suffix Tree 上の位置を示すデータを以下の形式で定義します。Suffix Tree では辺の途中の位置を示す必要があるので、以下のデータで定義します。
+                </p>
+                <ul>
+                    <li>
+                        \((u, v, p) := \) 頂点 \(u\) と頂点 \(v\) をつなぐ辺を、始点から辺ラベルに沿って \(p\) 文字移動した場所
+                    </li>
+                    <li>
+                        頂点 \(x\) を示す位置データは \((x, \phi, 0)\) とする。
+                    </li>
+                </ul>
+                <p>
+                    これらのデータを定義することで、Suffix Tree の表現と、Suffix Tree 上の操作を定義することができるようになります。のちに説明しますが、<u>Suffix Tree 上の位置データは文字列 \(S\) の \(1\) 種類の部分文字列と一対一対応しています</u>。
+                </p>
+                <br>
+                <h3>
+                    Suffix Array と LCP Array
+                </h3>
+                <p>
+                    静的な Suffix Tree 構築では、<b>Suffix Array</b> と <b>LCP Array</b> が必要になります。これらの構築自体も難しい問題ですが、これらは一般的によく知られているため、ここでは詳細は割愛して定義のみ説明することにします。
+                </p>
+                <p>
+                    文字列 \(S\) に対する Suffix Array <code>SA</code> を以下で定義します。
+                </p>
+                <ul>
+                    <li>
+                        <code>SA[i]</code> := \(S\) の空文字列を含む接尾辞のうち、辞書順で \(i\) 番目に小さいものの、\(S\) における開始 index
+                    </li>
+                    <li>
+                        末尾の空文字列 \(\phi\) も接尾辞に含むものとし、空文字列は他のどの文字列よりも辞書順で小さいものとする。
+                    </li>
+                </ul>
+                <p>
+                    文字列 \(S\) に対する LCP Array <code>LCP</code> を以下で定義します。
+                </p>
+                <ul>
+                    <li>
+                        <code>LCP[0]</code> = 0
+                    </li>
+                    <li>
+                        <code>LCP[i]</code> := <code>SA[i-1]</code> と <code>SA[i]</code> が表す \(2\) つの接尾辞の<b>最長共通接頭辞</b>(先頭何文字が一致しているか)   
+                    </li>
+                </ul>
+                <p>
+                    これらはどちらも線形時間で構築することができます。また、<code>push_back</code> <u>によるオンライン構築ではこれらの列は不要であり、構築した Suffix Tree から逆にこれらを構築することもできます</u>。
+                </p>
+                <br>
+                <h3>
+                    構築方法
+                </h3>
+                <p>
+                    まず、\(S\) の接尾辞を \(1\) つずつ木に格納する実装を考えます。
+                </p>
+                <p>
+                    何も格納されていない初期状態では、根頂点のみが存在します。接尾辞の格納では、Trie と同様に<u>既存の辺を共有する位置まで移動し、共有できない部分があれば分岐させて新たな葉を追加</u>します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.005.jpeg"  class = "StandardImageStyle">
+                <p>
+                    この処理では<b>必要なデータ</b>の項で用意したものを活用します。例えば、上の図で <code>ookoook</code> を格納する際は、位置 \((0,5,1)\) に頂点 \(3\) を作成し、新たにできた頂点 \(3\) の影響を受ける部分のデータを再計算します。
+                </p>
+                <p>
+                    しかし、このままでは共有する位置まで移動するのに毎回 \(O(|S|)\) 時間かかるため、全体で \(O(|S|^2)\) 時間かかってしまいます。結論から言うと、<u>接尾辞の辞書順</u>に接尾辞を格納することで、木上の移動を工夫することができます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.006.jpeg"  class = "StandardImageStyle">
+                <p>
+                    上図は接尾辞の辞書順に接尾辞を格納する様子ですが、これだけを見ると何も工夫がないように見えます。しかし、実はこの順で格納する場合、共有する位置は<u>一つ前に格納した接尾辞との LCP に対応</u>します。\(S\) のある接尾辞 \(\mathrm{sf}\) は、\(S\) の Suffix Tree において他の接尾辞と辺を共有しますが、<u>辞書順の定義より、この時共有する辺の長さは Suffix Array において \(\mathrm{sf}\) と隣り合う接尾辞との LCP の長さに一致する</u>からです。
+                </p>
+                <p>
+                    なお、接尾辞の辞書順は Suffix Array で定義されており、計算に必要な LCP は LCP Array で計算されています。また Suffix Tree 構築中は、最後に格納した接尾辞の位置(頂点)を記録しておく必要があります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.007.jpeg"  class = "StandardImageStyle">
+                <p>
+                    \(i\) 回目の格納操作では <code>LCP[i]</code> まで移動する必要があります。まず、最後に格納した <code>SA[i-1]</code> に対応する頂点から、<u>親頂点への移動</u>を繰り返すことで、<b>対応する文字列の長さが <code>LCP[i]</code> の長さ以下である頂点</b> まで移動します。上図の例では、最後に格納した頂点 \(2\) から、<code>koo</code> 以前の頂点である頂点 \(1\) まで移動します。
+                </p>
+                <p>
+                    移動後の頂点を \(x\) とすると、\(x\) に対応する文字列の長さを参照することで <code>LCP[i]</code> の位置までの残りの文字列を復元することができます。この時、<code>LCP[i]</code> に対応する位置は頂点 \(x\) から出る辺上、もしくは頂点 \(x\) そのものであり、<code>LCP[i]</code> までの残りの文字列の情報を参照することで <code>LCP[i]</code> の位置を \(O(1)\) 時間で復元することができます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.008.jpeg"  class = "StandardImageStyle">
+                <p>
+                    親頂点への移動も <code>LCP[i]</code> までの移動も、<u>辺上の位置を \(1\) 文字ずつ移動するのではなく、目的の位置まで一気にジャンプします</u>。これは位置データ \((u,v,p)\) の定義から \(O(1)\) 時間で実行可能であることがわかります。
+                </p>
+                <p>
+                    この手続きを続けた時、移動経路は最終的に以下のようになります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.009.jpeg"  class = "StandardImageStyle">
+                <p>
+                    皆さんお気づきかもしれませんが、この移動経路は<u>構築済みの Suffix Tree で辺ラベルの辞書順で DFS を行った際の移動経路と一致</u>します。木上の DFS の計算量は \(O(頂点数)\) 時間なので、この構築方法の計算量は \(O(|S|)\) 時間です。
+                </p>
+                <p>
+                    これにてめでたく Suffix Tree が完成したわけですが、冒頭の説明で説明した Suffix Tree と比較すると、木の形状が異なっていることがわかります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.010.jpeg"  class = "StandardImageStyle">
+                <p>
+                    これらを比較すると、今構築した Suffix Tree には、<u>全ての接尾辞に対して、各接尾辞に対応する頂点が存在する</u>ことがわかります。これは、冒頭で示した Suffix Tree よりも強いデータ構造であると言えます。
+                </p>
+                <p>
+                    ではなぜ冒頭で示したものが存在するのでしょうか。その理由を次の章で説明します。
+                </p>
+                <br>
+                <h2>
+                    <code>push_back</code> でオンライン構築する方法 (Suffix Array/LCP Array 不要)
+                </h2>
+                <p>
+                    この方法では、文字列 \(S\) に文字を <code>push_back</code> しながら、その影響を \(S\) の Suffix Tree に<u>リアルタイムに反映</u>します。この時、リアルタイム構築中の Suffix Tree が、前章の冒頭で示したものになります。すなわち、構築中の Suffix Tree においては、<u>対応する頂点を持たない接尾辞が存在する</u>可能性があります。しかし構築中の Suffix Tree であっても部分文字列の全列挙は達成されており、部分文字列検索など、補助的なデータを必要としない操作であれば問題なく実行できます。また、これ以上 <code>push_back</code> されないことが確定したタイミングで、<u>Suffix Tree を変形して、各接尾辞に対して対応する頂点を生成することもできます</u>。
+                </p>
+                <p>
+                    改めてですが、Suffix Tree の頂点は何らかの文字列に対応します。先述の構築方法では特筆しませんでしたが、今回の構築方法ではより形式的にデータを表現する機会が多いので、改めて以下を定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{label}(x) := \) 頂点あるいは位置データ \(x\) に対応づけられた文字列
+                    </li>
+                    <li>
+                        \(\mathrm{walk}(x,\mathrm{str}) := \) 頂点 \(x\) から、文字列 \(\mathrm{str}\) に沿って移動した位置あるいは頂点
+                    </li>
+                </ul>
+                <p>
+                    上記 \(2\) つは、Suffix Tree に定義したデータによって(論理的に)計算可能です。そして、この方法では次の節で説明する <u>Suffix Link</u> が必須になります。Suffix Link は、2.2.1 項で定義した Node クラスのメンバに追加で定義します。
+                </p>
+                <br>
+                <h3>
+                    Suffix Link
+                </h3>
+                <p>
+                    頂点 \(x\) の Suffix Link として、\(\mathrm{sLink}(x)\) を以下で定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{sLink}(x) := \) \(\mathrm{label}(x)\) の先頭の文字を取り除いた文字列に対応する頂点
+                    </li>
+                </ul>
+                <p>
+                    ただし、ここでは空文字列 \(\phi\) も接尾辞に含まれるものとして定義します。すると、全ての文字列は空文字列 \(\phi\) を接尾辞に持つため、全ての頂点からは Suffix Link を辿って根に到達可能であることがわかります。また、Suffix Tree の構築中の手続きの共通化のため、根からは根にリンクしているものとして扱います。
+                </p>
+                <br>
+                <h3>
+                    構築の手続き
+                </h3>
+                <p>
+                    この構築方法では<u>「\(S\) の接尾辞のうち、部分文字列として \(2\) 回以上登場する最長接尾辞」</u>に対応する位置を保存しながら手続きを行います。この位置データを \(F\) として定義します。これから示す手順は全て \(F\) をもとにして行います。
+                </p>
+                <p>
+                    はじめ、\(S\) は空文字列であり、Suffix Tree は空文字列に対応する根頂点のみからなります。また前節で述べた通り、手続きの共通化のために根の Suffix Link は根にリンクしているものとして扱います。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.011.jpeg"  class = "StandardImageStyle">
+                <p>
+                    繰り返しますが、この構築では \(S.\mathrm{push\_back}(x)\) を行った結果を Suffix Tree に反映させる方針で構築を行います。\(S.\mathrm{push\_back}(x)\) の影響の反映の形式的な手続きを以下で説明します。形式的なので、飛ばして構築の様子を見ながら参照しても大丈夫です。
+                </p>
+                <ol>
+                    <li>
+                        Suffix Tree の<u>葉ノードに入る全ての辺</u>の辺ラベルの末尾に \(x\) を追加する。
+                    </li>
+                    <li>
+                        \(F\) の位置から文字 \(x\) の方向に移動できるなら、\(F\) をその方向に \(1\) 文字分移動して影響の反映を終了する。
+                    </li>
+                    <li>
+                        \(F\) の位置から文字 \(x\) の方向に移動できない場合。
+                        <ol>
+                            <li>
+                                \(F\) の位置を分岐点として、\(\mathrm{label}(F)+x\) に対応する葉を生成する。この時、\(F\) の位置に頂点がなければ \(F\) に対応する分岐点も生成する。
+                                <ul>
+                                    <li>
+                                        これより前に最後に作った葉から、\(\mathrm{label}(F)+x\) に対応する葉に Suffix Link をリンクする。
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                \(F\) を \(\mathrm{label}(F)+x\) に対応する葉に更新し、以下を繰り返す。
+                                <ol>
+                                    <li>
+                                        \(F\) の先頭の文字を削除したものを、新たに \(F\) とする。
+                                    </li>
+                                    <li>
+                                        \(F\) に対応する位置が Suffix Tree に存在しないなら、\(F\) に対応する葉ノードを生成し、\(F\) をその葉ノードに移動する。必要に応じて分岐点も生成する。
+                                    </li>
+                                    <li>
+                                        \(F\) に対応する位置が Suffix Tree に存在するなら、\(F\) をその位置に移動して影響の反映を終了する。
+                                    </li>
+                                </ol>
+                                <ul>
+                                    <li>
+                                        移動前の \(F\) に枝分かれする分岐点から、移動後の \(F\) に枝分かれする分岐点に Suffix Link をリンクする。
+                                    </li>
+                                    <li>
+                                        \(\mathrm{label}(F)+x\) に対応する葉が新たに生成されたなら、これより前に最後に作った葉から Suffix Link をリンクする。
+                                    </li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+                <u>補足説明</u>
+                <p>
+                    Suffix Tree に格納される接尾辞は、Suffix Tree の内部の(葉でない)位置に存在することもあります。\(F\) の定義に注意すると、<u>\(S\) の接尾辞のうち \(\mathrm{label}(F)\) 以降の接尾辞は全て Suffix Tree の内部の(葉でない)位置に存在することがわかります</u>。逆に、\(\mathrm{label}(F)\) よりも長い接尾辞は全て対応する葉ノードを持ちます。
+                </p>
+                <p>
+                    葉ノードに対する影響は、上記に手続き \(1\) の通り、辺ラベルを変更するだけで済みます。これは Suffix Tree に格納されている \(\mathrm{label}(F)\) よりも長い接尾辞への影響を反映したことを意味します。よって残る問題は \(\mathrm{label}(F)\) 以降の接尾辞に対する影響の反映のみになります。
+                </p>
+                <p>
+                    \(S.\mathrm{push\_back}(x)\) の影響で新たな葉ノードができる時、<b>その葉ノードは \(\mathrm{label}(F)\) のいずれか接尾辞に \(x\) を <code>push_back</code> したものに対応します</b>。\(\mathrm{label}(F)\) の接尾辞に <code>push_back(x)</code> したものが葉ノードになるかどうかは、\(\mathrm{label}(F)\) の接尾辞の長さに対して単調性があります。上記の \(2\) と \(3\) の手続きによって、\(\mathrm{label}(F)+x\) の接尾辞を長い順に確認しているのです。\(\mathrm{label}(F)+x\) が葉でない位置にあるなら、それは \(F\) の条件を満たすので、それを新たに \(F\) として手続きを終了します。
+                </p>
+                <br>
+                <h3>
+                    構築の様子
+                </h3>
+                <p>
+                    はじめ、\(S\) は空文字列であり、Suffix Tree には根ノードのみが存在します。この時 \(F\) は空文字列に対応しており、根ノードすなわち位置データ \((0, \phi, 0)\) を表します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.011.jpeg"  class = "StandardImageStyle">
+                <p>
+                    次に、\(S\) に <code>push_back(o)</code> を行います。\(\mathrm{label}(F)+x\) は Suffix Tree に存在しないので、手続きに従い \(\mathrm{label}(F)+x\) に対応する葉を作成し、\(F\) をそこに移動します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.012.jpeg"  class = "StandardImageStyle">
+                <p>
+                    その後手続きに従い、\(F\) を \(\mathrm{label}(F)\) の先頭の文字を削除したものに対応する位置に移動します。今回は根ノードがそれに対応します。
+                </p>
+                <br>
+                <u>移動方法の説明</u>
+                <p>
+                    ここで、\(\mathrm{label}(F)\) の先頭の文字を削除したものに対応する位置に移動する方法を説明します。ここでは、\(\mathrm{label}(F)\) の先頭の文字を削除したものに対応する位置を \(\mathrm{next}(F)\) とし、\(F\) の位置データを \((u, v, p)\) とします。
+                </p>
+                <p>
+                    辺の始点のデータは構築済みであるため、辺の始点 \(u\) からは Suffix Link を移動することができます。ここで、\(u\) から \(F\) への移動経路を \(w\) としたとき、\(\mathrm{next}(F)\) は、<u>\(\mathrm{sLink}(u)\) から \(w\) だけ移動した位置</u>になります。これは \(\mathrm{walk}(\mathrm{sLink}(u),w)\) で定義されており、Suffix Tree に定義したデータから計算可能です。
+                </p>
+                <p>
+                    <u>ただし、\(u\) が根の場合は例外です</u>。共通化のため、\(\mathrm{sLink}(根)\) は根にリンクされているため、先頭の文字を削除するという部分を、\(w\) の先頭を削除するという処理で表現する必要があります。よってこのとき、\(\mathrm{next}(F)\) は \(\mathrm{sLink}(u)\) から「経路 \(w\) の先頭要素だけ無視した移動経路」だけ移動した位置になります。
+                </p>
+                    \(F\) の定義より新たな葉の位置は、分岐点から \(x\) 一文字分だけ分岐した位置にあるため、\(w\) の長さはちょうど \(1\) になります。このことから、\(\mathrm{next}(F)\) は、\(\mathrm{sLink}(u)\) さえ分かれば後はそこから高々 \(1\) 文字移動するだけで求まります。
+                <p>
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.013.jpeg"  class = "StandardImageStyle">
+                <p>
+                    移動方法の説明に従うと、現在 \(u = 0,\mathrm{sLink}(u) = 0\) であり、経路 \(w\) は文字列 <code>o</code> で表されます。始点 \(u=0\) は根であるため、\(\mathrm{next}(F)\) は \(\mathrm{sLink}(0)\) から <code>(空文字列)</code> だけ移動した地点になります。
+                </p>
+                <p>
+                    次に、\(S\) に <code>push_back(k)</code> を行います。手続きにある通り、辺 \((0-1)\) の辺ラベルに追記してから、前回同様に \(\mathrm{label}(F)+x\) に対応する葉を作成し \(F\) をそこに移動します。その後、上記と同様に \(\mathrm{next}(F)\) に移動します。
+                </p>
+                <u>
+                    補足説明
+                </u>
+                <p>
+                    ラベルに追記する必要がある辺は \(O(|S|)\) 個存在するので、これらを愚直に更新すると <code>push_back</code> ごとに \(O(|S|)\) 時間かかってしまいます。よって、辺ラベルに対する追記を一括で行うデータ構造を辺ラベルに採用する必要があります。これは全く難しくないですが、今はややこしくなるので後で紹介します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.014.jpeg"  class = "StandardImageStyle">
+                <p>
+                    また、手続きに従いこれよりも前で最後に生成した葉ノードから、今作成した葉ノードに Suffix Link を繋げます。
+                </p>
+                <p>
+                    次に、\(S\) に <code>push_back(o)</code> を行います。前回同様に辺ラベルに追記したのち、今後は \(\mathrm{label}(F)+\)<code>o</code> の位置が Suffix Tree に存在するので、\(F\) をそこに移動して手続きは終了になります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.015.jpeg"  class = "StandardImageStyle">
+                <p>
+                    次に、\(S\) に <code>push_back(o)</code> を行います。今回は葉を作成するための分岐点を先に作成する必要があります。その後は同様に \(\mathrm{label}(F)+x\) に対応する葉を作成し \(F\) をそこに移動してから \(\mathrm{next}(F)\) を確認しますが、\(\mathrm{next}(F)\) を計算するために、<u>今作成した分岐点の Suffix Link を構築する必要があります</u>。
+                </p>
+                <u>
+                    分岐点の Suffix Link の構築
+                </u>
+                <p>
+                    今作成した分岐点の Suffix Link 先は \(\mathrm{next}(F)\) の計算と同じような方法で計算できます。異なる点は、復元する移動経路の長さが \(1\) とは限らないことです。そして結論から言うと、今作成した分岐点の Suffix Link 先には、すでに頂点が存在するか、この直後に作成されることが言えます。詳しくは説明しませんが、これは \(F\) の定義などから説明できます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.016.jpeg"  class = "StandardImageStyle">
+                <p>
+                    分岐点の Suffix Link を構築したのち、\(\mathrm{next}(F)\) を計算します。今回は \(u\) が根ではないので、\(\mathrm{next}(F)\) は \(\mathrm{walk}(\mathrm{sLink}(u),w)\) です。\(\mathrm{walk}\) は、\(\mathrm{label}\) や辺ラベルの長さ、移動経路の長さ、次に移動する方向(文字)を参照しながら計算することができます。
+                </p>
+                <p>
+                    続けて、<code>push_back(k)</code>, <code>push_back(o)</code>, <code>push_back(o)</code> を行います。これらでは新たな葉ができることはなく処理が進みます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.017.jpeg"  class = "StandardImageStyle">
+                <br><img src="./../../images/SuffixTree/SuffixTree.018.jpeg"  class = "StandardImageStyle">
+                <p>
+                    次に <code>push_back(o)</code> を行います。今回は分岐点を生成してから葉を生成します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.019.jpeg"  class = "StandardImageStyle">
+                <p>
+                    その後、\(\mathrm{next}(F)\) の計算のためにまず分岐点の Suffix Link を作ります。前述の手順で Suffix Link 先の位置を計算したところ、今回はその位置に頂点が存在しなかったため、その位置に新たに頂点を生成します。新たに頂点を生成した場合、\(\mathrm{next}(F)\) に対応する地点は Suffix Tree に存在せず、<u>ここで作成された頂点はその直後に \(\mathrm{next}(F)\) に対応する葉の分岐点として使用されます</u> (このことも \(F\) の定義から説明できます)。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.020.jpeg"  class = "StandardImageStyle">
+                <p>
+                    分岐点の Suffix Link (及びリンク先頂点) を生成したのち、\(F\) を \(\mathrm{next}(F)\) に移動させます。今回は \(\mathrm{next}(F)\) が Suffix Tree に存在しなかったため、対応する葉を新たに生成します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.021.jpeg"  class = "StandardImageStyle">
+                <p>
+                    なおこの状態では \(F\) は \(F\) の定義を満たしません。手続きに従い、\(F\) が定義を満たすようになるまで \(\mathrm{next}(F)\) への移動を繰り返す必要があります。ここでも同様に、\(F\) に分岐する頂点の Suffix Link の構築から行う必要があります。
+                </p>
+                <u>
+                    補足説明
+                </u>
+                <p>
+                    今回も \(\mathrm{walk}\) を計算する必要がありますが、今回はこれまでと異なり、\(\mathrm{walk}\) の移動先の復元が複数の辺にまたがっています。このような場合も、\(\mathrm{label}\) や辺ラベルの長さ、移動経路の長さ、次に移動する方向(文字)を参照しながら、移動先の計算を<u>繰り返す</u>ことで、\(\mathrm{walk}\) を計算する必要があります。
+                </p>
+                <p>
+                    このように \(\mathrm{walk}\) の計算は定数時間ではありませんが、Suffix Tree 構築全体を通して評価すると線形時間になることが言えます。照明は割愛しますが、\(\mathrm{walk}\) の計算内のイテレーション回数が増える条件を考えると証明できると思います。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.022.jpeg"  class = "StandardImageStyle">
+                <p>
+                    その後、同様に \(F\) を \(\mathrm{next}(F)\) に移動します。今回も対応する位置が存在しなかっため、新たに葉を生成してイテレーションを続行します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.023.jpeg"  class = "StandardImageStyle">
+                <p>
+                    同様に \(F\) に分岐する頂点のリンク先を復元し、その後 \(\mathrm{next}(F)\) を探します。今回は \(\mathrm{next}(F)\) が Suffix Tree に存在するので、\(F\) を \(\mathrm{next}(F)\) に移動してイテレーションを終了します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.024.jpeg"  class = "StandardImageStyle">
+                <p>
+                    次に、<code>push_back(k)</code> を行います。今回は \(\mathrm{label}(F)+\)<code>o</code> の位置が Suffix Tree に存在するので、\(F\) をそこに移動して手続きは終了になります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.025.jpeg"  class = "StandardImageStyle">
+                <p>
+                    こうして、\(S = \) <code>okookoook</code> の Suffix Tree ができました。これは冒頭で示したものと一致することがわかります。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.026.jpeg"  class = "StandardImageStyle">
+                <br>
+                <h3>
+                    強い形への変形
+                </h3>
+                <p>
+                    今後 \(S\) に <code>push_back</code> が行われないことが確定したら、この Suffix Tree を強い形に変形して、各接尾辞に対して対応する頂点を生成することができます。手続きは以下の操作を繰り返します。
+                </p>
+                <ol>
+                    <li>
+                        \(F\) の位置に頂点がなければ生成する。もし存在すれば何もしない。新たに頂点を生成したなら、それより前に最後に格納した接尾辞に対応する頂点から Suffix Link をつなげる。
+                    </li>
+                    <li>
+                        \(F\) の位置の頂点の <code>suffix_id</code> を、\(\mathrm{label}(F)\) に対応するものに更新する。
+                    </li>
+                    <li>
+                        \(F\) を \(\mathrm{next}(F)\) に移動する。根に到達したら手続きを終了する。
+                    </li>
+                </ol>
+                <p>
+                    以下の図では、接尾辞 <code>ook</code> に対応する新たな頂点 \(11\) を生成します。Suffix Link などを構築してから、\(F\) を \(\mathrm{next}(F)\) に移動しています。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.027.jpeg"  class = "StandardImageStyle">
+                <p>
+                    以降の手続きも同様です。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.028.jpeg"  class = "StandardImageStyle">
+                <p>
+                    最後、根に到達したのでこれで手続きは終わりです。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.029.jpeg"  class = "StandardImageStyle">
+                <p>
+                    こうして構築した Suffix Tree は、それぞれの接尾辞が、対応する頂点を Suffix Tree 上に持つ強い形であることが確認できます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.030.jpeg"  class = "StandardImageStyle">
+                <br>
+                <h3>
+                    辺ラベルのデータ構造
+                </h3>
+                <p>
+                    <code>push_back</code> の手続きで、Suffix Tree の既存の辺のラベルを一気に更新したいと説明しました。ここではそれを可能にするデータ構造を紹介します。とはいえ、とても簡単なのであとは消化試合です。
+                </p>
+                <p>
+                    概要で説明した通り、Suffix Tree の辺は文字列 \(S\) の部分文字列の参照である半開区間を持ちます。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.031.jpeg"  class = "StandardImageStyle">
+                <p>
+                    <code>push_back</code> で更新される辺ラベルの集合は、手続きより、<u>半開区間の右端が \(S\) の終端であるもの</u>と一致します。そこで、\(S\) の終端を表す特殊なシンボルとして <code>$</code> を採用します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.032.jpeg"  class = "StandardImageStyle">
+                <p>
+                    <code>$</code> は論理的なシンボルであり、<code>push_back</code> を行った際に自動でその値(実体)が変化します。その結果、<code>$</code> を右端に持つ辺ラベルは、<code>push_back</code> を行った際に自動的に右端の値(実体)が変化します。
+                </p>
+                <br><img src="./../../images/SuffixTree/SuffixTree.033.jpeg"  class = "StandardImageStyle">
+                <p>
+                    この <code>$</code> は<u>参照やポインタ</u>によって簡単に表現することができます。これにて、Suffix Tree を完璧に構築することができます。
+                </p>
+                <br>
+                <h2>
+                    接尾辞木を用いて解ける問題の簡単な説明
+                </h2>
+                <p>
+                    Suffix Tree ライブラリをページ最下部のサンプルコード欄に掲載しています。ここでは、Suffix Tree ライブラリを用いて解くことができる問題の例を紹介します。
+                </p>
+                <br>
+                <h3>
+                    接尾辞木を用いた符号化
+                </h3>
+                <p>
+                    みなさんはローリングハッシュをご存知でしょうか。ローリングハッシュは文字列のハッシュ値を計算する手法で、その強みの一つとして、与えられた文字列の部分文字列に対するハッシュ値の計算が定数時間であることなどがあります。その反面、ハッシュ値への変換は単射でないため、ハッシュ値の一致判定結果が元の文字列の一致判定結果と 100% 一致すると言い切れない問題があります(ハッシュの衝突)。
+                </p>
+                <p>
+                    もし、部分文字列を取りたい文字列群 \(S_1,S_2,\dots,S_N\) が予め分かっているならば、<u>これらをすべて順に連結した文字列の Suffix Tree を構築する</u>ことで、Suffix Tree 上の位置がこれらの文字列の部分文字列の符号になります。繰り返しですが、<u>Suffix Tree 上の位置データは元の文字列の \(1\) 種類の部分文字列と一対一対応</u>しています。\(S_1+S_2+\dots+S_N\) の部分文字列は、もともと取得する予定の部分文字列を含むため、\(S_1+S_2+\dots+S_N\) が一つの Suffix Tree を共有することで、Suffix Tree 上の位置データを共通の符号として使用できるようになります。
+                </p>
+                <p>
+                    位置データ \((u,v,p)\) は \(3\) つの整数またはポインタのため、この符号のサイズは \(3\) words と小さいです。なお、\(S_1+S_2+\dots+S_N\) の半開区間 \([l,r)\) に対応する位置データは、\(l\) 文字目から始まる接尾辞に対応するノードから、親ノードに関するダブリングテーブルを用いて \(O(\log{\sum{{S_i}}})\) 時間で復元することができます。
+                </p>
+                <p>
+                    この符号はクエリごとの符号化が高速かつ省メモリであることに加えて、ハッシュの衝突が発生しないという利点があります。ただしローリングハッシュとは異なり、文字列の連結結果のハッシュ値の定数時間の計算を行うことはできません。
+                </p>
+                <br>
+                <h3>
+                    Suffix Array / LCP Array
+                </h3>
+                <p>
+                    根から「辺ラベルの先頭の文字の辞書順が小さい方向が優先の DFS」を行い、道中の終端ノードの <code>suffix_id</code> を順に格納すると Suffix Array ができます。こうしてできた Suffix Array の隣接頂点に対して、それらに対応する Suffix Tree のノードの LCA (Lowest Common Ancestor) を計算することで LCP Array が得られます。
+                </p>
+                <br>
+                <h3>
+                    LCA を活用する問題
+                </h3>
+                <p>
+                    Suffix Tree における LCA は、\(2\) つの位置データを受け取り、それらの共通祖先の位置データを返します。ここでは、必ずしも LCA は頂点になるわけではなく、辺ラベルの途中の位置なども LCA になり得ます。
+                </p>
+                <p>
+                    Suffix Tree 上の \(2\) つの位置を選ぶことは、元の文字列の部分文字列から \(2\) つ選ぶことと対応します。それらの \(2\) つの LCA を取る操作は、\(2\) つの部分文字列の最長共通接頭辞を取得する操作に等しいです。このことを利用していくつかの有名問題を解くことができます。以下にいくつかの例を紹介します。
+                </p>
+                <ul>
+                    <li>
+                        LCP Array : Suffix Array の隣接要素の LCA を計算する。
+                    </li>
+                    <li>
+                        全体と接頭辞の LCP (Z-algorithm の計算対象) : 文字列全体と各接尾辞の LCA を計算する。
+                    </li>
+                    <li>
+                        回文半径 : Manacher と同様に、元の文字列 \(S\) の文字の間に番兵を入れて偶数長の回文半径を計算可能にする。文字列 \(S\) と、文字列 \(S\) を反転した文字列を、どこにも登場しない仕切り文字 \(\overline{c}\) を挟んで連結すると、回文半径は \(S\) における回文の中央から始まる接尾辞と、反転後の \(S\) における同じ回文の中央から始まる接尾辞の LCA から、回文半径を計算することができる。
+                    </li>
+                </ul>
+                <u>
+                    回文半径のコード例
+                </u>
+                <pre>void&nbsp;Palindromes(){<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;s;cin&nbsp;&gt;&gt;&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;S&nbsp;=&nbsp;&quot;?&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(char&nbsp;c&nbsp;:&nbsp;s){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;+=&nbsp;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;+=&nbsp;&apos;?&apos;;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;rS&nbsp;=&nbsp;S;<br>&nbsp;&nbsp;&nbsp;&nbsp;reverse(rS.begin()&nbsp;,&nbsp;rS.end());<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[&nbsp;S&nbsp;,&nbsp;仕切り&nbsp;,&nbsp;S&nbsp;の逆順&nbsp;]&nbsp;を入れる<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree&lt;long&nbsp;long,&nbsp;false&gt;&nbsp;T;<br>&nbsp;&nbsp;&nbsp;&nbsp;T.build(S+&quot;$&quot;+rS);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;int(S.size())-2&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decltype(T)::TreePlace&nbsp;n1&nbsp;=&nbsp;T.search(i+2,&nbsp;S.size()+1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;前半の部分文字列&nbsp;(最後まででも別に良いが、search&nbsp;のデバッグを兼ねる)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decltype(T)::TreePlace&nbsp;n2&nbsp;=&nbsp;T.search(T.size()-i-1,&nbsp;T.size());&nbsp;//&nbsp;後半の部分文字列<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decltype(T)::TreePlace&nbsp;lca&nbsp;=&nbsp;T.LCA(n1,n2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;r&nbsp;=&nbsp;lca.path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((i+2)%2&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r&nbsp;=&nbsp;(r-1)/2&nbsp;+&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r&nbsp;=&nbsp;(r-1)*2&nbsp;+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;r&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;endl;<br><br></pre>
+                <br>
+                <h3>
+                    Suffix Link を活用する問題 (Matching Statistics)
+                </h3>
+                <p>
+                    有名というわけではありませんが、Suffix Link を用いて \(2\) つの文字列 \(S, T\) に対して以下のデータを計算することができます。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{ms}[i] := T\) の \(i\) 文字目から始まる部分文字列と、\(S\) の任意の部分文字列との共通接頭辞のうち、最長のものの長さ
+                    </li>
+                </ul>
+                <p>
+                    これは、<a href = "./Trie.html" target="_blank">Aho-Corasick 法</a>と同様に、行き止まりに到達したら Suffix Link を辿って次の接尾辞に移動する手法で計算することができます。具体的には、\(S\) の Suffix Tree の根から \(T\) に沿って移動を行い、<u>移動できた深さから最長共通接頭辞を求めます</u>。はじめは、\(\mathrm{ms}[0]\) の計算から始まります。移動ができない地点に到達したらこれ以上長い共通接頭辞は存在しないことが言えるので、Suffix Link を移動することで \(T\) の次の接尾辞の \(\mathrm{ms}\) の計算に移行します。
+                </p>
+                <u>
+                    コード例
+                </u>
+                <pre>vector&lt;int&gt;&nbsp;matching_statistics(string&nbsp;s&nbsp;,&nbsp;string&nbsp;t){<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree&lt;char&gt;&nbsp;T;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;ms(t.size()&nbsp;,&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;T.push_back(s);&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;now&nbsp;=&nbsp;T.from_root(false);&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;r&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;t.size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r&nbsp;=&nbsp;max(i,r);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(r&nbsp;&lt;&nbsp;t.size()&nbsp;&amp;&amp;&nbsp;T.walkdown(now,t[r]))r++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ms[i]&nbsp;=&nbsp;now.path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データと対応する列が非明示の場合は、引数に渡す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now.walkSuffixLink(t,i);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ms;<br>}</pre>
+                <br>
+                <h3>
+                    木上の集約を活用する問題
+                </h3>
+                <p>
+                    何度でも言いますが、\(S\) の Suffix Tree は \(S\) のすべての種類の部分文字列を論理的に列挙します。ただし \(|S|\) の部分文字列の種類数は \(O(|S|^2)\) 個存在するため、すべての種類の部分文字列に対して何かを計算したい場合は、\(O(|S|^2)\) 個の部分文字列から集約できる何らかのデータを集約する必要があります。集約の方法は部分木に注目して<u>木 DP</u> を行うなり、辺ラベルの区間データに注目して何らかのデータ構造を作るなり様々です。
+                </p>
+                <p>
+                    例えば、ある部分木に対して「その部分木以降の位置データの種類数」を木 DP で集約しておけば、辞書順で \(x\) 番目の部分文字列を \(O(|S|\log{\sigma})\) 時間で特定することができます。
+                </p>
+                <p>
+                    また部分文字列の文脈とは関係なしに、データの集約によって様々な問題を解くことができます。例えば Overview で紹介した <a href = "https://judge.yosupo.jp/problem/longest_common_substring" target="_blank">Longest Common Substring の問題</a>は、\(2\) つの文字列 \(S,T\) を、いずれにも登場しない文字 \(\overline{c}\) を挟んで連結した文字列の Suffix Tree において、以下の \(2\) つの DP テーブルを構築することで解くことができます。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{dp}_{S}[x] := \) 頂点 \(x\) 以下の部分木に、文字列 \(S\) 由来の接尾辞に対応する終端ノードが存在するか
+                    </li>
+                    <li>
+                        \(\mathrm{dp}_{T}[x] := \) 頂点 \(x\) 以下の部分木に、文字列 \(T\) 由来の接尾辞に対応する終端ノードが存在するか
+                    </li>
+                </ul>
+                <u>
+                    Longest Common Substring のコード例
+                </u>
+                <pre>void&nbsp;LongestCommonSubstring(){<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;s&nbsp;,&nbsp;t;cin&nbsp;&gt;&gt;&nbsp;s&nbsp;&gt;&gt;&nbsp;t;<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree&lt;char,false&gt;&nbsp;T,SS;<br>&nbsp;&nbsp;&nbsp;&nbsp;T.build(s+&quot;?&quot;+t);//&nbsp;s&nbsp;+&nbsp;?&nbsp;+&nbsp;t&nbsp;を入れる<br><br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;dp_s(T.tree_size()&nbsp;,&nbsp;0);//&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;の部分木に&nbsp;s&nbsp;の&nbsp;終端ノード&nbsp;が存在するか<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;dp_t(T.tree_size()&nbsp;,&nbsp;0);//&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;の部分木に&nbsp;t&nbsp;の&nbsp;終端ノード&nbsp;が存在するか<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;dfs&nbsp;=&nbsp;T.dfs();&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;reverse(dfs.begin()&nbsp;,&nbsp;dfs.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;now&nbsp;:&nbsp;dfs){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;isEndPoint()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;suffix_id&nbsp;==&nbsp;s.size())continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;suffix_id&nbsp;&lt;&nbsp;s.size())dp_s[now-&gt;id]&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;dp_t[now-&gt;id]&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;parent&nbsp;!=&nbsp;nullptr)dp_s[now-&gt;parent-&gt;id]&nbsp;+=&nbsp;dp_s[now-&gt;id];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;parent&nbsp;!=&nbsp;nullptr)dp_t[now-&gt;parent-&gt;id]&nbsp;+=&nbsp;dp_t[now-&gt;id];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;ans&nbsp;=&nbsp;&quot;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;decltype(T)::Node*&nbsp;best&nbsp;=&nbsp;T.get_root();<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;now&nbsp;:&nbsp;dfs){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(dp_s[now-&gt;id]&nbsp;==&nbsp;0&nbsp;||&nbsp;dp_t[now-&gt;id]&nbsp;==&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(best-&gt;path_label_length()&nbsp;&lt;&nbsp;now-&gt;path_label_length())best&nbsp;=&nbsp;now;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;while(best!=nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;tmp&nbsp;=&nbsp;&quot;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;best-&gt;cleft();&nbsp;i&nbsp;&lt;&nbsp;best-&gt;cright()&nbsp;;&nbsp;i++)tmp&nbsp;+=&nbsp;T[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reverse(tmp.begin(),tmp.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans&nbsp;+=&nbsp;tmp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;best&nbsp;=&nbsp;best-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;reverse(ans.begin(),ans.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;if(ans.size()&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;&quot;0&nbsp;0&nbsp;0&nbsp;0&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;メモリ解放&nbsp;&amp;&nbsp;再利用<br>&nbsp;&nbsp;&nbsp;&nbsp;T.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;T.build(t);<br>&nbsp;&nbsp;&nbsp;&nbsp;SS.build(s);<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;接尾辞のうち、ans&nbsp;を含むものの開始位置<br>&nbsp;&nbsp;&nbsp;&nbsp;decltype(SS)::TreePlace&nbsp;ps&nbsp;=&nbsp;SS.search(ans);<br>&nbsp;&nbsp;&nbsp;&nbsp;decltype(T)::TreePlace&nbsp;pt&nbsp;=&nbsp;T.search(ans);<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;a&nbsp;=&nbsp;SS.decode_suffix(ps);<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;c&nbsp;=&nbsp;T.decode_suffix(pt);<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;a&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;a&nbsp;+&nbsp;ans.size()&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;c&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;c&nbsp;+&nbsp;ans.size()&nbsp;&lt;&lt;&nbsp;endl;<br><br></pre>
+                <br>
+                <h3>
+                    木上の作用を活用する問題
+                </h3>
+                <p>
+                    木に関する一般的なテクニックとして、いくつかの箇所に遅延評価を載せておき、DFS の際に木全体に降ろして作用させるというものがあり、Suffix Tree も例に漏れずこのテクニックを使うことができます。Overview で紹介した <a href = "https://atcoder.jp/contests/abc268/tasks/abc268_h" target="_blank">ABC268-Ex (2560 diff)</a> も、Suffix Tree 上に遅延評価を持たせて最後にまとめて作用させることで、答えを導き出すために必要なデータを構築することができます。
+                </p>
+                <p>
+                    この問題の概要は、\(N\) 個の文字列 \(T_1,T_2,\dots,T_N\) のすべてが文字列 \(S\) の部分文字列にならないように、文字列 \(S\) の文字を <code>*</code> で置き換える際の最小置き換え回数を求めるというものです。突飛ですが、この問題は以下のデータを用意することで解くことができます。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{interval\_right}[i] := i\) 文字目以降、初めて登場する <code>*</code> の位置として許容できる箇所の最大値 
+                    </li>
+                    <li>
+                        \(i\) 文字目以降に <code>*</code> が登場する必要がない部分については未定義とする。
+                    </li>
+                </ul>
+                <p>
+                    すべての \(i\) について、\(T_i\) に対応する箇所に値 \(|T_i|\) を記録しておくことで、DFS の際にこれらの値との min を作用させながら値を集約し、終端ノードに到達したタイミングで集約した値から \(\mathrm{interval\_right}\) の値を計算することができます。
+                </p>
+                <p>
+                    このように構築した \(\mathrm{interval\_right}\) は、未定義である部分以外はすべて <code>*</code> が登場するべき index の制約を表しています。すなわち、\(\mathrm{interval\_right}\) によって定義される未定義でない区間全てについて、それぞれの区間内に少なくとも \(1\) つは <code>*</code> が登場する必要があります。このとき、<code>*</code> に置き換える必要がある文字の最小個数は <a href = "./../basic/range_schedule.html" target="_blank">区間スケジューリング問題</a> に帰着することができます。
+                </p>
+                <u>
+                    コード例
+                </u>
+                <pre><br>template&lt;typename&nbsp;T&gt;<br>int&nbsp;RangeSchedulingProblem(vector&lt;pair&lt;T,T&gt;&gt;&nbsp;intervals){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;res&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(intervals.empty())return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;sort(intervals.begin(),intervals.end(),[](auto&nbsp;a,&nbsp;auto&nbsp;b){return&nbsp;bool(a.second&nbsp;&lt;&nbsp;b.second);});<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;right&nbsp;=&nbsp;intervals.front().first;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;x&nbsp;:&nbsp;intervals){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(right&nbsp;&lt;=&nbsp;x.first){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right&nbsp;=&nbsp;x.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>}<br><br><br>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree&lt;char,false&gt;&nbsp;T;<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;T.build(s);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;にかかる遅延評価&nbsp;(禁止する部分文字列の長さ)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;「*」の位置として許容できる箇所が狭まるので、min&nbsp;で集約する<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;lazy_op(T.tree_size(),s.size()+1);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;q;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;q;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;q&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;t;cin&nbsp;&gt;&gt;&nbsp;t;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(T.find(t)&nbsp;==&nbsp;false)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;place&nbsp;=&nbsp;T.search(t);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(place.to&nbsp;==&nbsp;nullptr)lazy_op[place.from-&gt;id]&nbsp;=&nbsp;min(lazy_op[place.from-&gt;id],&nbsp;int(t.size()));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;lazy_op[place.to-&gt;id]&nbsp;=&nbsp;min(lazy_op[place.to-&gt;id],&nbsp;int(t.size()));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[i]&nbsp;:=&nbsp;i&nbsp;文字目以降で&nbsp;*&nbsp;が登場する必要がある箇所の制約を表す半開区間の右端<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;interval_right(s.size(),0);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;dfs&nbsp;=&nbsp;T.dfs();<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;x&nbsp;:&nbsp;dfs){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;評価を下に降ろす<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x-&gt;parent&nbsp;!=&nbsp;nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lazy_op[x-&gt;id]&nbsp;=&nbsp;min(lazy_op[x-&gt;id],&nbsp;lazy_op[x-&gt;parent-&gt;id]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x-&gt;is_root())continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x-&gt;isEndPoint()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interval_right[x-&gt;suffix_id]&nbsp;=&nbsp;x-&gt;suffix_id&nbsp;+&nbsp;lazy_op[x-&gt;id];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;pair&lt;int,int&gt;&gt;&nbsp;intervals;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;s.size()&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i&nbsp;&gt;=&nbsp;interval_right[i])continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(interval_right[i]&nbsp;&gt;&nbsp;s.size())continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intervals.push_back({i,interval_right[i]});<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;RangeSchedulingProblem&lt;int&gt;(intervals)&nbsp;&lt;&lt;&nbsp;endl;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                <br>
+            </section>
+                
+    
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+
+
+                        <br>
+                        <br>
+                        <pre><br><br>/*<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;CharType&nbsp;型の列&nbsp;S&nbsp;に対して頂点&nbsp;0&nbsp;を根とする&nbsp;Suffix&nbsp;Tree&nbsp;を構築する。添字は基本的に&nbsp;0-index。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;列は&nbsp;string&nbsp;/&nbsp;vector&nbsp;の両方に対応。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;CharType&nbsp;は&nbsp;char&nbsp;からキャストされることができる必要があるものとする。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;Suffix&nbsp;Tree&nbsp;上の各位置は&nbsp;S&nbsp;の連続部分列と&nbsp;1&nbsp;対&nbsp;1&nbsp;対応しており、実質的に連続部分列を重複なく列挙している。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;ノードの番号は生成順&nbsp;(root&nbsp;の&nbsp;id&nbsp;が&nbsp;0)。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;空列も接尾辞として含み、辞書順で最小とする(suffix_id&nbsp;は&nbsp;|S|&nbsp;とする)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;空列である接尾辞に対応するノードが&nbsp;root&nbsp;であるとする。<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Suffix&nbsp;Tree&nbsp;のデータのハンドルとして、Node&nbsp;と&nbsp;TreePlace&nbsp;クラスを内部に定義。詳細はクラスの中身を参照。<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Suffix&nbsp;Tree&nbsp;構築<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;push_back(s_)&nbsp;:&nbsp;S&nbsp;の末尾に列または文字&nbsp;s_&nbsp;をくっつけて&nbsp;Suffix&nbsp;Tree&nbsp;にも反映させる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;determine()&nbsp;:&nbsp;構築を終了する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;build(s)&nbsp;:=&nbsp;初期状態から&nbsp;push_back(s)&nbsp;+&nbsp;determine()<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;determine&nbsp;によって構築が終了することで、多くの機能が解放される。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;determine&nbsp;する前に使える機能もあるが少ない。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;determine&nbsp;する前に使える機能の説明の後には&nbsp;[(*)]&nbsp;を書いておく。<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;探索メソッド<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;find(t)&nbsp;:=&nbsp;t&nbsp;が&nbsp;S&nbsp;の連続部分列かどうかを判定。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;count(t)&nbsp;:=&nbsp;t&nbsp;が&nbsp;S&nbsp;の連続部分列として何回現れるか計算。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;search(t):=&nbsp;t&nbsp;を検索し、移動できた位置までのデータを返す。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;search(l,r)&nbsp;:=&nbsp;S&nbsp;の区間&nbsp;[l,r)&nbsp;に対応する位置データを返す。ただし、refer&nbsp;は非明示的。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;decode_suffix(TreePlace&nbsp;x)&nbsp;:=&nbsp;位置&nbsp;x&nbsp;に対応する列を連続部分列として含む接尾辞の開始&nbsp;index&nbsp;のうちの&nbsp;1&nbsp;つを返す。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;返り値を&nbsp;l&nbsp;とすると、位置&nbsp;x&nbsp;は&nbsp;S&nbsp;の&nbsp;[l,l&nbsp;+&nbsp;|x|)&nbsp;に対応する&nbsp;(|x|&nbsp;は位置&nbsp;x&nbsp;に対応する列の長さ)<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;木構造メソッド<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;Node&nbsp;クラスと&nbsp;TreePlace&nbsp;クラスは&nbsp;private&nbsp;なので、インターフェースを通して取得する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;get_root()&nbsp;:&nbsp;根ノードのポインタを返す。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;from_root(bool&nbsp;refering&nbsp;=&nbsp;true)&nbsp;:&nbsp;根に対応する位置を返す(位置データの&nbsp;refering&nbsp;を指定する)。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;get_node(i)&nbsp;:&nbsp;頂点番号が&nbsp;i&nbsp;のノードのポインタを返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;get_suffix_node(i)&nbsp;:&nbsp;S[i]&nbsp;から始まる接尾辞に対応するノードのポインタを返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;get_depth_as_tree(i)&nbsp;:=&nbsp;root&nbsp;から頂点&nbsp;i&nbsp;までの辺の本数を返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;edges()&nbsp;:=&nbsp;Suffix&nbsp;Tree&nbsp;の辺集合を返す。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;dfs(f)&nbsp;:=&nbsp;root&nbsp;から&nbsp;dfs&nbsp;するときの到達順に頂点のポインタを並べて返す(f&nbsp;が&nbsp;true&nbsp;なら辞書順最小優先で&nbsp;dfs)。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;LCA(位置のデータ&nbsp;2&nbsp;つ)&nbsp;:=&nbsp;位置(辺の途中含む)の&nbsp;LCA&nbsp;のデータを返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;その他機能<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;クラス外で&nbsp;Suffix&nbsp;Tree&nbsp;上の移動をする際は以下を使う<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;findValidPath(p,c)&nbsp;:=&nbsp;位置から&nbsp;c&nbsp;の方向に移動できるかどうか。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;walkdown(p,c)&nbsp;:=&nbsp;位置&nbsp;p&nbsp;から&nbsp;c&nbsp;の方向に移動し、p&nbsp;を書き換える。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;size()&nbsp;:=&nbsp;S&nbsp;のサイズを返す。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;[i]&nbsp;:&nbsp;S[i]&nbsp;を&nbsp;read-only&nbsp;でアクセス。(*)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;suffix_array()&nbsp;:&nbsp;Suffix&nbsp;Array&nbsp;を返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;get_Kth_subStr(K)&nbsp;:&nbsp;列&nbsp;S&nbsp;の&nbsp;辞書順で&nbsp;K&nbsp;番目の連続部分列。<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;注意&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;release_resource&nbsp;を&nbsp;false&nbsp;にしておくと、リソースの解放がされない分高速になる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;データアクセスは&nbsp;const&nbsp;Node&nbsp;のポインタを返すので、auto&nbsp;で受け取ると楽<br>*/<br>template&lt;typename&nbsp;CharType,&nbsp;bool&nbsp;release_resource&nbsp;=&nbsp;true&nbsp;,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;std::is_convertible_v&lt;char,&nbsp;CharType&gt;&gt;&gt;<br>class&nbsp;SuffixTree{<br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;Node;<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;TreePlace;<br>&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;Edge&nbsp;=&nbsp;pair&lt;CharType,Node*&gt;;&nbsp;//&nbsp;{ラベルの先頭の文字,&nbsp;終端のノード}<br>&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;EdgeLabel&nbsp;=&nbsp;pair&lt;int,int*&gt;;&nbsp;//&nbsp;半開区間による部分文字列の参照<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;頂点データ&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;Node{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;id&nbsp;=&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;要素&nbsp;x&nbsp;で続く辺の先のノード<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unordered_map&lt;CharType&nbsp;,&nbsp;Node*&gt;&nbsp;child;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;親ノード<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;parent&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードまでのラベルからなる文字列の先頭を取り除いた文字列に対応する頂点へのリンク<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;SuffixLink&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;自身に入る辺<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EdgeLabel&nbsp;label&nbsp;=&nbsp;make_pair(-1,&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードに対応する列の長さ&nbsp;(葉ノードについては不定なので、内部ノードにのみ定義)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;path_label_length_sub&nbsp;=&nbsp;0;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;終端ノードなら何文字目から始まる接尾辞か(0-index)。そうでないなら&nbsp;-1。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;suffix_id&nbsp;=&nbsp;-1;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;自分以降の部分木が持つ終端ノードの個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;SubTreeEndPointCount&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードから移動して得られる文字列の種類数&nbsp;(空文字列はカウントしない)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;SubTreeKindOfPrefix&nbsp;=&nbsp;0;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;葉頂点かどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;is_leaf&nbsp;=&nbsp;true;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ラベル、頂点番号、親頂点<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node(EdgeLabel&nbsp;label_&nbsp;,&nbsp;int&nbsp;id_,&nbsp;Node*&nbsp;parent_&nbsp;,&nbsp;bool&nbsp;is_leaf_)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;id(id_),&nbsp;parent(parent_),&nbsp;label(label_),&nbsp;is_leaf(is_leaf_)&nbsp;{}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node()=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node(const&nbsp;Node&amp;)=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node(Node&amp;&amp;)=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node&amp;&nbsp;operator=(Node&amp;&amp;)=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node&amp;&nbsp;operator=(const&nbsp;Node&amp;)=default;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺に書かれた文字列の半開区間の左端&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;cleft()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;label.first;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺に書かれた文字列の半開区間の右端&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;cright()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(*label.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;入る辺の長さ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;label_length()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent&nbsp;==&nbsp;nullptr)return&nbsp;0;//&nbsp;root&nbsp;の場合は&nbsp;0&nbsp;とする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;cright()&nbsp;-&nbsp;cleft();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根からノードまでの辺の文字数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;path_label_length()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent&nbsp;==&nbsp;nullptr)return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this-&gt;parent-&gt;path_label_length_sub&nbsp;+&nbsp;label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードが終端ノードかどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;bool&nbsp;isEndPoint()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(this-&gt;suffix_id&nbsp;&gt;=&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このノードが根かどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;bool&nbsp;is_root()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;bool(this-&gt;parent&nbsp;==&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;(from,&nbsp;to,&nbsp;place)&nbsp;:=&nbsp;頂点&nbsp;from&nbsp;から、to&nbsp;の方向に&nbsp;place&nbsp;進んだ位置を指すデータ。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;ちょうど&nbsp;頂点&nbsp;x&nbsp;の上である場合、(x,&nbsp;nullptr,&nbsp;0)&nbsp;で統一する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;この位置に対応する列として&nbsp;refer&nbsp;を持つ。refering&nbsp;=&nbsp;false&nbsp;を指定すると&nbsp;refer&nbsp;を非明示的にして定数サイズオブジェクトとして扱える。<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;TreePlace{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;from&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;place&nbsp;=&nbsp;0;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace()=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;シャローコピー<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace(const&nbsp;TreePlace&amp;)=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace(TreePlace&amp;&amp;)=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&amp;&nbsp;operator=(TreePlace&amp;&amp;)=default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&amp;&nbsp;operator=(const&nbsp;TreePlace&amp;)=default;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根から現在地までのパス上の文字数&nbsp;(距離)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;path_label_length()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this-&gt;from-&gt;path_label_length()&nbsp;+&nbsp;place;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根の位置かどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;is_root()&nbsp;const&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;bool(this-&gt;path_label_length()&nbsp;==&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この位置と対応する列を明示的に管理するかどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;refering&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この位置に対応する列&nbsp;(pop_front&nbsp;するので&nbsp;deque&nbsp;で管理)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deque&lt;CharType&gt;&nbsp;refer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;現在地から、先頭要素を削除した位置に移動(明示的に対応する列&nbsp;refer&nbsp;を管理する場合)。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;walkSuffixLink(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(refering);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(refer.size()&nbsp;==&nbsp;this-&gt;path_label_length());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;is_root())return&nbsp;false;&nbsp;//&nbsp;これ以上&nbsp;Suffix&nbsp;Link&nbsp;を辿れないなら&nbsp;false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;refer.pop_front();//&nbsp;先頭の文字を削除する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;from&nbsp;=&nbsp;this-&gt;from-&gt;SuffixLink;//&nbsp;Suffix&nbsp;Link&nbsp;を辿って移動する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺上の位置を復元&nbsp;(先頭を削除した&nbsp;refer&nbsp;の長さ&nbsp;-&nbsp;&nbsp;直近の頂点への長さ)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;place&nbsp;=&nbsp;refer.size()&nbsp;-&nbsp;this-&gt;from-&gt;path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;分岐点にいるなら終了して&nbsp;OK&nbsp;(place&nbsp;で判定する必要性に注意)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;place&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Suffix&nbsp;Link&nbsp;を辿ったあとの&nbsp;to&nbsp;を、from&nbsp;の深さと&nbsp;refer&nbsp;から復元<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;to&nbsp;=&nbsp;this-&gt;from-&gt;child[refer[this-&gt;from-&gt;path_label_length()]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;place&nbsp;が&nbsp;from&nbsp;と&nbsp;to&nbsp;の間にくるように整形<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(this-&gt;to&nbsp;!=&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;this-&gt;to-&gt;label_length()&nbsp;&lt;=&nbsp;this-&gt;place){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;place&nbsp;-=&nbsp;this-&gt;to-&gt;label_length();&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;from&nbsp;=&nbsp;this-&gt;to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;place&nbsp;&gt;&nbsp;0)this-&gt;to&nbsp;=&nbsp;this-&gt;from-&gt;child[refer[this-&gt;from-&gt;path_label_length()]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;refer&nbsp;が非明示な状況で&nbsp;Suffix&nbsp;Link&nbsp;を辿って移動する場合。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TreePlace&nbsp;は何らかの列の連続部分列なので、列&nbsp;S_&nbsp;と&nbsp;S_&nbsp;のどこから始まる部分文字列かを表す整数を引数に取る。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;ArrayType,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;string&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;vector&lt;CharType&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;walkSuffixLink(const&nbsp;ArrayType&amp;&nbsp;S_&nbsp;,&nbsp;int&nbsp;start_index){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;refering&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;refer.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;is_root())return&nbsp;false;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;refer_size&nbsp;=&nbsp;this-&gt;path_label_length()-1;//&nbsp;refer&nbsp;の先頭を削除したものの長さ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start_index&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;from&nbsp;=&nbsp;this-&gt;from-&gt;SuffixLink;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;place&nbsp;=&nbsp;refer_size&nbsp;-&nbsp;this-&gt;from-&gt;path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;place&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;to&nbsp;=&nbsp;this-&gt;from-&gt;child[S_.at(start_index&nbsp;+&nbsp;this-&gt;from-&gt;path_label_length())];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(this-&gt;to&nbsp;!=&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;this-&gt;to-&gt;label_length()&nbsp;&lt;=&nbsp;this-&gt;place){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;place&nbsp;-=&nbsp;this-&gt;to-&gt;label_length();&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;from&nbsp;=&nbsp;this-&gt;to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;place&nbsp;&gt;&nbsp;0)this-&gt;to&nbsp;=&nbsp;this-&gt;from-&gt;child[S_[start_index&nbsp;+&nbsp;this-&gt;from-&gt;path_label_length()]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置が同じ位置かどうか&nbsp;(refer&nbsp;を参照しないので&nbsp;O(1)&nbsp;時間)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;bool&nbsp;operator==(const&nbsp;TreePlace&amp;&nbsp;a,&nbsp;&nbsp;const&nbsp;TreePlace&amp;&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(a.from&nbsp;==&nbsp;b.from&nbsp;&amp;&amp;&nbsp;a.to&nbsp;==&nbsp;b.to&nbsp;&amp;&amp;&nbsp;a.place&nbsp;==&nbsp;b.place);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;出力<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;ostream&amp;&nbsp;operator&lt;&lt;(ostream&amp;&nbsp;os&nbsp;,&nbsp;const&nbsp;TreePlace&amp;&nbsp;p){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;os&nbsp;&lt;&lt;&nbsp;&quot;(&quot;&nbsp;&lt;&lt;&nbsp;p.from-&gt;id&nbsp;&lt;&lt;&nbsp;&quot;,&nbsp;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(p.to&nbsp;==&nbsp;nullptr)os&nbsp;&lt;&lt;&nbsp;&quot;?&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;os&nbsp;&lt;&lt;&nbsp;p.to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;os&nbsp;&lt;&lt;&nbsp;&quot;,&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;p.place&nbsp;&lt;&lt;&nbsp;&quot;)&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;os;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;==============================================================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;メンバ(これらは内部関数でのみ編集される)&nbsp;============================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;============================================================================================*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;private:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;エラー終了<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build_error(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cerr&nbsp;&lt;&lt;&nbsp;&quot;Don&apos;t&nbsp;push_back&nbsp;to&nbsp;determined&nbsp;SuffixTree.&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(1);<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;calc_error(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cerr&nbsp;&lt;&lt;&nbsp;&quot;Cannot&nbsp;Calc&nbsp;from&nbsp;Not-Determined&nbsp;SuffixTree.&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(1);<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の順序(&lt;)比較用のラムダ<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;function&lt;bool(Edge,Edge)&gt;&nbsp;compare_edge&nbsp;=&nbsp;[](Edge&nbsp;a&nbsp;,Edge&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a.first&nbsp;&lt;&nbsp;b.first;<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点番号割り振り用のカウンタ<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_vertex_id;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Suffix&nbsp;Tree&nbsp;構築元の列<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;CharType&gt;&nbsp;S;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;S&nbsp;の終端を表すためのシンボル<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_EndS;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根を表すデータ<br>&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;root&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最後に追加された葉ノード<br>&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;lastCreatedLeafNode&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ノードを追加する際に、共有する部分の(端点の)位置データ<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;m_build_front;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;頂点番号&nbsp;x&nbsp;のノードへのポインタ<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;m_Nodes;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;x&nbsp;文字目から始まる&nbsp;Suffix&nbsp;に対応するノードへのポインタ&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;m_SuffixNodes;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;根から頂点&nbsp;x&nbsp;まで辺が何本か<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;m_tree_depth;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[i][u]&nbsp;:=&nbsp;頂点&nbsp;u&nbsp;の&nbsp;2^i&nbsp;個上の頂点<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&nbsp;&gt;&nbsp;m_parent;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;/*==&nbsp;重複して初期化を行わないためのフラグ&nbsp;==*/<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築が完全に終了したか。<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;m_determined&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;基本的なデータを構築したか<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;m_initialized_basic_data&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;部分木の集約データを構築したか<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;m_initialized_tree_dp&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;LCA&nbsp;のデータを構築したかどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;m_initialized_LCA&nbsp;=&nbsp;false;<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;メンバの初期化<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;initialize(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SuffixNodes.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_parent.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_tree_depth.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築が終了したか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_determined&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;基本データを構築したか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_initialized_basic_data&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;部分木の集約データを構築したか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_initialized_tree_dp&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;LCA&nbsp;データを構築したか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_initialized_LCA&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築用データ初期化<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_vertex_id&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;終端を表すシンボル<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_EndS&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根頂点<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root&nbsp;=&nbsp;new&nbsp;Node({0,new&nbsp;int(0)},&nbsp;m_vertex_id++,&nbsp;nullptr,&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;root&nbsp;からは&nbsp;root&nbsp;にリンクが出ている&nbsp;(共通化のためここだけ例外)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root-&gt;SuffixLink&nbsp;=&nbsp;root;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最後に追加された葉ノード<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastCreatedLeafNode&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データは&nbsp;refer&nbsp;を明示的に持つ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front&nbsp;=&nbsp;from_root(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;基本的なデータの構築(ノードへのアクセス用の配列など)<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;init_basic_data(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root&nbsp;==&nbsp;nullptr)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_initialized_basic_data)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!m_determined)calc_error();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_initialized_basic_data&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes.resize(tree_size()&nbsp;,&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_tree_depth.resize(tree_size()&nbsp;,&nbsp;0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SuffixNodes.resize(S.size()+1&nbsp;,&nbsp;nullptr);//&nbsp;空文字列&nbsp;(|S|&nbsp;からの接尾辞)&nbsp;も含む<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;s&nbsp;=&nbsp;dfs();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_tree_depth[root-&gt;id]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;DFS&nbsp;順に実行<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;now&nbsp;:&nbsp;s){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;id&nbsp;と&nbsp;Node*&nbsp;を対応付ける<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[now-&gt;id]&nbsp;=&nbsp;now;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;文字目から始まる&nbsp;Suffix&nbsp;に対応するノードを管理<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;isEndPoint())m_SuffixNodes[now-&gt;suffix_id]&nbsp;=&nbsp;now;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;木としての深さを計算<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;parent&nbsp;!=&nbsp;nullptr)m_tree_depth[now-&gt;id]&nbsp;=&nbsp;m_tree_depth[now-&gt;parent-&gt;id]&nbsp;+&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;部分木の集約データの構築<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;init_tree_dp(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root&nbsp;==&nbsp;nullptr)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_initialized_tree_dp)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!m_determined)calc_error();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;size()&nbsp;==&nbsp;0){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_initialized_tree_dp&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;rdfs&nbsp;=&nbsp;dfs();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reverse(rdfs.begin()&nbsp;,&nbsp;rdfs.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;now&nbsp;:&nbsp;rdfs){&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now-&gt;SubTreeKindOfPrefix&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now-&gt;SubTreeEndPointCount&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;now&nbsp;:&nbsp;rdfs){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;isEndPoint())now-&gt;SubTreeEndPointCount+=1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;parent&nbsp;==&nbsp;nullptr)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;部分木のノードのうち、接尾辞と対応しているものの個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now-&gt;parent-&gt;SubTreeEndPointCount&nbsp;+=&nbsp;now-&gt;SubTreeEndPointCount;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;部分木のパスが表す文字列の種類数&nbsp;+&nbsp;辺の分<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now-&gt;parent-&gt;SubTreeKindOfPrefix&nbsp;+=&nbsp;now-&gt;SubTreeKindOfPrefix&nbsp;+&nbsp;now-&gt;label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;LCA&nbsp;用のデータの構築<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;init_LCA(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root&nbsp;==&nbsp;nullptr)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_initialized_LCA)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!m_determined)calc_error();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_initialized_LCA&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;K&nbsp;=&nbsp;log2(tree_size())+4;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_parent.resize(K,vector&lt;int&gt;(tree_size(),-1));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;s&nbsp;=&nbsp;dfs();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;now&nbsp;:&nbsp;s){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now-&gt;parent&nbsp;==&nbsp;nullptr)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_parent[0][now-&gt;id]&nbsp;=&nbsp;now-&gt;parent-&gt;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;=&nbsp;1&nbsp;;&nbsp;x&nbsp;&lt;&nbsp;K&nbsp;;&nbsp;x++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;u&nbsp;=&nbsp;0&nbsp;;&nbsp;u&nbsp;&lt;&nbsp;m_parent[x].size();&nbsp;u++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_parent[x-1][u]&nbsp;&lt;&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_parent[x][u]&nbsp;=&nbsp;m_parent[x-1][m_parent[x-1][u]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;をオンラインで&nbsp;S&nbsp;の末尾に連結する&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;push_back_sub(CharType&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;初回は必要データの構築を自動で行う<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root&nbsp;==&nbsp;nullptr&nbsp;||&nbsp;S.size()&nbsp;==&nbsp;0)initialize();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_determined)build_error();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S.push_back(x);&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;終端を表すシンボルの実体を更新<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_EndS++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;lastUsedBranch&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;m_build_front&nbsp;→&nbsp;x&nbsp;に移動できるなら&nbsp;x&nbsp;の方向に移動して終了<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(findValidPath(m_build_front,x)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(lastUsedBranch!=nullptr)lastUsedBranch-&gt;SuffixLink&nbsp;=&nbsp;m_build_front.from;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;walkdown(m_build_front,x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Branch&nbsp;を分岐点として&nbsp;S&nbsp;の接尾辞&nbsp;{m_build_front&nbsp;+&nbsp;x}&nbsp;を&nbsp;Suffix&nbsp;Tree&nbsp;に挿入する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;Branch&nbsp;=&nbsp;m_build_front.from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_build_front.to&nbsp;!=&nbsp;nullptr){//&nbsp;辺の途中に分岐点を新たに作成する場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;middle&nbsp;=&nbsp;m_build_front.to-&gt;cleft()&nbsp;+&nbsp;m_build_front.place;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch&nbsp;=&nbsp;new&nbsp;Node({m_build_front.to-&gt;cleft()&nbsp;,&nbsp;new&nbsp;int(middle)&nbsp;}&nbsp;,m_vertex_id++&nbsp;,&nbsp;m_build_front.from,&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の上に新たな&nbsp;Branch&nbsp;ができたことによる辺の張り替えなど<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front.from-&gt;child[&nbsp;S[m_build_front.to-&gt;cleft()]]&nbsp;=&nbsp;Branch;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;parent&nbsp;=&nbsp;m_build_front.from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;path_label_length_sub&nbsp;=&nbsp;m_build_front.path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front.to-&gt;label.first&nbsp;=&nbsp;middle;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;child[&nbsp;S[m_build_front.to-&gt;cleft()]&nbsp;]&nbsp;=&nbsp;m_build_front.to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front.to-&gt;parent&nbsp;=&nbsp;Branch;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;はみ出た部分&nbsp;(1&nbsp;文字分)&nbsp;を&nbsp;Leaf&nbsp;Node&nbsp;として追加する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;NewLeaf&nbsp;=&nbsp;new&nbsp;Node(&nbsp;{&nbsp;m_EndS-1&nbsp;,&nbsp;&amp;m_EndS}&nbsp;,m_vertex_id++&nbsp;,&nbsp;Branch,&nbsp;true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NewLeaf-&gt;suffix_id&nbsp;=&nbsp;NewLeaf-&gt;cright()&nbsp;-&nbsp;m_build_front.path_label_length()&nbsp;-&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;child[x]&nbsp;=&nbsp;NewLeaf;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(lastUsedBranch!=nullptr)lastUsedBranch-&gt;SuffixLink&nbsp;=&nbsp;Branch;//&nbsp;使った分岐点と&nbsp;leaf&nbsp;に&nbsp;Suffix&nbsp;Link&nbsp;を張る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(lastCreatedLeafNode&nbsp;!=&nbsp;nullptr)lastCreatedLeafNode-&gt;SuffixLink&nbsp;=&nbsp;NewLeaf;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastUsedBranch&nbsp;=&nbsp;Branch;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastCreatedLeafNode&nbsp;=&nbsp;NewLeaf;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;m_build_front&nbsp;を&nbsp;m_build_front&nbsp;+&nbsp;x&nbsp;に移動できるようになるまで、Suffix&nbsp;Link&nbsp;を辿る。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}while(m_build_front.walkSuffixLink());<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;各接尾辞に対応するノードが&nbsp;Suffix&nbsp;Tree&nbsp;に存在するように変形する。<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;determine_sub(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_determined)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_determined&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Suffix&nbsp;Link&nbsp;を辿りながら&nbsp;m_build_front&nbsp;の箇所にノードを生成する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;Branch&nbsp;=&nbsp;m_build_front.from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の途中に分岐点を新たに作成する場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_build_front.to&nbsp;!=&nbsp;nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;middle&nbsp;=&nbsp;m_build_front.to-&gt;cleft()&nbsp;+&nbsp;m_build_front.place;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch&nbsp;=&nbsp;new&nbsp;Node({m_build_front.to-&gt;cleft()&nbsp;,&nbsp;new&nbsp;int(middle)&nbsp;}&nbsp;,m_vertex_id++&nbsp;,&nbsp;m_build_front.from,&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front.from-&gt;child[&nbsp;S[m_build_front.to-&gt;cleft()]]&nbsp;=&nbsp;Branch;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;parent&nbsp;=&nbsp;m_build_front.from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;path_label_length_sub&nbsp;=&nbsp;m_build_front.path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front.to-&gt;label.first&nbsp;=&nbsp;middle;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;child[&nbsp;S[m_build_front.to-&gt;cleft()]&nbsp;]&nbsp;=&nbsp;m_build_front.to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_build_front.to-&gt;parent&nbsp;=&nbsp;Branch;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根も空文字列に対応するものとして&nbsp;EndPoint&nbsp;になる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch-&gt;suffix_id&nbsp;=&nbsp;m_EndS&nbsp;-&nbsp;m_build_front.path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(lastCreatedLeafNode!=nullptr)lastCreatedLeafNode-&gt;SuffixLink&nbsp;=&nbsp;Branch;//&nbsp;Suffix&nbsp;Link&nbsp;を張る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastCreatedLeafNode&nbsp;=&nbsp;Branch;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}while(m_build_front.walkSuffixLink());<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;==============================================================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;外部向け機能&nbsp;===================================================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;============================================================================================*/<br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initialize();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;~SuffixTree(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(release_resource)clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree(const&nbsp;SuffixTree&amp;)&nbsp;=&nbsp;delete;<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree(SuffixTree&amp;&amp;)&nbsp;=&nbsp;delete;<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree&amp;&nbsp;operator=(const&nbsp;SuffixTree&amp;)&nbsp;=&nbsp;delete;<br>&nbsp;&nbsp;&nbsp;&nbsp;SuffixTree&amp;&nbsp;operator=(SuffixTree&amp;&amp;)&nbsp;=&nbsp;delete;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;メモリ解放<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;clear(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;pool&nbsp;=&nbsp;this-&gt;dfs(false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;x&nbsp;:&nbsp;pool)delete&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initialize();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データ&nbsp;data&nbsp;から要素&nbsp;x&nbsp;に向かって進むことができるかを判定<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;findValidPath(const&nbsp;TreePlace&amp;&nbsp;data&nbsp;,&nbsp;CharType&nbsp;x)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ノードの上にいる場合は、x&nbsp;方向に辺があるかを確かめる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(data.to&nbsp;==&nbsp;nullptr&nbsp;)return&nbsp;bool(data.from-&gt;child[x]&nbsp;!=&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の上にいるときは、次の文字を確かめる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;bool(S[data.to-&gt;cleft()&nbsp;+&nbsp;data.place]&nbsp;==&nbsp;x);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データ&nbsp;data&nbsp;から&nbsp;x&nbsp;の方向に&nbsp;1&nbsp;進み、data&nbsp;を更新する<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;walkdown(TreePlace&amp;&nbsp;data&nbsp;,&nbsp;CharType&nbsp;x)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;進めない場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(findValidPath(data,x)&nbsp;==&nbsp;false)return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;分岐点にいる場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(data.to&nbsp;==&nbsp;nullptr)data.to&nbsp;=&nbsp;data.from-&gt;child[x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.place++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点に到達した場合、from&nbsp;が頂点を表す様にフォーマットする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(data.to&nbsp;!=&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;data.place&nbsp;==&nbsp;data.to-&gt;label_length()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.from&nbsp;=&nbsp;data.to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.place&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データに対応する列が明示的なら、それを更新<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(data.refering)data.refer.push_back(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;列&nbsp;V_&nbsp;を&nbsp;Suffix&nbsp;Tree&nbsp;構成元の列の末尾に追加する<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;ArrayType,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;string&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;vector&lt;CharType&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;push_back(const&nbsp;ArrayType&amp;&nbsp;V_){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;V_.size()&nbsp;;&nbsp;i++)push_back_sub(CharType(V_[i]));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;文字&nbsp;c&nbsp;を&nbsp;Suffix&nbsp;Tree&nbsp;構成元の列の末尾に追加する<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;push_back(CharType&nbsp;c){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push_back_sub(c);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築を終了する。<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;determine(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;determine_sub();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;列&nbsp;V_&nbsp;をもとに&nbsp;Suffix&nbsp;Tree&nbsp;を構築し、構築を終了する。<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;ArrayType,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;string&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;vector&lt;CharType&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build(const&nbsp;ArrayType&amp;&nbsp;S_){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initialize();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push_back(S_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;determine();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;列&nbsp;X&nbsp;が、Suffix&nbsp;Tree&nbsp;の構成元の列&nbsp;S&nbsp;の部分文字列として含まれるかどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;ArrayType,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;string&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;vector&lt;CharType&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;find(const&nbsp;ArrayType&amp;&nbsp;X)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;p_data&nbsp;=&nbsp;from_root(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(CharType&nbsp;x&nbsp;:&nbsp;X)if(!walkdown(p_data,x))return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;列&nbsp;X&nbsp;が、Suffix&nbsp;Tree&nbsp;の構成元の列&nbsp;S&nbsp;の部分文字列としていくつ含まれるか<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;ArrayType,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;string&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;vector&lt;CharType&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;count(const&nbsp;ArrayType&amp;&nbsp;X){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_tree_dp();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;p_data&nbsp;=&nbsp;from_root(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(CharType&nbsp;x&nbsp;:&nbsp;X)if(!walkdown(p_data,x))return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(p_data.to&nbsp;==&nbsp;nullptr)return&nbsp;p_data.from-&gt;SubTreeEndPointCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;p_data.to-&gt;SubTreeEndPointCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Suffix&nbsp;Tree&nbsp;の根から列&nbsp;X&nbsp;に沿って移動できるだけ移動し、最終的な位置データを返す<br>&nbsp;&nbsp;&nbsp;&nbsp;template&lt;class&nbsp;ArrayType,&nbsp;typename&nbsp;=&nbsp;std::enable_if_t&lt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;string&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;is_same_v&lt;typename&nbsp;decay&lt;ArrayType&gt;::type,&nbsp;vector&lt;CharType&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;search(const&nbsp;ArrayType&amp;&nbsp;X)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;p_data&nbsp;=&nbsp;from_root(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(CharType&nbsp;x&nbsp;:&nbsp;X)if(!walkdown(p_data,x))break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;p_data;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Suffix&nbsp;Tree&nbsp;の元の文字列&nbsp;S&nbsp;の&nbsp;[l,r)&nbsp;の部分文字列に対応する位置データを返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;部分文字列に対応する定数サイズオブジェクトを&nbsp;O(logN)&nbsp;時間で取得できておいしい。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;返り値の位置データは、自身が表す文字列に関して非明示的&nbsp;(refering&nbsp;が&nbsp;false)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;長さ&nbsp;0&nbsp;の区間&nbsp;[x,x)&nbsp;は空文字列に対応<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;search(int&nbsp;l&nbsp;,&nbsp;int&nbsp;r&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;S&nbsp;の&nbsp;l&nbsp;文字目から始まる接尾辞方向に&nbsp;(r-l)&nbsp;文字進んだ位置が答え<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_LCA();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_basic_data();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;l&nbsp;&amp;&amp;&nbsp;l&nbsp;&lt;=&nbsp;r&nbsp;&amp;&amp;&nbsp;r&nbsp;&lt;=&nbsp;S.size());//&nbsp;空文字列も&nbsp;OK<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;p_data&nbsp;=&nbsp;from_root(false);//&nbsp;(root,nullptr,0,{})&nbsp;のデータ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;border&nbsp;=&nbsp;m_SuffixNodes[l];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ギリギリ&nbsp;(r-l)&nbsp;文字以上まで親方向に戻る&nbsp;(ダブリング)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;k&nbsp;=&nbsp;int(m_parent.size())-1;&nbsp;k&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;k--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;m_parent[k][border-&gt;id];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(y&nbsp;&lt;&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_Nodes[y]-&gt;path_label_length()&nbsp;&gt;=&nbsp;r-l)border&nbsp;=&nbsp;m_Nodes[y];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;さらに&nbsp;1&nbsp;つ戻ることで、S[l,r)&nbsp;に到達できる直近のノードになる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(border-&gt;path_label_length()&nbsp;&gt;&nbsp;(r-l)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border&nbsp;=&nbsp;border-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_data.to&nbsp;=&nbsp;border-&gt;child[S[l&nbsp;+&nbsp;border-&gt;path_label_length()]];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_data.place&nbsp;=&nbsp;(r-l)&nbsp;-&nbsp;border-&gt;path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_data.from&nbsp;=&nbsp;border;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;p_data;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;の位置に対応する文字列を含む接尾辞の開始位置を返す&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;複数存在する場合はいずれか&nbsp;1&nbsp;つを返す<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;decode_suffix(const&nbsp;Node*&nbsp;x)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(x&nbsp;!=&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x&nbsp;==&nbsp;root)return&nbsp;m_EndS;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x-&gt;cleft()&nbsp;-&nbsp;x-&gt;parent-&gt;path_label_length();<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置&nbsp;p_data&nbsp;に対応する文字列を含む接尾辞の開始位置を返す&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;複数存在する場合はいずれか&nbsp;1&nbsp;つを返す<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;decode_suffix(const&nbsp;TreePlace&amp;&nbsp;p_data)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(p_data.to!=nullptr)return&nbsp;decode_suffix(p_data.to);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;decode_suffix(p_data.from);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点番号で普通にLCA<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;LCA(int&nbsp;u&nbsp;,&nbsp;int&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_LCA();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_basic_data();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;tree_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;tree_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_tree_depth[u]&nbsp;&gt;&nbsp;m_tree_depth[v])swap(u,v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;k&nbsp;=&nbsp;int(m_parent.size())-1&nbsp;;&nbsp;k&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;k--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_parent[k][v]&nbsp;&lt;&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_tree_depth[m_parent[k][v]]&nbsp;&lt;&nbsp;m_tree_depth[u])continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v&nbsp;=&nbsp;m_parent[k][v];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(u&nbsp;==&nbsp;v)return&nbsp;u;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;k&nbsp;=&nbsp;int(m_parent.size())-1&nbsp;;&nbsp;k&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;k--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_parent[k][u]&nbsp;==&nbsp;m_parent[k][v])continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u&nbsp;=&nbsp;m_parent[k][u];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v&nbsp;=&nbsp;m_parent[k][v];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_parent[0][u];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ポインタで示された頂点&nbsp;u&nbsp;と&nbsp;v&nbsp;の&nbsp;LCA。返り値もポインタ。<br>&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;LCA(const&nbsp;Node*&nbsp;u,&nbsp;const&nbsp;Node*&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(u&nbsp;!=&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(v&nbsp;!=&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;同じ木の頂点かを確認<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(get_node(u-&gt;id)&nbsp;==&nbsp;u);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(get_node(v-&gt;id)&nbsp;==&nbsp;v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_Nodes[LCA(u-&gt;id&nbsp;,&nbsp;v-&gt;id)];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データ&nbsp;sd&nbsp;と、頂点ポインタ&nbsp;v&nbsp;の&nbsp;LCA。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;LCA&nbsp;が&nbsp;辺の途中になる可能性もあるので&nbsp;TreePlace&nbsp;で返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;LCA(const&nbsp;TreePlace&amp;&nbsp;sd,&nbsp;const&nbsp;Node*&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置&nbsp;sd&nbsp;が根から&nbsp;v&nbsp;までのパス上にある場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sd.to!=nullptr&nbsp;&amp;&amp;&nbsp;LCA(sd.to&nbsp;,&nbsp;v)&nbsp;==&nbsp;sd.to)return&nbsp;sd;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;res&nbsp;=&nbsp;from_root();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.from&nbsp;=&nbsp;LCA(sd.from&nbsp;,&nbsp;v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データ&nbsp;sd&nbsp;と、頂点ポインタ&nbsp;v&nbsp;の&nbsp;LCA。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;LCA&nbsp;が&nbsp;辺の途中になる可能性もあるので&nbsp;TreePlace&nbsp;で返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;LCA(const&nbsp;Node*&nbsp;v&nbsp;,&nbsp;const&nbsp;TreePlace&amp;&nbsp;sd){return&nbsp;LCA(sd,v);}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;位置データ&nbsp;sd&nbsp;と、位置データ&nbsp;sp&nbsp;の&nbsp;LCA。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;LCA&nbsp;が&nbsp;辺の途中になる可能性もあるので&nbsp;TreePlace&nbsp;で返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;LCA(TreePlace&nbsp;sd&nbsp;,TreePlace&nbsp;sp){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;res&nbsp;=&nbsp;from_root();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sd.to&nbsp;!=&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;sp.to&nbsp;!=&nbsp;nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sd.to&nbsp;==&nbsp;sp.to&nbsp;&amp;&amp;&nbsp;sd.from&nbsp;==&nbsp;sp.from){//&nbsp;同じ辺の上の位置の場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sd.path_label_length()&nbsp;&lt;&nbsp;sp.path_label_length())return&nbsp;sd;//&nbsp;浅い方が答え<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;sp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;同じ辺にいない場合、深い方は&nbsp;from&nbsp;まで下げて良い<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sd.path_label_length()&nbsp;&gt;&nbsp;sp.path_label_length()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sp&nbsp;が深い方で標準化<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;temp&nbsp;=&nbsp;sd;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sd&nbsp;=&nbsp;sp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sp&nbsp;=&nbsp;temp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;LCA(sd,sp.from);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else&nbsp;if(sd.to&nbsp;==&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;sp.to&nbsp;!=&nbsp;nullptr)return&nbsp;LCA(sp&nbsp;,&nbsp;sd.from);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(sp.to&nbsp;==&nbsp;nullptr&nbsp;&amp;&amp;&nbsp;sd.to&nbsp;!=&nbsp;nullptr)return&nbsp;LCA(sd&nbsp;,&nbsp;sp.from);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.from&nbsp;=&nbsp;LCA(sd.from&nbsp;,&nbsp;sp.from);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;root&nbsp;を表す位置データを返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;refering&nbsp;が&nbsp;false&nbsp;なら対応する列が非明示的な位置データを作って返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;from_root(bool&nbsp;refering&nbsp;=&nbsp;true)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreePlace&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.from&nbsp;=&nbsp;root;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.to&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.place&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.refering&nbsp;=&nbsp;refering;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.refer&nbsp;=&nbsp;{};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点番号が&nbsp;v&nbsp;であるノードを返す<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;Node*&nbsp;get_node(int&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_basic_data();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;tree_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_Nodes[v];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;i&nbsp;番目の&nbsp;suffix&nbsp;の終端に対応するノードを返す(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;Node*&nbsp;get_suffix_node(int&nbsp;i){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_basic_data();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;m_SuffixNodes.size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_SuffixNodes[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根ノードを返す<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;Node*&nbsp;get_root()&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;root;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;v&nbsp;の深さ(根から辺を何本経由するか)<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;get_depth_as_tree(int&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_basic_data();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;tree_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_tree_depth[v];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築元の列&nbsp;S&nbsp;の&nbsp;S[i]&nbsp;を返す&nbsp;(0-index&nbsp;で&nbsp;read-only)<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;CharType&nbsp;operator&nbsp;[](int&nbsp;i)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;S.size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;S[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築元の列&nbsp;S&nbsp;の&nbsp;S.size()<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;size()&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;res&nbsp;=&nbsp;S.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築元の列&nbsp;S&nbsp;の連続部分列の種類数。空文字列も含む。<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;KindOfSubSequence(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_tree_dp();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;空文字列は&nbsp;DP&nbsp;でカウントされないのでここで加算<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;root-&gt;SubTreeKindOfPrefix&nbsp;+&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Suffix&nbsp;Tree&nbsp;の頂点数<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;tree_size()&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_vertex_id;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;木の辺を頂点番号のペアとして、辺集合を&nbsp;vector&nbsp;で返す<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;pair&lt;int,int&gt;&gt;&nbsp;edges()&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;dfs_&nbsp;=&nbsp;dfs(false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;pair&lt;int,int&gt;&gt;&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;x&nbsp;:dfs_){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x-&gt;parent==nullptr)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.push_back({x-&gt;parent-&gt;id&nbsp;,&nbsp;x-&gt;id});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dfs&nbsp;順の&nbsp;Node*&nbsp;を返す&nbsp;(辞書順に&nbsp;dfs&nbsp;するかを引数で指定)<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;dfs(bool&nbsp;lexicographical&nbsp;=&nbsp;false)&nbsp;const&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root&nbsp;==&nbsp;nullptr)return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stack&lt;Node*&gt;&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.push(root);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(!s.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;now&nbsp;=&nbsp;s.top();s.pop();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.push_back(now);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Edge&gt;&nbsp;nxt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Edge&nbsp;nx&nbsp;:&nbsp;now-&gt;child)if(nx.second&nbsp;!=&nbsp;nullptr)nxt.push_back(nx);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の最初の文字でソート<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(lexicographical)sort(nxt.rbegin()&nbsp;,&nbsp;nxt.rend()&nbsp;,&nbsp;compare_edge);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Edge&nbsp;nx&nbsp;:&nbsp;nxt)s.push(nx.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;==============================================================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;内蔵している典型問題たち&nbsp;=========================================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;============================================================================================*/<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;このクラスが保持する列の&nbsp;Suffix&nbsp;Array&nbsp;を返す&nbsp;(0-index)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;空列は辞書順最小の接尾辞とし、その&nbsp;suffix_id&nbsp;を&nbsp;|S|&nbsp;とする<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;suffix_array(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!m_determined)calc_error();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Node*&gt;&nbsp;s&nbsp;=&nbsp;dfs(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Node*&nbsp;now&nbsp;:&nbsp;s){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!now-&gt;isEndPoint())continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.push_back(now-&gt;suffix_id);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;列&nbsp;S&nbsp;の&nbsp;辞書順で&nbsp;K&nbsp;番目の連続部分列<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;返り値は&nbsp;vector&lt;CharType&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;K&nbsp;=&nbsp;0&nbsp;なら空の列を返す<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;CharType&gt;&nbsp;get_Kth_subSeq(long&nbsp;long&nbsp;K){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init_tree_dp();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(root&nbsp;!=&nbsp;nullptr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;K&nbsp;&amp;&amp;&nbsp;K&nbsp;&lt;&nbsp;KindOfSubSequence());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;now&nbsp;=&nbsp;root;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;acum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;CharType&gt;&nbsp;res(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(K&nbsp;==&nbsp;0)return&nbsp;res;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(K&nbsp;&gt;&nbsp;acum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Edge&gt;cand;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Edge&nbsp;pr&nbsp;:&nbsp;now-&gt;child)if(pr.second!=nullptr)cand.push_back(pr);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の最初の文字の昇順でソート<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort(cand.begin(),cand.end(),compare_edge);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Edge&nbsp;pr&nbsp;:&nbsp;cand){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Node*&nbsp;nx&nbsp;=&nbsp;pr.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;nx_edge_num&nbsp;=&nbsp;nx-&gt;label_length();//&nbsp;次の頂点への辺上のprefixの種類数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の先に答えがある場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(nx-&gt;SubTreeKindOfPrefix&nbsp;+&nbsp;nx_edge_num&nbsp;+&nbsp;acum&nbsp;&gt;=&nbsp;K){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(acum&nbsp;+&nbsp;nx_edge_num&nbsp;&gt;=&nbsp;K){//&nbsp;答えとなる文字列が、次の頂点への辺の上にあるとき<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;nx-&gt;cleft()&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;nx-&gt;cleft()&nbsp;+&nbsp;K&nbsp;-&nbsp;acum&nbsp;;&nbsp;i++&nbsp;)res.push_back(S[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;nx-&gt;cleft()&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;nx-&gt;cright()&nbsp;;&nbsp;i++&nbsp;)res.push_back(S[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;=&nbsp;nx;//&nbsp;辺の先に移動&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acum&nbsp;+=&nbsp;nx_edge_num;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;//&nbsp;さっきいたノードからは抜ける<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acum&nbsp;+=&nbsp;nx-&gt;SubTreeKindOfPrefix&nbsp;+&nbsp;nx_edge_num;//&nbsp;この辺の先に答えはないので、次の辺を見る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>};<br><br></pre>
+                        <br>
+                        <br>
+                        
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

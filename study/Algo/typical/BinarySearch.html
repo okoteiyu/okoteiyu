@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>二分探索</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    二分探索 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <p>
+                    これを知らないと競プロできません。二分探索の基本的なアイデアは、単調な対象 \(F_x\) (数列なり関数なり) が、ある条件を満たす区間と、満たさない区間に \(2\) 分割される \(x\) の境界を探索することです。
+                </p>
+                <p>
+                    例えば以下のような単調な関数 \(f\) を考えてみましょう。
+                    <ul>
+                        <li>
+                            \(f(x) := x\) 秒後に世界が滅亡しているかどうかを <code>Yes/No</code> で返す。
+                        </li>
+                    </ul>
+                    \(f\) は単調なので、二分探索によって \(2\) 分割される \(x\) 座標の領域は、どちらか片方の領域では必ず \(f(x) = \) <code>Yes</code> となる領域であり、他方は必ず \(f(x) = \) <code>No</code> となる領域です。
+                </p>
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.001.jpeg">
+                <h3>
+                    二分探索の手順
+                </h3>
+                <p>
+                    \(f\) の引数と同じ型の変数 \(l,r\) を用意します。\(l,r\) は<b>常に</b>以下を満たすものとして定義します。
+                    <ul>
+                        <li>
+                            \(l\) は最終的に \(2\) 分される領域 (現時点では不明) の<b>左側の領域</b>内から出ない。
+                        </li>
+                        <li>
+                            \(r\) は最終的に \(2\) 分される領域 (現時点では不明) の<b>右側の領域</b>内から出ない。
+                        </li>
+                    </ul>
+                    以上の制約を守りながら \(l,r\) の間隔を狭めていくことで、\(2\) 分する境界を \(l,r\) で挟み撃ちすることができます。具体的には、以下の手順で \(l,r\) の間隔を狭めていきます。
+                    <ol>
+                        <li>
+                            \(l,r\) の間隔が \(\mathrm{eps}\) 以下なら操作を終了する (整数なら \(\mathrm{eps} =  1\) , 浮動小数点型なら \(\mathrm{eps} = 10^{-15}\) など )。
+                        </li>
+                        <li>
+                            \(m = \lfloor\frac{l+r}{2}\rfloor\) とする。
+                        </li>
+                        <li>
+                            \(f(r) == f(m)\) なら \(m\) は右側領域に存在する。\(f(l)\neq f(r)\) より、\(r = m\) としても \(l,r\) の制約を損なわない。よって \(r = m\) として (間隔を狭めて) 操作 \(1\) に戻る。
+                        </li>
+                        <li>
+                            \(f(l) == f(m)\) の場合、\(l = m\) とすると \(3\) と同じ議論で、\(l,r\) の制約を守りつつ間隔を狭めることができる。\(l = m\) として操作 \(1\) に戻る。
+                        </li>
+                    </ol>
+                    以上の操作によって、\(l,r\) が (\(l,r\) の型において) 隣接するようになり、条件 \(f\) を 満たす/満たさない の境界が \(l\) と \(r\) の間であることがわかる。
+                </p>
+                <h3>
+                    \(l,r\) の挙動
+                </h3>
+                <p>
+                    \(l,r\) の初期値は \(f(l)\neq f(r)\) を満たすように決める必要があります。\(x\) の定義域の両端を \(l,r\) とすればよいと思うかもしれませんが、\(x\) の定義域内に境界が存在しない場合もあります。その場合は境界なしと答えれば良いのですが、その他の場合との結果と一貫性を持たせるために、\(l,r\) を以下のようにします。
+                    <ul>
+                        <li>\(l = (x の定義域の左端) - \mathrm{eps}\)</li>
+                        <li>\(r = (x の定義域の左端) + \mathrm{eps}\)</li>
+                        <li>\(f(l),f(r)\) には <code>Yes/No</code> を \(f\) と矛盾しないよう (若干例外的でも良い) に割り振る。</li>
+                    </ul>
+                    要するに、\(l,r\) は \(x\) の定義域の両端を<b>すこしはみ出した</b>座標で初期化します。具体的には、以下のように初期値を設定します。
+                </p>
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.002.jpeg">
+
+
+                <p>
+                    ここから、二分探索の手順に従って \(l,r\) の間隔を狭めていきます。
+                </p>
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.003.jpeg"><br>
+                <p>
+                    \(f(l) == f(m)\) なので、左端を \(m\) の場所まで狭めます。
+                </p>
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.004.jpeg"><br>
+                
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.005.jpeg">
+                
+                <p>
+                    \(f(r) == f(m)\) なので、右端を \(m\) の場所まで狭めます。
+                </p>
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.006.jpeg"><br>
+                <img class = "StandardImageStyle" src = "./../../images/BinarySearch/BinarySearch.007.jpeg"><br>
+
+
+                <p>
+                    このようにして、最終的に \(f\) を \(2\) 分割する \(x\) 座標の境界がもとまりました。毎回区間 \([l,r]\) の中間で分割を行うので、計算量は \(O((f の計算量)\cdot \log{(定義域の幅)})\) 時間です。
+                </p>
+                <h3>
+                    何が嬉しいのか
+                </h3>
+                <p>
+                    境界がわかります(それはそう)。今回の例では、最終的な \(r\) を見ると世界が何秒後に滅ぶかがわかり、最終的な \(l\) を見ると世界が後何秒存続するかがわかります。
+                </p>
+            </section>
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

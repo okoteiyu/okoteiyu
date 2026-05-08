@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Link-Cut Tree</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    リンク-カット木<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <div class = "Highlight">
+                    <h3>
+                        関連記事リンク
+                    </h3>
+                    <ul>
+                        <li><a href = "./SplayTree.html">Splay 木</a></li>
+                    </ul>
+                    <h3>
+                        対応 Library Checker 問題リンク
+                    </h3>
+                    <ul>
+                        <li>TODO</li>
+                    </ul>
+                </div>
+                <h2>リンク-カット木とは</h2>
+                <p>
+                    リンクカット木は、森 (各連結成分が木のグラフ) に対して以下のクエリに答えることができるデータ構造です。
+                </p>
+                <ul>
+                    <li>
+                        ある木の根を始点とするパスに対するデータ取得
+                    </li>
+                    <li>
+                        ある木の部分木に対するデータ取得 (今回は扱わない)
+                    </li>
+                    <li>
+                        辺を追加 (追加後も森である必要がある)
+                    </li>
+                    <li>
+                        辺を削除
+                    </li>
+                    <li>
+                        ある木の根を変更する
+                    </li>
+                </ul>
+                <p>
+                    辺を動的に追加/削除することから、このデータ構造は<b>動的木または動的森</b>と呼ばれるデータ構造に属します。
+                </p>
+                <p>
+                    また、この記事を読むための前提として <b>Splay Tree</b> を \(30\)% ぐらい理解しているといいと思います。
+                </p>
+                <br>
+                <h2>
+                    説明
+                </h2>
+                <p>
+                    競技プログラミングにおいて、根付き木は隣接リストや、親頂点を管理する配列で表現するのが典型的です。隣接リストによる表現が高い汎用性を持つのに対して、親頂点を管理する方法は LCA や パス取得などの処理に特化しています。このように、どのように木を管理するかは、実現したい処理によって使い分けるのが良いです。
+                </p>
+                <p>
+                    今回、リンク-カット木 (以降は <b>LCT</b> とする) は <b>パスに対するデータ取得</b> を行うものとして、パスに対するデータ取得に特化した LCT を説明します。
+                </p>
+                <br>
+                <h2>
+                    森の構築
+                </h2>
+                <p>
+                    辺が \(1\) つもない状態からはじめ、辺を追加して森を構築していきます。
+                </p>
+                <u>図 1</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.001.jpeg"  class = "StandardImageStyle">
+                <p>
+                    ここで重要なことを言います。LCT においては、<b>森の実体を直接保管しない</b>という特徴があります。どういうことかというと、LCT では<b>木の辺を直接管理しない</b>というトリッキーな方法を取ります。例えば、以下 (図 2) のように木を構築してみます。
+                </p>
+                <u>図 2</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.002.jpeg"  class = "StandardImageStyle">
+                <p>
+                    この例では、LCT が管理するデータが、<b>ちょうどたまたま、表現したい木と同じ形</b>になっています。後でこの形は崩れていきます。なお、赤い辺のことを <b>heavy-edge</b>、緑の辺を <b>light-edge</b> と言います。
+                </p>
+                <div class = "Box">
+                    <h3>補足 1</h3>
+                    <p>
+                        本来は <b>遅延評価(後述)</b> によって、LCT が持つデータに未評価部分が存在しますが、図 2 では見やすさのために全ての遅延評価を評価して解消しています。
+                    </p>
+                    <p>
+                        なお、後に説明する <b>link</b> というメソッドを以下の順に実行することで図 2 の木を得ることができます。
+                    </p>
+                    <pre><br>link(8,9);<br>link(8,7);<br>link(7,2);<br>link(7,6);<br>link(1,6);<br>link(1,3);<br>link(3,4);<br>link(3,5);</pre>
+                </div>
+                <br>
+                <h2>
+                    heavy-edge と light-edge
+                </h2>
+                <p>
+                    LCT は <b>heavy-edge</b> と <b>light-edge</b> を駆使して<b>木をパスに分解して管理</b>します。この記事では赤い辺を heavy-edge に、緑の辺を light-edge に対応させて説明します。
+                </p>
+                <p>
+                    heavy-edge は <b>ひとまとまりのパスを管理するデータ構造</b> を成し、light-edge は <b>異なるパス間の関係</b> を表します。例えば、図 2 は以下のようなパスの集まりに分解できます。長方形の枠で囲った部分がひとまとまりのパスに対応します。
+                </p>
+                <u>図 3</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.003.jpeg"  class = "StandardImageStyle">
+                <p>
+                    パスは \(1\) 直線なので、各パスを <b>Splay Tree</b> で表現できます。具体的には、<b>左の頂点ほど LCT が表現する木の根に近く、右の頂点ほど LCT が表現する木の根から遠い</b>という順序をもつ Splay Tree で表現します。heavy-edge とは、<b>この Splay Tree の辺のこと</b>なのです。
+                </p>
+                <u>図 4</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.004.jpeg"  class = "StandardImageStyle">
+                <p>
+                    そして、light-edge もまた Splay Tree の辺の<b>亜種</b>です。Splay Tree は根付き木なので、 Splay Tree の辺の \(2\) つの端点のいずれかは親頂点で、他方が子頂点という関係をなします。通常の Splay Tree の辺、すなわち heavy-edge は親と子を双方向に接続する<b>無向辺</b>であるのに対して、<b>light-edge は子頂点から親頂点に向けて一方的に接続する有向辺です</b>。つまり、light-edge で繋がれた<b>子頂点側からは親頂点にアクセスできます</b>が、<b>親頂点側からは子頂点にアクセスできません</b>。
+                </p>
+                <p>
+                    なおこの記事では、LCT が表現する木の根と、パスを管理する Splay Tree の根を区別するために、<b>単に根と書いたときは LCT が表現する木の根を表す</b>ことにして、Splay Tree の根を指す場合は省略せずに Splay Tree の根と書きます。辺についても同様の表記としますが、単に heavy-edge や light-edge と書いた場合は<b>暗黙的に Splay Tree の辺である</b>こととします。
+                </p>
+                <br>
+                <h2>
+                    実行できるメソッドたち
+                </h2>
+                <p>
+                    まず、最も基本的なメソッドとして以下を定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{access}(x) := \) 木の根から頂点 \(x\) までパスを繋ぐ。
+                        <ul>
+                            <li>
+                                繋げたパスも Splay Tree で管理されるので、頂点 \(x\) を splay してその Splay Tree の根にすることで、頂点 \(x\) からパス全体のデータの集約を取得できるようにする。
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>
+                    \(\mathrm{access}(x)\) では、以下の \(3\) つの手続きでイテレーションを行います。ちゃんと読み込まなくても、<b>図による \(\mathrm{access}\) の様子を見ればなんとなくわかる</b>と思います。
+                </p>
+                <ol>
+                    <li>
+                        以下の方法で頂点 \(x\) を splay し、その結果、頂点 \(x\) から Splay Tree における親方向に辺が出てなければ、\(\mathrm{access}\) の手続きを終了する。
+                        <ul>
+                            <li>
+                                light-edge は回転させない。
+                            </li>
+                            <li>
+                                heavy-edge の回転による Splay Tree の辺の張り替えにおいて、Splay Tree で<b>親方向に伸びる</b> light-edge であれば通常の Splay Tree と同様に行う。(親方向以外の light-edge は回転するアクターの頂点からはアクセスできないので無視する。)
+                            </li>
+                            <li>
+                                splay した後、頂点 \(x\) から Splay Tree における右の子頂点への辺が存在すれば、それを light-edge にする。つまり、Splay Tree における右の子頂点へのアクセスを無くす。
+                            </li>
+                            <li>
+                                頂点 \(x\) から light-edge で親頂点に接続している状態になれば、この手続きを終了する。
+                            </li>
+                        </ul>
+
+                    </li>
+                    <li>
+                        頂点 \(x\) から light-edge で接続している親頂点を頂点 \(y\) として、頂点 \(y\) を splay する。splay の方法は手続き \(1\) と同じ。
+                    </li>
+                    <li>
+                        頂点 \(y\) の Splay Tree における右の子を頂点 \(x\) にする。
+                        <ul>
+                            <li>
+                                頂点 \(x\) から伸びていた light-edge がこのタイミングで heavy-edge になり、\(2\) つの Splay Tree がマージされる。
+                            </li>
+                            <li>
+                                Splay Tree の右の子は \(1\) つ以下なので、右の子の変更は heavy-edge の張り替えを意味している。
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+                <p>
+                    以上の手続きが終了したとき、根から頂点 \(x\) までのパスが \(1\) つの Splay Tree で表現されており、頂点 \(x\) はその Splay Tree の根になっています。以下に \(\mathrm{access}(9)\) の様子を示します。
+                </p>
+                <br>
+                <u>ステップ 1 (図 5 : 手続き 1)</u>
+                <p>
+                    はじめ、頂点 \(9\) は単体の Splay Tree なので特別なこともなく splay を完了させます。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.005.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>ステップ 2 (図 6 : 手続き 2)</u>
+                <p>
+                    頂点 \(9\) から light-edge で頂点 \(8\) につながっているので、頂点 \(8\) を splay します。このとき、light-edge は回転させないことと、Splay Tree の親方向につながる light-edge は heavy-edge と同様に辺の張り替えが行われることに注意してください。この例では、元々頂点 \(6\) から出ていた light-edge は頂点 \(8\) に受け継がれます。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.006.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>ステップ 3 (図 7 : 手続き 3)</u>
+                <p>
+                    手続き \(2\) で splay した頂点 \(8\) の右の子を、\(\mathrm{access}\) する頂点である頂点 \(9\) に変更します。これによって \(2\) つのパスがマージされました。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.007.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>ステップ 4 (図 8 : 手続き 1 と手続き 2)</u>
+                <p>
+                    手続き \(1\) に戻り、頂点 \(9\) を splay し、その後頂点 \(9\) から light-edge で接続されている頂点 \(1\) も同様に splay します。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.008.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>ステップ 5 (図 9 : 手続き 3)</u>
+                <p>
+                    手続き \(2\) で splay した頂点 \(1\) の右の子を、\(\mathrm{access}\) する頂点である頂点 \(9\) に変更します。元々 heavy-edge があった (\(1\) - \(3\)) から heavy-edge が張り変わっていることが確認できます。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.009.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>ステップ 6 (図 10 : 手続き 1)</u>
+                <p>
+                    頂点 \(9\) を splay し、その結果、Splay Tree における親方向に辺が出ていなくなったので手続きを終了します。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.010.jpeg"  class = "StandardImageStyle">
+                <p>
+                    これによって、頂点 \(1\) から頂点 \(9\) までのパスを \(1\) つの Splay Tree で表現することができました。現在の木のパスは以下のように分解して管理されています。
+                </p>
+                <br>
+                <u>図 11</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.011.jpeg"  class = "StandardImageStyle">
+                <p>
+                    Splay Tree でパスを表現できたので、パスに関して様々な計算を行うことができます。例えば、パスの長さ (辺の個数) はそのパスを管理する \(\mathrm{Splay Tree}\space のサイズ - 1\) です。
+                </p>
+                <br>
+                <h3>連結成分の根の特定</h3>
+                <p>
+                    頂点 \(x\) が属する連結成分の根が不明の場合、\(\mathrm{access}(x)\) によって根 (不明) から頂点 \(x\) までのパスを Splay Tree で構築し、その Splay Tree の最も左の頂点を取得することで、連結成分の根を取得できます。Splay Tree の最も左の頂点の取得は Splay Tree のメソッドで処理可能です。
+                </p>
+                <p>
+                    \(2\) つの頂点が同じ連結成分に属するかどうかも、それぞれの頂点の属する連結成分の根を見て判定することができます。
+                </p>
+                <br>
+                <h3>連結成分の根の変更</h3>
+                <p>
+                    連結成分の根の変更メソッドとして、以下を定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{evert}(x) := \) 頂点 \(x\) が属する連結成分の根を \(x\) に変更する。
+                    </li>
+                </ul>
+                <p>
+                    手続きはシンプルで、以下の \(2\) ステップからなります。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{access}(x)\) する。結果、頂点 \(x\) が Splay Tree の根になる。
+                    </li>
+                    <li>
+                        頂点 \(x\) に <b>左右反転の遅延評価</b> をかける。
+                    </li>
+                </ol>
+                <p>
+                    例えば頂点 \(9\) を連結成分の根にする場合、まずは \(\mathrm{access}(9)\) によって根からのパスを構築します。
+                </p>
+                <br>
+                <u>図 11 と同じ図</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.011.jpeg"  class = "StandardImageStyle">
+                <p>
+                    その後、頂点 \(9\) に左右反転の遅延評価をかけます。
+                </p>
+                <br>
+                <u>図 12</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.012.jpeg"  class = "StandardImageStyle">
+                <p>
+                    パスを管理する Splay Tree を、木の根に近い頂点ほど左にあるという順序で構築していたので、パスを左右反転すると、その影響で自動的に木の根が変更されます。
+                </p>
+                <u>図 13</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.013.jpeg"  class = "StandardImageStyle">
+                <div class = "Box">
+                    <h3>補足 2</h3>
+                    <p>
+                        左右反転の遅延評価があることでわかりやすり図示が困難になってしまうので、以降は遅延評価を全て評価して解消した状態の図を見せます。
+                    </p>
+                    <u>図 14</u>
+                    <br><img src = "./../../images/LinkCutTree/LinkCutTree.014.jpeg"  class = "StandardImageStyle">
+                </div>
+                <br>
+                <h3>親頂点の特定</h3>
+                <p>
+                    \(\mathrm{evert}\) によって根が動的に変化するので、頂点 \(x\) の親を特定するメソッドとして \(\mathrm{parent}(x)\) を備えておきます。
+                </p>
+                <p>
+                    頂点 \(x\) の親の特定の手続きは以下の通りです。ただし、頂点を移動する際に遅延評価を評価することを忘れないように注意してください。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{access}(x)\) する。結果、頂点 \(x\) が Splay Tree の根になる。
+                    </li>
+                    <li>
+                        頂点 \(x\) から Splay Tree における左の子頂点に \(1\) 回降りる。左の子頂点が存在しなければ親頂点は存在しない (\(x\) が根である)。
+                    </li>
+                    <li>
+                        その後、Splay Tree において右に降りることができる限り右に降りる。最終的な現在地が親頂点である。
+                    </li>
+                </ol>
+                <p>
+                    以下は \(\mathrm{parent}(7)\) の様子です。
+                </p>
+                <br>
+                <u>図 15</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.015.jpeg"  class = "StandardImageStyle">
+                <h3>
+                    辺の追加
+                </h3>
+                <p>
+                    動的森なので連結成分が一つとは限りません。ここで満を持して、辺の追加を説明します。
+                </p>
+                <br>
+                <u>図 16</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.016.jpeg"  class = "StandardImageStyle">
+                <p>
+                    辺の追加を行うメソッドを以下で定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{link}(u,v) := \) 頂点 \(u\) と頂点 \(v\) を辺で繋ぐ。
+                        <ul>
+                            <li>
+                                \(u\) と \(v\) が同じ連結成分に属している状態で呼び出すとエラーとする。
+                            </li>
+                            <li>
+                                連結成分をマージした後、その連結成分の根は頂点 \(u\) であるとする。
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>
+                    手続きは以下の \(3\) ステップからなります。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{access}(u)\) する。
+                    </li>
+                    <li>
+                        \(\mathrm{evert}(v)\) する。
+                    </li>
+                    <li>
+                        頂点 \(v\) から頂点 \(u\) に向けて light-edge を追加する。
+                    </li>
+                </ol>
+                <p>
+                    以下は \(\mathrm{link}(12,9)\) の様子です。
+                </p>
+                <br>
+                <u>図 17 (手続き 1 と手続き 2)</u>
+                <p>
+                    まず \(\mathrm{access}(12)\) と \(\mathrm{evert}(9)\) を行います。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.017.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>図 18 (手続き 3)</u>
+                <p>
+                    その後、頂点 \(9\) から頂点 \(12\) に向けて light-edge を追加します。これは頂点 \(9\) に対して、Splay Tree における親頂点を \(u\) にする操作です。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.018.jpeg"  class = "StandardImageStyle">
+                <p>
+                    その結果、パスの分解の状況は以下の図のようになります。ちゃんと頂点 \(12\) と頂点 \(9\) がリンクされていることが確認できます。
+                </p>
+                <br>
+                <u>図 19</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.019.jpeg"  class = "StandardImageStyle">
+                <p>
+                    なお、左右反転の遅延評価があると見づらいので、例によって<b>遅延評価を全て評価して解消した図で説明します</b>。
+                </p>
+                <br>
+                <u>図 20</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.020.jpeg"  class = "StandardImageStyle">
+                <br>
+                <h3>
+                    辺の削除
+                </h3>
+                <p>
+                    最後に、辺の削除を行うメソッドを以下で定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{cut}(u,v) := \) 頂点 \(u\) と頂点 \(v\) を繋ぐ辺を削除する。
+                        <ul>
+                            <li>
+                                頂点 \(u\) と頂点 \(v\) が辺で繋がれていない状態で呼び出すとエラーとする。
+                            </li>
+                            <li>
+                                辺の削除後、元の連結成分の根が属さない方の連結成分において、どの頂点が根になるかを<b>保証しない</b> (連結成分の根の取得や \(\mathrm{evert}\) が可能なので問題はない)。
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>
+                    手続きは以下の \(3\) ステップからなります。
+                </p>
+                <ol>
+                    <li>
+                        頂点 \(u\) と頂点 \(v\) で、根から遠い方を \(X\) とする。
+                    </li>
+                    <li>
+                        \(\mathrm{access}(X)\) する。
+                    </li>
+                    <li>
+                        頂点 \(X\) から出る heavy-edge のうち、左の子頂点に向かう heavy-edge を削除する。
+                    </li>
+                </ol>
+                <p>
+                    以下は \(\mathrm{cut(8,9)}\) の様子です。
+                </p>
+                <br>
+                <u>図 21</u>
+                <p>
+                    今回は頂点 \(8\) の方が深いので、根から頂点 \(8\) までのパスを構築します。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.021.jpeg"  class = "StandardImageStyle">
+                <br>
+                <u>図 22</u>
+                <p>
+                    頂点 \(8\) からは左に heavy-edge が出ているので、これを完全に無くします。
+                </p>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.022.jpeg"  class = "StandardImageStyle">
+                <p>
+                    その結果、パスの分解の状況は以下の図のようになります。ちゃんと頂点 \(8\) と頂点 \(9\) が分断されていることが確認できます。
+                </p>
+                <br>
+                <u>図 23</u>
+                <br><img src = "./../../images/LinkCutTree/LinkCutTree.023.jpeg"  class = "StandardImageStyle">
+                <br>
+                <h2>
+                    辺の管理について
+                </h2>
+                <p>
+                    \(\mathrm{cut}\) などで、分断する \(2\) つの頂点間に辺が存在するかを判定する必要があります。これを LCT の機能で完備しておくこともできますが、定数倍の大きさを考えると、シンプルに \(2\) つの頂点をキーにとるハッシュテーブルなどで管理しておくのが良いと思います。
+                </p>
+                <br>
+                <h2>
+                    根やパスの管理について
+                </h2>
+                <p>
+                    木の根や Splay Tree の根を勝手に想定するのは危険です。可能ならば、計算を行う前に \(\mathrm{access}\) や \(\mathrm{evert}\) によって明示的に根が何かを指定するのが好ましいです。
+                </p>
+                <br>
+                <h2>
+                    頂点重みについて
+                </h2>
+                <p>
+                    パスを Splay Tree で管理しているので、Splay Tree の機能を用いて、パス上の頂点の重みに対して一括で操作を行うことができます。総和、Min/Max、アフィン変換、一律更新など、Splay Tree で可能なら全て可能です。
+                </p>
+                <br>
+                <h2>
+                    辺重みについて
+                </h2>
+                <p>
+                    頂点拡張で辺重みを持つ頂点を追加することで、頂点重みに帰着させることができます。
+                </p>
+                <br>
+                <h2>
+                    計算量
+                </h2>
+                <p>
+                    詳しいことを説明しませんが、クエリあたりの計算量は対数時間です。
+                </p>
+                <br>
+                <h2>
+                    いかがでしたか
+                </h2>
+                <p>
+                    いかがでしたか
+                </p>
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+                        <br>
+                        <br>
+                        <br>
+                        <pre><br><br><br><br>/*<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;動的な木を明示的に管理するのではなく、木上のパスを&nbsp;SplayTree&nbsp;(列型)&nbsp;として管理する。<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;頂点重みをもつか、辺重みを持つかを、テンプレートパラメータ&nbsp;edge_focused&nbsp;で指定<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;true&nbsp;&nbsp;-&gt;&nbsp;頂点重み<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;false&nbsp;-&gt;&nbsp;辺重み<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;evert(x)&nbsp;:=&nbsp;xを連結成分のrootに<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;link(x,y)&nbsp;:=&nbsp;x,y&nbsp;に辺を追加&nbsp;(元々&nbsp;x,y&nbsp;は非連結)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;頂点重みの場合限定<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;link(x,y)&nbsp;:=&nbsp;x,y&nbsp;に重み&nbsp;w&nbsp;の辺を追加&nbsp;(元々&nbsp;x,y&nbsp;は非連結)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;辺重みの場合限定<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;cut(x,y)&nbsp;:=&nbsp;x,y&nbsp;から辺を削除&nbsp;(元々&nbsp;x,y&nbsp;に辺がある)<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;GetPath(u,v)&nbsp;:=&nbsp;パス&nbsp;u-v&nbsp;のデータを格納した&nbsp;SplayNode&nbsp;のコピー(隣接ノードへのアクセスを封印)を返す<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;access(x)&nbsp;:=&nbsp;x&nbsp;の属する木の根から&nbsp;x&nbsp;までを&nbsp;HeavyEdge&nbsp;で繋ぎ、パスにする。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;パスは&nbsp;SplayTree&nbsp;である。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;ついでに&nbsp;m_Nodes[x]&nbsp;を&nbsp;SplayTree&nbsp;の根にする&nbsp;(splay)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;access(x)で繋がった&nbsp;SplayTreeは、左の方が根に近く、右に行くほど下の頂点になる&nbsp;(path&nbsp;である)<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;根から&nbsp;x&nbsp;までの&nbsp;path&nbsp;の情報&nbsp;(重みの&nbsp;Sum&nbsp;など)&nbsp;は、access(x)&nbsp;してから&nbsp;m_Nodes[x]-&gt;Sum&nbsp;などで取得できる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;頂点重みを集約するか、辺重みを集約するかは、テンプレートパラメータで指定する<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;operator&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;に対応する&nbsp;SplayNode&nbsp;のコピー&nbsp;(隣接&nbsp;SplayNode&nbsp;へのポインタを封印してある)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;[x]&nbsp;にアクセスすると自動で&nbsp;access(x)&nbsp;される。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;つまり、[x]&nbsp;は&nbsp;「根から&nbsp;x&nbsp;までのパスを表す&nbsp;SplayTree&nbsp;の根」(のコピー)&nbsp;を取得する<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;root(x)&nbsp;:=&nbsp;x&nbsp;の属する木の根<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;depth(x)&nbsp;:=&nbsp;x&nbsp;の深さ<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;same(x,y)&nbsp;:=&nbsp;x,y&nbsp;が同じ木に属しているか<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;parent(x)&nbsp;:=&nbsp;x&nbsp;の親頂点の番号。なければ&nbsp;-1&nbsp;を返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;LCA(x,y)&nbsp;:=&nbsp;x,y&nbsp;の&nbsp;lca&nbsp;(x,y&nbsp;は同じ木に属する)<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;path_xth_element(v,x)&nbsp;:=&nbsp;v&nbsp;の属する木の「根から頂点&nbsp;v&nbsp;までのパス」上で深さが&nbsp;x&nbsp;の頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;重みの更新。重みを持つ対象&nbsp;(頂点&nbsp;or&nbsp;辺)&nbsp;を&nbsp;product_target&nbsp;と呼ぶことにする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;update_val(i,x)&nbsp;:=&nbsp;頂点&nbsp;i&nbsp;の重みを&nbsp;x&nbsp;にする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;頂点重みの場合&nbsp;(product_target&nbsp;が頂点の場合)&nbsp;限定<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;update_val(u,v,w)&nbsp;:=&nbsp;辺&nbsp;(u,v)&nbsp;の重みを&nbsp;w&nbsp;にする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;辺重みの場合&nbsp;(product_target&nbsp;が辺の場合)&nbsp;限定<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;PathUpdate(i,x)&nbsp;:=&nbsp;属する木の根から頂点&nbsp;i&nbsp;までのパス上の&nbsp;product_target&nbsp;の重みを一律&nbsp;x&nbsp;に更新する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;PathAffine(i,A,B)&nbsp;:=&nbsp;属する木の根から頂点&nbsp;i&nbsp;までのパス上の&nbsp;product_target&nbsp;の重み&nbsp;(Value)&nbsp;を一律&nbsp;A*Value&nbsp;+&nbsp;B&nbsp;に更新<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;PathUpdate(i,x)&nbsp;:=&nbsp;属する木の根から頂点&nbsp;i&nbsp;までのパス上の　product_target　の重みに一律&nbsp;x&nbsp;加算する<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;内部的には、辺重みを持つ場合の辺要素を、頂点拡張した頂点として管理している。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;product_target&nbsp;ではない方の&nbsp;Value&nbsp;を無視する<br>*/<br>template&lt;typename&nbsp;T&nbsp;,&nbsp;bool&nbsp;edge_focused&nbsp;=&nbsp;false&nbsp;&gt;<br>class&nbsp;LinkCutTree{<br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;SplayNode{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;class&nbsp;LinkCutTree;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;id&nbsp;=&nbsp;-1;//&nbsp;頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;Value;//&nbsp;元の木の頂点についている値<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;Min,Max,Sum;//&nbsp;SplayTree&nbsp;の部分木のうち、Value&nbsp;の最大、最小、和<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;SubTreeSize&nbsp;=&nbsp;1;//&nbsp;SplayTree&nbsp;の部分木サイズ<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;*parent&nbsp;=&nbsp;nullptr;&nbsp;&nbsp;//&nbsp;親ノード<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;*left&nbsp;=&nbsp;nullptr;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;左の子ノード<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;*right&nbsp;=&nbsp;nullptr;&nbsp;&nbsp;&nbsp;//&nbsp;右の子ノード<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;static&nbsp;const&nbsp;pair&lt;T,T&gt;&nbsp;eq_affine&nbsp;=&nbsp;{T(1),T(0)};&nbsp;//&nbsp;アフィン変換の単位元<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pair&lt;T,T&gt;&nbsp;lazy_affine&nbsp;=&nbsp;eq_affine;//&nbsp;遅延中のアフィン変換のパラメータ<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;TargetFactorCount&nbsp;=&nbsp;0;&nbsp;//&nbsp;部分木内にある集約対象の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*==================================================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;メモリアライメントに配慮して、bool&nbsp;は最後に宣言する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;===================================================*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;反転が遅延しているかどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;lazy_reverse&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ノードのコピーかどうか&nbsp;(&nbsp;splay&nbsp;tree&nbsp;の&nbsp;get&nbsp;などに詳細&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;temp_instance&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SplayNode&nbsp;は、頂点拡張で表現した辺要素を表す場合もある<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;is_product_target;//&nbsp;集約の対象かどうか&nbsp;(辺集約&nbsp;or&nbsp;頂点集約)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点番号、値、値の集約対象かどうか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode(long&nbsp;long&nbsp;id_&nbsp;,T&nbsp;val&nbsp;,&nbsp;bool&nbsp;is_product_target_)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:id(id_)&nbsp;,&nbsp;Value(val),&nbsp;is_product_target(is_product_target_){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;デフォルトのシャローコピーを採用<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode(const&nbsp;SplayNode&amp;)&nbsp;=&nbsp;default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode(SplayNode&amp;&amp;)&nbsp;=&nbsp;default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&amp;&nbsp;operator=(const&nbsp;SplayNode&amp;)&nbsp;=&nbsp;default;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&amp;&nbsp;operator=(SplayNode&amp;&amp;)&nbsp;=&nbsp;default;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;隣接頂点へのアクセスを禁止したコピーを返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;コピーに対する&nbsp;splay&nbsp;や&nbsp;update&nbsp;などは&nbsp;invalid<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;make_temp_instance(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(temp_instance&nbsp;==&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;res&nbsp;=&nbsp;*this;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.left&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.right&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.parent&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.temp_instance&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;反転を遅延させる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;void&nbsp;set_lazyReverse()&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_reverse&nbsp;=&nbsp;!(this-&gt;lazy_reverse);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;アフィン変換を遅延させる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;void&nbsp;set_lazyAffine(T&nbsp;a,&nbsp;T&nbsp;b)&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_affine&nbsp;=&nbsp;{a*this-&gt;lazy_affine.first&nbsp;,&nbsp;a*this-&gt;lazy_affine.second&nbsp;+&nbsp;b};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;this&nbsp;-&nbsp;this-&gt;parent&nbsp;を回転させる&nbsp;(親との&nbsp;Heavy&nbsp;Edge&nbsp;は必ず存在するものとし、位置関係も誤りがないものとする)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;rotate(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//GrandParentの子を張り替え&nbsp;(light&nbsp;edge&nbsp;かどうかもチェック)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent-&gt;parent&nbsp;!=&nbsp;nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent&nbsp;==&nbsp;this-&gt;parent-&gt;parent-&gt;left)this-&gt;parent-&gt;parent-&gt;left&nbsp;=&nbsp;this;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(this-&gt;parent&nbsp;==&nbsp;this-&gt;parent-&gt;parent-&gt;right)this-&gt;parent-&gt;parent-&gt;right&nbsp;=&nbsp;this;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//元の親に対する位置で場合分け<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent-&gt;left&nbsp;==&nbsp;this){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent-&gt;left&nbsp;=&nbsp;this-&gt;right;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;right&nbsp;!=&nbsp;nullptr)this-&gt;right-&gt;parent&nbsp;=&nbsp;this-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;right&nbsp;=&nbsp;this-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent&nbsp;=&nbsp;this-&gt;right-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;right-&gt;parent&nbsp;=&nbsp;this;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;right-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent-&gt;right&nbsp;=&nbsp;this-&gt;left;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;left&nbsp;!=&nbsp;nullptr)this-&gt;left-&gt;parent&nbsp;=&nbsp;this-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;left&nbsp;=&nbsp;this-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent&nbsp;=&nbsp;this-&gt;left-&gt;parent;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;left-&gt;parent&nbsp;=&nbsp;this;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;left-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自分から見た親の位置<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;-&gt;&nbsp;親が存在しない&nbsp;or&nbsp;light&nbsp;edge&nbsp;の場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;-&gt;&nbsp;親の左の場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;-&gt;&nbsp;親の右の場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;state(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent&nbsp;==&nbsp;nullptr)return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;parent-&gt;eval();//&nbsp;reverse&nbsp;を反映<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent-&gt;left&nbsp;==&nbsp;this)return&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent-&gt;right&nbsp;==&nbsp;this)return&nbsp;2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;//&nbsp;light&nbsp;edge&nbsp;の場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;あるNodeを回転を駆使し一番上まで持っていく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;splay(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(this-&gt;state()!=0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;parent-&gt;state()&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;rotate();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(&nbsp;this-&gt;parent-&gt;state()&nbsp;==&nbsp;this-&gt;state()&nbsp;)this-&gt;parent-&gt;rotate();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;this-&gt;rotate();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;rotate();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Nodeの持っている情報をupdateする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;update()&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(temp_instance&nbsp;==&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;=&nbsp;1;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;TargetFactorCount&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;is_product_target)this-&gt;TargetFactorCount++;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;product_target&nbsp;がない区間は集約せず、値も未定義のままで良い<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Sum&nbsp;=&nbsp;this-&gt;Value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;Value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Max&nbsp;=&nbsp;this-&gt;Value;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;先に、辺/頂点&nbsp;共通のメンバを集約<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;left&nbsp;!=&nbsp;nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;left-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;+=&nbsp;this-&gt;left-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;TargetFactorCount&nbsp;+=&nbsp;this-&gt;left-&gt;TargetFactorCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;集約対象をもつ子からのみ集約<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;left-&gt;TargetFactorCount&nbsp;&gt;&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;min&lt;T&gt;(this-&gt;left-&gt;Min,this-&gt;Min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Max&nbsp;=&nbsp;max&lt;T&gt;(this-&gt;left-&gt;Max,this-&gt;Max);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Sum&nbsp;+=&nbsp;this-&gt;left-&gt;Sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;right&nbsp;!=&nbsp;nullptr){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;right-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;+=&nbsp;this-&gt;right-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;TargetFactorCount&nbsp;+=&nbsp;this-&gt;right-&gt;TargetFactorCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;right-&gt;TargetFactorCount&nbsp;&gt;&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;min&lt;T&gt;(this-&gt;right-&gt;Min,this-&gt;Min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Max&nbsp;=&nbsp;max&lt;T&gt;(this-&gt;right-&gt;Max,this-&gt;Max);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Sum&nbsp;+=&nbsp;this-&gt;right-&gt;Sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;eval(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(temp_instance&nbsp;==&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;lazy_reverse){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(this-&gt;left&nbsp;,&nbsp;this-&gt;right);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;left&nbsp;!=&nbsp;nullptr)this-&gt;left-&gt;set_lazyReverse();//下に伝播<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;right&nbsp;!=&nbsp;nullptr)this-&gt;right-&gt;set_lazyReverse();//下に伝播<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_reverse&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;product_target&nbsp;がない区間は遅延評価をかけない<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;TargetFactorCount&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_affine.first&nbsp;=&nbsp;false;//&nbsp;遅延評価を解消するのを忘れずに<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;アフィン変換<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;lazy_affine&nbsp;==&nbsp;eq_affine){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;値をもつ対象のみ更新<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;is_product_target)this-&gt;Value&nbsp;=&nbsp;this-&gt;lazy_affine.first&nbsp;*&nbsp;this-&gt;Value&nbsp;+&nbsp;this-&gt;lazy_affine.second;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;lazy_affine.first&nbsp;*&nbsp;this-&gt;Min&nbsp;+&nbsp;this-&gt;lazy_affine.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Max&nbsp;=&nbsp;this-&gt;lazy_affine.first&nbsp;*&nbsp;this-&gt;Max&nbsp;+&nbsp;this-&gt;lazy_affine.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Sum&nbsp;=&nbsp;this-&gt;lazy_affine.first&nbsp;*&nbsp;this-&gt;Sum&nbsp;+&nbsp;this-&gt;TargetFactorCount*this-&gt;lazy_affine.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;Max&nbsp;&lt;&nbsp;this-&gt;Min)swap(this-&gt;Max,this-&gt;Min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;left&nbsp;!=&nbsp;nullptr)this-&gt;left-&gt;set_lazyAffine(this-&gt;lazy_affine.first,this-&gt;lazy_affine.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;right&nbsp;!=&nbsp;nullptr)this-&gt;right-&gt;set_lazyAffine(this-&gt;lazy_affine.first,this-&gt;lazy_affine.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_affine&nbsp;=&nbsp;eq_affine;//伝播したらフラグを折る<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;protected:<br>&nbsp;&nbsp;&nbsp;&nbsp;/*=================================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;メンバ変数たち<br>&nbsp;&nbsp;&nbsp;&nbsp;=================================*/<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点数&nbsp;(頂点番号は&nbsp;[0~N-1]&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_N;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;m_Nodes[i]&nbsp;:=&nbsp;頂点&nbsp;i&nbsp;のポインタ<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;SplayNode*&gt;&nbsp;m_Nodes;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[u][v]&nbsp;:=&nbsp;辺&nbsp;u-v&nbsp;を表現する&nbsp;SplayNode&nbsp;のポインタ&nbsp;(集約対象が辺の場合のみ有効)<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;unordered_map&lt;long&nbsp;long,SplayNode*&gt;&gt;&nbsp;m_Edges;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[u][v]&nbsp;:=&nbsp;辺&nbsp;u-v&nbsp;が存在するか<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;unordered_map&lt;long&nbsp;long,bool&gt;&gt;&nbsp;m_ExistEdge;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rootを根とする部分木において、求めたいindexまで降りていく(左側の部分木サイズを参照する)<br>&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;SplayNode&nbsp;*get_sub(int&nbsp;index,&nbsp;SplayNode*&nbsp;root){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root&nbsp;==&nbsp;nullptr)return&nbsp;root;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(root-&gt;parent&nbsp;==&nbsp;nullptr);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;now&nbsp;=&nbsp;root;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(true){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now-&gt;eval();//&nbsp;ノードを見る前にeval<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;left_size&nbsp;=&nbsp;bool(now-&gt;left&nbsp;==&nbsp;nullptr)&nbsp;?&nbsp;0&nbsp;:&nbsp;now-&gt;left-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(index&nbsp;==&nbsp;left_size)break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(index&nbsp;&lt;&nbsp;left_size){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;=&nbsp;now-&gt;left;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;=&nbsp;now-&gt;right;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index&nbsp;-=&nbsp;left_size+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now-&gt;splay();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;now;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;LinkCutTree(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点数と値の初期値<br>&nbsp;&nbsp;&nbsp;&nbsp;LinkCutTree(int&nbsp;n,&nbsp;T&nbsp;init_v&nbsp;=&nbsp;T())&nbsp;:&nbsp;m_N(n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;m_N&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes.push_back(new&nbsp;SplayNode(i,init_v,!edge_focused));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge&nbsp;=&nbsp;vector&lt;unordered_map&lt;long&nbsp;long,bool&gt;&gt;(m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(edge_focused){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges&nbsp;=&nbsp;vector&lt;unordered_map&lt;long&nbsp;long,SplayNode*&gt;&gt;(m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;~LinkCutTree(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(SplayNode*&nbsp;p&nbsp;:&nbsp;m_Nodes){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(p&nbsp;!=&nbsp;nullptr)delete&nbsp;p;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;複雑な挙動を回避するので、コンストラクタによるコピー/ムーブを一律に禁止する。<br>&nbsp;&nbsp;&nbsp;&nbsp;LinkCutTree(const&nbsp;LinkCutTree&amp;)&nbsp;=&nbsp;delete&nbsp;;<br>&nbsp;&nbsp;&nbsp;&nbsp;LinkCutTree&amp;&nbsp;operator=(const&nbsp;LinkCutTree&amp;)&nbsp;=&nbsp;delete&nbsp;;<br>&nbsp;&nbsp;&nbsp;&nbsp;LinkCutTree(LinkCutTree&amp;&amp;&nbsp;)&nbsp;=&nbsp;delete;<br>&nbsp;&nbsp;&nbsp;&nbsp;LinkCutTree&amp;&nbsp;operator=(LinkCutTree&amp;&amp;)&nbsp;=&nbsp;delete;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;:&nbsp;idにアクセス&nbsp;(&nbsp;root&nbsp;から&nbsp;id&nbsp;まで&nbsp;Heavy&nbsp;edge&nbsp;でつなげる)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最後にlight&nbsp;edgeを辿った先の頂点番号を返す(LCA用)<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;access(const&nbsp;long&nbsp;long&nbsp;id){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;id&nbsp;&amp;&amp;&nbsp;id&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_Nodes[id]&nbsp;==&nbsp;nullptr)return&nbsp;-1;//存在しない場合<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;res&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(true){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[id]-&gt;splay();//&nbsp;splay&nbsp;は&nbsp;eval&nbsp;を兼ねる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[id]-&gt;right&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[id]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_Nodes[id]-&gt;parent&nbsp;==&nbsp;nullptr)break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;=&nbsp;m_Nodes[id]-&gt;parent-&gt;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[id]-&gt;parent-&gt;splay();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[id]-&gt;parent-&gt;right&nbsp;=&nbsp;m_Nodes[id];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[id]-&gt;parent-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;パス&nbsp;u-v&nbsp;のデータを格納した&nbsp;SplayNode&nbsp;のコピー(隣接ノードへのアクセスを封印)を返す得<br>&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;GetPath(long&nbsp;long&nbsp;u&nbsp;,&nbsp;long&nbsp;long&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(this-&gt;same(u,v));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;evert(u);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;access(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this-&gt;m_Nodes[v]-&gt;make_temp_instance();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;v&nbsp;の属する木の「根から頂点&nbsp;v&nbsp;までのパス」のうち&nbsp;深さが&nbsp;x&nbsp;の頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;access(v)&nbsp;する<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;path_xth_element(long&nbsp;long&nbsp;v&nbsp;,&nbsp;int&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;=&nbsp;depth(v));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode*&nbsp;nd;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!edge_focused)nd&nbsp;=&nbsp;get_sub(x&nbsp;,&nbsp;m_Nodes[v]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;nd&nbsp;=&nbsp;get_sub(x*2&nbsp;,&nbsp;m_Nodes[v]);//&nbsp;辺要素の部分を考慮<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(v);&nbsp;//&nbsp;副作用を統一<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;nd-&gt;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;が属する部分木(連結成分)のrootを求める(エラー時は-1を返す)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;x&nbsp;が属する部分木の&nbsp;root&nbsp;に&nbsp;access&nbsp;する<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;root(long&nbsp;long&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;path_xth_element(x,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;u,v&nbsp;が同じ木に属するか<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;u,v&nbsp;を未定義の順で&nbsp;access&nbsp;する<br>&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;same(long&nbsp;long&nbsp;u&nbsp;,&nbsp;long&nbsp;long&nbsp;v){&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;bool(root(u)&nbsp;==&nbsp;root(v));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;が属する木における頂点&nbsp;x&nbsp;の深さ&nbsp;(根から&nbsp;x&nbsp;までの辺の個数)。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;x&nbsp;にアクセス<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;depth(long&nbsp;long&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!edge_focused)return&nbsp;m_Nodes[x]-&gt;SubTreeSize&nbsp;-&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(m_Nodes[x]-&gt;SubTreeSize&nbsp;-&nbsp;1)&gt;&gt;1;//&nbsp;辺要素の分を考慮<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;の親。存在しなければ&nbsp;-1&nbsp;とする。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;親が存在するなら、その親にaccessする<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;parent(long&nbsp;long&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;depth(x)&nbsp;==&nbsp;0)return&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this-&gt;path_xth_element(x&nbsp;,&nbsp;this-&gt;depth(x)-1);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;を、属する木の&nbsp;root&nbsp;にする。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;つまり、頂点&nbsp;x&nbsp;が属する&nbsp;SplayTree&nbsp;の向きを反転する<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;x&nbsp;に&nbsp;access<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;evert(long&nbsp;long&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[x]-&gt;set_lazyReverse();//&nbsp;反転<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[x]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;u&nbsp;,&nbsp;v&nbsp;をつなげる。(u,v&nbsp;は非連結である必要がある)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺重み&nbsp;(product_targetが辺)&nbsp;の場合はエラー<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;u&nbsp;に&nbsp;access&nbsp;する<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;link(long&nbsp;long&nbsp;u&nbsp;,&nbsp;long&nbsp;long&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(!edge_focused);//&nbsp;辺集約があるなら、必ず重みを指定する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(!same(u,v));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;evert(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(u);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge[u][v]&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge[v][u]&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[v]-&gt;parent&nbsp;=&nbsp;m_Nodes[u];//&nbsp;v&nbsp;→&nbsp;u&nbsp;に&nbsp;light&nbsp;edge&nbsp;を追加<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[u]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;u&nbsp;,&nbsp;v&nbsp;を重み&nbsp;w&nbsp;の辺でつなげる。(u,v&nbsp;は非連結である必要がある)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点重み&nbsp;(product_targetが頂点)&nbsp;の場合はエラー<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;u&nbsp;に&nbsp;access&nbsp;する<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;link(long&nbsp;long&nbsp;u&nbsp;,&nbsp;long&nbsp;long&nbsp;v&nbsp;,&nbsp;T&nbsp;w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(edge_focused);//&nbsp;辺重み拡張の場合のみ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(!same(u,v));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge[u][v]&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge[v][u]&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode*&nbsp;edge_factor&nbsp;=&nbsp;new&nbsp;SplayNode(-1,w,true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[u][v]&nbsp;=&nbsp;edge_factor;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[v][u]&nbsp;=&nbsp;edge_factor;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;evert(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(u);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;edge_factor&nbsp;を経由して&nbsp;light-edge&nbsp;でリンク<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[v]-&gt;parent&nbsp;=&nbsp;edge_factor;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_factor-&gt;parent&nbsp;=&nbsp;m_Nodes[u];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[u]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺&nbsp;u-v&nbsp;をカット<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;access&nbsp;の状態が不定になる<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;cut(long&nbsp;long&nbsp;u&nbsp;,&nbsp;long&nbsp;long&nbsp;v){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(m_ExistEdge[u][v]&nbsp;&amp;&amp;&nbsp;m_ExistEdge[v][u]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge[u][v]&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_ExistEdge[v][u]&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(depth(u)&nbsp;&gt;&nbsp;depth(v))swap(u,v);//&nbsp;v&nbsp;が深い方とする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(v);//&nbsp;v&nbsp;の直前が&nbsp;edge_factor&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺要素を先に消す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(edge_focused){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[u][v]-&gt;splay();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[u][v]-&gt;left-&gt;parent&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[u][v]-&gt;left&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[u][v]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[u][v]&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Edges[v][u]&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[v]-&gt;splay();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[v]-&gt;left-&gt;parent&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[v]-&gt;left&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[v]-&gt;update();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(edge_focused)delete&nbsp;m_Edges[v][u];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;i&nbsp;のもつ値(value)を&nbsp;x&nbsp;に変更する&nbsp;(&nbsp;product_target&nbsp;が頂点の場合限定&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺重み&nbsp;(product_targetが辺)&nbsp;の場合はエラー<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;access(i)<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;update_val(long&nbsp;long&nbsp;i&nbsp;,&nbsp;T&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(!edge_focused);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[i]-&gt;Value&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[i]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺&nbsp;(u-v)&nbsp;の値を&nbsp;w&nbsp;にする&nbsp;(&nbsp;product_target&nbsp;が辺の場合限定&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点重み&nbsp;(product_targetが頂点)&nbsp;の場合はエラー<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;特に意味のあることを保証しない<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;update_val(long&nbsp;long&nbsp;u&nbsp;,&nbsp;long&nbsp;long&nbsp;v&nbsp;,&nbsp;T&nbsp;w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(edge_focused);//&nbsp;辺重みの場合のみ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(m_ExistEdge[u][v]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SplayNode*&nbsp;edge_factor&nbsp;=&nbsp;m_Edges[u][v];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_factor-&gt;splay();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_factor-&gt;Value&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_factor-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;i&nbsp;が属する木の根から頂点&nbsp;i&nbsp;までのパス上の&nbsp;product_target&nbsp;の値&nbsp;(Value)&nbsp;を一律&nbsp;A*Value&nbsp;+&nbsp;B&nbsp;に更新する<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;頂点&nbsp;i&nbsp;に&nbsp;access<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;PathAffine(long&nbsp;long&nbsp;i&nbsp;,&nbsp;T&nbsp;A&nbsp;,&nbsp;T&nbsp;B){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[i]-&gt;set_lazyAffine(A,B);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_Nodes[i]-&gt;update();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;i&nbsp;が属する木の根から頂点&nbsp;i&nbsp;までのパス上の&nbsp;product_target&nbsp;の値に一律&nbsp;x&nbsp;加算する<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;頂点&nbsp;i&nbsp;に&nbsp;access<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;PathAdd(long&nbsp;long&nbsp;i&nbsp;,&nbsp;T&nbsp;x){PathAffine(i,T(1),x);}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;i&nbsp;が属する木の根から頂点&nbsp;i&nbsp;までのパス上の&nbsp;product_target&nbsp;の値を一律&nbsp;x&nbsp;に更新する<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;頂点&nbsp;i&nbsp;に&nbsp;access<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;PathUpdate(long&nbsp;long&nbsp;i&nbsp;,&nbsp;T&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PathAffine(i,T(0),x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;同じ木に属する頂点&nbsp;x&nbsp;と&nbsp;y&nbsp;のLCAを求める。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;副作用&nbsp;:&nbsp;access(lca)&nbsp;する<br>&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;LCA(long&nbsp;long&nbsp;x&nbsp;,&nbsp;long&nbsp;long&nbsp;y){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;y&nbsp;&amp;&amp;&nbsp;y&nbsp;&lt;&nbsp;m_N);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(same(x,y));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(root(x)&nbsp;!=&nbsp;root(y))return&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(x);//最後にlightedgeを辿って到達した、先を返すので、ちょうど分岐点を返すようになっている<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;lca&nbsp;=&nbsp;access(y);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(lca);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;lca;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;read-only&nbsp;で&nbsp;ノード&nbsp;のコピーを取得&nbsp;(&nbsp;副作用で&nbsp;ノードに&nbsp;access&nbsp;(重要)&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;SplayNode&nbsp;operator&nbsp;[](long&nbsp;long&nbsp;nodeID){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access(nodeID);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_Nodes[nodeID]-&gt;make_temp_instance();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>};<br><br><br></pre>
+                        <br>
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

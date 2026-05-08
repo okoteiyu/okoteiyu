@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    構文解析 <br></h2>
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    字句解析
+                </h2>
+                <p>
+                    ソースコードを読んで、次に紹介する構文解析で用いる<b>トークン列 (記号の列)</b>に分解する手順です。例えば、<code>x:int = 2*9;</code> という Python 命令は、トークン列 \(T\) = { <code>ID(x)</code> <code>:</code> <code>INT</code> <code>=</code> <code>NUM(2)</code> <code>*</code> <code>NUM(9)</code> <code>;</code> } に変換されます。またこの時、識別子として認識されたトークンは<b>記号表</b>に、名前,種類,宣言されたスコープの深さなどを持つ 1 つのレコードとして記録されます。今回の例では <code>ID(x)</code> の部分で <code>x</code> という名前(識別子)が記号表に記録されます。
+                </p>
+                <br>
+                <h2>
+                    構文
+                </h2>
+                <p>
+                    字句解析で得たトークン列は、何もない状態ではただの記号の列でしかありません。
+                </p>
+                <p>
+                    プログラミング言語に定められた<b>構文</b>は先の字句解析で得られたトークン列の構造を解析し、そのトークン列がプログラミングの構文に従うか、従うならどのように規則が適用された文なのかを特定します。
+                </p>
+                <br>
+                <h3>
+                    言語
+                </h3>
+                <p>
+                    まずはプログラミングにおける言語が何かを今一度定義します。
+                </p>
+                <p>
+                    ある規則に従って生成される文の集合を<b>言語</b>と言います。また、言語 \(L\) の文に登場する記号の集合をアルファベットと言い、ここではアルファベットを \(\sum\) と表記します。\(\sum\) の記号を \(0\) 個以上繋げてできる文の集合を \(\sum^{*}\) とすると、当然言語 \(L\) の文 \(\in \sum^{*}\) です。コンパイラが構文を考えるステップでは、字句解析によって得られたトークン列を文としているので、\(\sum = \) [トークンの集合] です。
+                </p>
+                <br>
+                <h3>
+                    文脈自由文法
+                </h3>
+                <p>
+                    言語における構文とは、<b>その言語において許容される文を生成するためのルール</b>のことです。例えば英語の SVO 構文は <code>主語</code>  <code>動詞</code>  <code>目的語</code>  <code>.</code> という<b>記号</b>の列を生成するルールのことです。
+                </p>
+                <p>
+                    構文が文 (トークン列) を生成する過程を記述するために、構文と文 (トークン列) をどちらも<b>記号の列</b>として考えます。構文が文 \(T\) (トークン列) を生成するとは、ある記号 \(S\) が存在して、\(S\) に対して<b>「ある記号を記号列に変換する操作」</b>を繰り返すことで最終的に記号列 \(T\) に変換されることを指します。また、\(S\) から記号の変換を始める構文を単に構文 \(S\) と表記することにします。
+                </p>
+                <p>
+                    記号から記号列への変換ルールを<b>生成規則</b>と言い、生成規則を \(\rightarrow\) を用いて記述したものを<b>文脈自由文法</b>と言います。文脈自由とは文の生成のルールが \(\rightarrow\) にのみ依存し、他のメタ的な要素を考慮しないという意味です。
+                </p>
+                <u>
+                    例 : SVO 構文
+                </u>
+                <p>
+                    構文 <code>&lt;SVO 構文></code> は以下の生成規則に従って変換され、英単語の列を生成します。
+                </p>
+                <ul>
+                    <li>
+                        <code>&lt;SVO 構文></code> \(\rightarrow\) <code>主語</code> <code>動詞</code> <code>目的語</code>  <code>.</code> 
+                    </li>
+                </ul>
+                <p>
+                    文脈自由文法に登場する記号は以下の \(2\) 種類に分類されます。
+                    <ul>
+                        <li>
+                            <b>終端記号</b> := 最終的に生成される記号列 \(T\) に登場する記号。字句解析におけるトークンであり、終端記号の集合はアルファベット \(\sum\) と一致する。
+                        </li>
+                        <li>
+                            <b>非終端記号</b> := \(\sum\) に属しない記号であり、構文が \(T\) を生成する過程を表すために用いられる記号。
+                        </li>
+                    </ul>
+                </p>
+                <p>
+                    非終端記号が別の記号列に変換される (遷移する) ことを<b>導出</b>と言います。非終端記号 \(A\) から記号列 \(\beta\) への導出を \(A \rightarrow \beta\) と表記し、記号列 \(S\) から記号列 \(T\) に \(0\) 回<b>以上</b>の導出を経て変換することを、\(S\rightarrow ^{*} T\) と表記します。
+                </p>
+                <p>
+                    言語は文脈自由文法で記述した構文から導出される文の集合のことなので、文脈自由文法を決めることが言語を決定することと同義です。これはプログラミング言語の場合も同じです。多くの高級言語は文脈自由ではありませんが、この記事では文脈自由である言語に限定して議論することにします。
+                </p>
+                <u>
+                    例 : Python の変数宣言の構文
+                </u>
+                <p>
+                    Python における変数宣言の構文 \(S\) を記号 <code>&lt;変数宣言></code> として定めます。Python の変数宣言は、<code>識別子:型アノテーション = 式 ;</code> という構文を持ちます。この構文に登場するパーツをさらに記号としておくことで、構文 \(S\) の生成規則を以下で記述できます。
+                    <ol>
+                        <li>
+                            <code>&lt;変数宣言></code> \(\rightarrow\) <code>ID</code> <code>:</code> <code>&lt;型名></code> <code>=</code> <code>&lt;式></code> <code>;</code>
+                        </li>
+                        <li>
+                            <code>&lt;型名></code>  \(\rightarrow\) 保留
+                        </li>
+                        <li>
+                            <code>&lt;式></code>  \(\rightarrow\) 保留
+                        </li>
+                    </ol>
+                    <code>&lt; ></code> で囲われた記号が非終端記号で、そのほかが終端記号です。
+                </p>
+                <p>
+                    構文の文脈自由文法 \(G\) ないし \(G\) によって生成される言語 \(L_G\) は、以下の \(4\) つのパラメータによって定義することができます。
+                    <ul>
+                        <li>
+                            \(\sum := \) 生成規則に登場する終端記号の集合。アルファベット。
+                        </li>
+                        <li>
+                            \(N := \) 生成規則に登場する非終端記号の集合。
+                        </li>
+                        <li>
+                            \(s := \) 構文の開始記号。文脈自由文法で表す構文自身を表す記号。
+                        </li>
+                        <li>
+                            \(P := \) 生成規則。生成規則に含まれる導出の集合。
+                        </li>
+                    </ul>
+                </p>
+                <p>
+                    特に、言語 \(L\) が以下を満たす文法によって定義されるとき、言語 \(L\) を<b>正規言語(正則言語)</b>と言います。
+                    <ul>
+                        <li>
+                            記号から導出される記号列には、<b>\(1\) つ以下</b>の非終端記号と<b>ちょうど \(1\) つ</b>の終端記号が含まれる
+                        </li>
+                    </ul>
+                    <b>正規言語 \(L\) に属する全ての文を受理する決定性オートマトンは必ず存在</b>することが知られています。
+                </p>
+                <br>
+                <h2>
+                    構文解析
+                </h2>
+                <p>
+                    構文解析の目的は、字句解析によって得られたトークン列 \(T\) がどのような構成になっているのかを特定することです。
+                </p>
+                <p>
+                    メタ的な方法で特定できるのであれば、それで特定してよいです。例えば、Python の変数宣言のトークン列にはアノテーションの <code>:</code> ,初期化の <code>=</code> , 文末の <code>;</code> が登場するので、トークン列にこの \(3\) つが存在すればこれは変数宣言の構文によって生成されると判断できます。
+                </p>
+                <p>
+                    そのようなメタ的な判断ができないのであれば、言語を構成する全ての構文に対して、\(T\) が従う構文が見つかるまで一つずつチェックし、見つかればその構文が \(T\) を生成する構文であるとします。逆にそのようなものが一つも見つからなければ、\(T\) は間違った文であると言えます。
+                </p>
+                <p>
+                    また、\(T\) が従う構文が存在するならちょうど \(1\) つであることを仮定します (そのように構文を設計する必要があります)。
+                </p>
+                <br>
+                <h3>
+                    下降型構文解析
+                </h3>
+                <p>
+                    \(P\) に登場する記号のうち、<b>最も左に登場する非終端記号</b>を導出によって記号列に変換する操作を<b>最左導出 \(P \rightarrow_{lm} P\prime \) </b>と言います。文 \(T\) を生成する構文が特定されている場合、下降型構文解析は最左導出を用いて簡潔に \(T\) の構造を解析できます。具体的な説明をするために、まずは<b>簡潔な自前定義の</b> Python 言語を定義する構文の例を紹介します。
+                </p>
+                <br>
+                <u>
+                    Minimal Python
+                </u>
+                <p>
+                    以下で定義する Minimal Python を、C++ を経由して機械語に翻訳する C++ プログラムを作ることを想定します。また、コンパイラ作成の Baby Step としてこの記事ではインタープリタを作ることにします。
+                </p>
+                <p>
+                    構文解析の説明のための例として、独自に Minimal Python を定義します。Minimal Python が持つ構文は以下の \(3\) つとします。
+                    <ul>
+                        <li> 
+                            変数宣言 : <code>識別子 : int = 式 ;</code>
+                        </li>
+                        <li>
+                            代入 : <code>識別子 = 式 ;</code>
+                        </li>
+                        <li> 
+                            出力 : <code>print(式);</code>
+                        </li>
+                    </ul>
+                    文脈自由文法における \(\rightarrow\) の代わりに <code>::=</code> を用いる <b>BNF</b> という記述方法があります。今回は BNF の右辺に正規表現を使用できる記述方法 : <b>EBNF</b> を用いて記述します。
+                </p> 
+                <p>
+                    これら \(3\) つの構文に登場する終端記号をまとめたものが { <code>ID</code> , <code>NUM</code> , <code>int</code> , <code>print</code> , <code>(</code> , <code>)</code> , <code>+</code> , <code>:</code> , <code>;</code> , <code>=</code> , <code>+</code> , <code>-</code> , <code>*</code> , <code>空文字</code> } です。
+                </p>
+                <u>
+                    正規表現一覧
+                </u>
+                <p>
+                    <ul>
+                        <li>
+                            正規表現を含む記号列 \(A\) に対して \(\{A\} := \) 記号列 \(A\) を一つの記号として見たもの
+                        </li>
+                        <li>
+                            記号 \(a,b\) に対して、\((a , b) := \) \(a\) または \(b\)
+                        </li>
+                        <li>
+                            記号列 \(a,b\) に対して、\(a\space\mathrm{OR}\space b := \) \(a\) または \(b\)
+                        </li>
+                        <li>
+                            記号 \(a\) に対して、\(a[*] :=\) \(a\) を \(0\) 回以上繰り返し連結
+                        </li>
+                        <li>
+                            記号 \(a\) に対して、\(a[+] :=\) \(a\) を \(1\) 回以上繰り返し連結
+                        </li>
+                    </ul>
+                </p>
+                <u>
+                    変数宣言の構文
+                </u>
+                <p>
+                    <ol>
+                        <li>
+                            <code>&lt;変数宣言></code> ::= <code>ID</code> <code>:</code> <code>int</code> <code>=</code> <code>&lt;式></code> <code>;</code>
+                        </li>
+                        <li>
+                            <code>&lt;式></code> ::= 後述
+                        </li>
+                    </ol>
+                </p>
+                <u>
+                    代入の構文
+                </u>
+                <p>
+                    <ol>
+                        <li>
+                            <code>&lt;代入></code> ::= <code>ID</code> <code>=</code> <code>&lt;式></code> <code>;</code>
+                        </li>
+                        <li>
+                            <code>&lt;式></code> ::= 後述
+                        </li>
+                    </ol>
+                </p>
+                <u>
+                    出力の構文
+                </u>
+                <p>
+                    <ol>
+                        <li>
+                            <code>&lt;出力></code> ::= <code>print</code> <code>(</code> <code>&lt;式></code> <code>)</code> <code>;</code>
+                        </li>
+                        <li>
+                            <code>&lt;式></code> ::= 後述
+                        </li>
+                    </ol>
+                </p>
+                <u>
+                    式の構文
+                </u>
+                <p>
+                    <ol>
+                        <li>
+                            <code>&lt;式></code> ::= <code>&lt;項></code>{( <code>+</code> , <code>-</code> ) <code>&lt;項></code>}\([*]\)
+                        </li>
+                        <li>
+                            <code>&lt;項></code> ::=  <code>-</code> <code>&lt;項></code> \(\mathrm{OR}\) <code>(</code>  <code>&lt;式></code> <code>)</code> \(\mathrm{OR}\) <code>NUM</code> \(\mathrm{OR}\) <code>ID</code> \(\mathrm{OR}\)  <code>&lt;項></code>  <code>&lt;接尾辞項></code>
+                        </li>
+                        <li>
+                            <code>&lt;接尾辞項></code> ::= <code>*</code> <code>&lt;項></code> \(\mathrm{OR}\) <code>空文字</code>
+                        </li>
+                    </ol>
+                </p>
+                <br>
+                <u>
+                    再帰的パーサー (実行例)
+                </u>
+                <p>
+                    今回作るインタープリタは、与えられたトークン列の先頭から読み込みを開始し、構文に従ってトークン列から「構造化されたトークンのまとまり」を再帰的に取り出します。取り出されたトークンのまとまりはインタープリタ内で解釈され、実行されます。例えば Python ソースコードを解析して得られたトークン列 \(T\) = <code>ID</code> <code>:</code> <code>int</code> <code>=</code> <code>NUM</code> + <code>NUM</code> <code>*</code> <code>(</code> <code>MUM</code> <code>-</code> <code>NUM</code> <code>)</code> <code>;</code> があるとしましょう。\(T\) には <code>:</code> , <code>=</code> , <code>;</code> が登場するので、\(T\) を生成する構文 \(S\) は <code>&lt;変数宣言></code> であることがわかります。
+                </p>
+                <p>
+                    構文 \(S\) がわかっているので、降下型構文解析は \(S\) に対して最左導出を繰り返します。<code>&lt;変数宣言></code> 構文は <code>ID</code> <code>:</code> <code>int</code> <code>=</code> <code>&lt;式></code> <code>;</code> を導出するので、\(T\) もまた <code>ID</code> <code>:</code> <code>int</code> <code>=</code> <code>&lt;式></code> <code>;</code> であることがわかります。
+                </p>
+                <p>
+                    トークン列のある箇所から構文 \(X\) で生成される文を取り出す手続きを <b>\(X\) パーサー</b>と表記することにします。今、\(T\) は構文 <code>&lt;変数宣言></code> から生成されることがわかっているので、\(T\) の先頭から <code>&lt;変数宣言></code> パーサーを実行します。<code>&lt;変数宣言></code> パーサーを呼んでいるので、\(T\) の先頭からはトークン <code>ID</code> , <code>:</code> , <code>int</code> , <code>=</code> が一つずつ順取り出されます。このとき、パーサーが読んだ <code>ID</code> <code>:</code> <code>int</code> <code>=</code> の部分は、インタープリタ内に 変数の宣言/初期化の準備 などの処理を実装することで直接機械語に落とし込むことができます。
+                </p>
+                <p>
+                    <code>&lt;変数宣言></code> パーサーは次に \(T\) から <code>&lt;式></code> を取り出すのですが、<code>&lt;式></code> は非終端記号なので \(T\) に直接登場することはありません。そこで、\(T\) の続きの部分が <code>&lt;式></code> という構文から生成されるトークン列であると捉え、今度は \(T\) の続きの部分から <code>&lt;式></code> パーサーを呼び出して <code>&lt;式></code> を取り出します。
+                </p>
+                <p>
+                    <code>&lt;式></code> パーサーも同様に再帰的に <code>&lt;項></code> パーサーや <code>&lt;接尾辞項></code> パーサーを呼び出し、\(T\) から <code>&lt;式></code> 構文の文 : <code>NUM</code> + <code>NUM</code> <code>*</code> <code>(</code> <code>MUM</code> <code>-</code> <code>NUM</code> <code>)</code> を取り出します。このとき、式として取り出した文の構造はパーサーの処理によって解明されるので、<code>NUM</code> + <code>NUM</code> <code>*</code> <code>(</code> <code>MUM</code> <code>-</code> <code>NUM</code> <code>)</code> に入る具体的な数値がわかっているはずです。
+                </p>
+                <p> 
+                    <code>&lt;式></code> パーサーを呼ぶ前の <code>&lt;変数宣言></code> パーサーで、これから変数に値を代入するという文 <code>ID</code> , <code>:</code> , <code>int</code> , <code>=</code> を呼んでいたので、<code>&lt;式></code> パーサー が取り出した値を変数に格納する処理を行います (実際は記号列に登場する全ての <code>ID</code> や <code>NUM</code> にはそれぞれ具体的な変数名や数値が割り当てられています)。その後 <code>&lt;変数宣言></code> パーサーの続きで文末の <code>;</code>を呼んで、変数の宣言と初期化が完了します。
+                </p>
+                <br>
+                <h2>
+                    付録
+                </h2>
+                <p>
+                    Minimal Python の下降型構文解析を行う C++ プログラムを書きました。なお、記事内の EBNF と若干異なる文法を採用しているので、この記事で学んだ知識を活かして解読してください。
+                </p>
+                <br>
+                <h3>
+                    Python を実行する C++ プログラム
+                </h3>
+                <pre>#include&lt;string&gt;<br>#include&lt;vector&gt;<br>#include&lt;iostream&gt;<br>#include&lt;unordered_map&gt;<br>using&ensp;std::string;<br>using&ensp;std::vector;<br>using&ensp;std::cout;<br>using&ensp;std::cerr;<br>using&ensp;std::endl;<br>/*<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;記事で書いた&ensp;EBNF&ensp;と異なり、ID&ensp;や&ensp;NUM&ensp;も字句解析せずに、パーサーによって具体的な値を取り出すことにする。<br>&ensp;&ensp;&ensp;&ensp;EBNF&ensp;:<br>&ensp;&ensp;&ensp;&ensp;token&ensp;:&ensp;{:&ensp;,&ensp;=&ensp;,&ensp;+&ensp;,&ensp;-&ensp;,&ensp;*&ensp;,&ensp;(&ensp;,&ensp;)&ensp;,&ensp;;&ensp;,&ensp;[0-9]&ensp;,&ensp;ASCII文字&ensp;,&ensp;print&ensp;,&ensp;int}<br>&ensp;&ensp;&ensp;&ensp;非終端&ensp;:&ensp;{&lt;初期化&gt;&ensp;,&ensp;&lt;代入&gt;&ensp;,&ensp;&lt;型&gt;&ensp;,&ensp;&lt;式&gt;&ensp;,&ensp;&lt;項&gt;&ensp;,&lt;接尾辞項&gt;&ensp;,&ensp;&lt;数&gt;&ensp;,&ensp;&lt;ID&gt;&ensp;,&ensp;&lt;出力&gt;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;正規表現&ensp;:&ensp;{&ensp;[*]&ensp;:&ensp;0&ensp;度以上繰り返し&ensp;,&ensp;[+]&ensp;:&ensp;1&ensp;度以上繰り返し&ensp;,&ensp;(a,b)&ensp;:&ensp;a&ensp;または&ensp;b&ensp;}<br>&ensp;&ensp;&ensp;&ensp;生成&ensp;:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;初期化&gt;&ensp;::=&ensp;ID:&lt;型&gt;&ensp;=&ensp;&lt;式&gt;;&ensp;|&ensp;ID:&lt;型&gt;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;代入&gt;&ensp;::=&ensp;ID&ensp;=&ensp;&lt;式&gt;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;型&gt;&ensp;::=&ensp;int<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;式&gt;&ensp;::=&ensp;&lt;項&gt;{(+,-)&lt;項&gt;}[*]<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;項&gt;&ensp;::=&ensp;-&lt;項&gt;&ensp;|&ensp;(&lt;式&gt;)&ensp;|&ensp;&lt;数&gt;&ensp;|&ensp;&lt;ID&gt;&ensp;|&ensp;&lt;項&gt;&lt;接尾辞項&gt;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;接尾辞項&gt;&ensp;::=&ensp;*&lt;項&gt;&ensp;|&ensp;空文字列<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;数&gt;&ensp;::=&ensp;[1-9][0-9][*]<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;ID&gt;&ensp;::=&ensp;[a-z&ensp;A-Z&ensp;,&ensp;_&ensp;][a-z&ensp;A-Z&ensp;,&ensp;_&ensp;,&ensp;0-9][*]<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&lt;出力&gt;&ensp;::=&ensp;print(&lt;式&gt;);<br>*/<br>/*<br>&ensp;&ensp;&ensp;&ensp;パーサ&ensp;:&ensp;パーサに渡すのは正常系のみ。以上な場合は内部エラーとして終了。<br>&ensp;&ensp;&ensp;&ensp;例外&ensp;:&ensp;発生した最も深い例外をそのまま返す<br>*/<br>#define&ensp;PARSE_ERROR(S,cur)&ensp;&quot;Reader&ensp;Error&ensp;occured&ensp;on&ensp;&quot;&ensp;+&ensp;std::to_string((cur))&ensp;+&ensp;&quot;:&quot;&ensp;+&ensp;S&ensp;+&ensp;&quot;.&quot;<br>//&ensp;パーサのプロトタイプ宣言<br>int&ensp;parseDIGIT(string&amp;&ensp;,&ensp;int&amp;&ensp;);<br>int&ensp;parseNUMBER(string&amp;&ensp;,&ensp;int&amp;&ensp;);<br>int&ensp;parseSuffixTERM(string&amp;&ensp;,&ensp;int&amp;&ensp;);<br>int&ensp;parseTERM(string&amp;&ensp;,&ensp;int&amp;&ensp;);<br>int&ensp;parseEXPRESSION(string&amp;&ensp;,&ensp;int&amp;&ensp;);<br>std::unordered_map&lt;string,bool&gt;&ensp;exist_int;&ensp;//&ensp;[id]&ensp;:=&ensp;id&ensp;が登録済みかどうか<br>std::unordered_map&lt;string,int&gt;&ensp;value_int;&ensp;//&ensp;[id]&ensp;:=&ensp;id&ensp;に格納されている値<br>//　文の種類&ensp;:&ensp;初期化,代入,出力<br>enum&ensp;BNF_Token{INIT&ensp;,&ensp;ASSIGN&ensp;,&ensp;OUT};<br>//&ensp;空白をなくす<br>void&ensp;shrinkspace(string&amp;&ensp;S&ensp;,&ensp;int&ensp;&amp;cur){<br>&ensp;&ensp;&ensp;&ensp;while(cur&ensp;&lt;&ensp;S.size()&ensp;&amp;&amp;&ensp;S[cur]&ensp;==&ensp;&apos;&ensp;&apos;){cur++;}<br>}<br>//&ensp;S&ensp;の&ensp;cur&ensp;以降の文の種類を特定する<br>BNF_Token&ensp;Reader(string&ensp;&amp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;if(cur&ensp;&gt;=&ensp;S.size())throw(string(&quot;invalid&ensp;order&ensp;(&ensp;no&ensp;;&ensp;was&ensp;found).&quot;));<br>&ensp;&ensp;&ensp;&ensp;std::unordered_map&lt;char,bool&gt;&ensp;found;<br>&ensp;&ensp;&ensp;&ensp;while(true){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(cur&ensp;&gt;=&ensp;S.size())throw(string(&quot;invalid&ensp;order&ensp;(&ensp;no&ensp;;&ensp;was&ensp;found).&quot;));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(S[cur]&ensp;==&ensp;&apos;;&apos;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cur++;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;found[S[cur++]]&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;要件が&ensp;3&ensp;種類だけなので場合分けするのだ<br>&ensp;&ensp;&ensp;&ensp;if(found[&apos;:&apos;])return&ensp;INIT;<br>&ensp;&ensp;&ensp;&ensp;if(found[&apos;=&apos;])return&ensp;ASSIGN;<br>&ensp;&ensp;&ensp;&ensp;return&ensp;OUT;<br>}<br>//&ensp;文字列&ensp;S&ensp;の&ensp;cur&ensp;文字目から&ensp;ID&ensp;を抽出する<br>string&ensp;parseID(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;string&ensp;ID&ensp;=&ensp;&quot;&quot;;<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;isdigit(S[cur]))throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;while(true){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size())throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(!isdigit(S[cur])&ensp;&amp;&amp;&ensp;!isupper(S[cur])&ensp;&amp;&amp;&ensp;!islower(S[cur])&ensp;&amp;&amp;&ensp;S[cur]&ensp;!=&ensp;&apos;_&apos;)&ensp;break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ID&ensp;+=&ensp;S[cur++];<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;if(ID.size()&ensp;==&ensp;0)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;return&ensp;ID;<br>}<br>//&ensp;文字列&ensp;S&ensp;の&ensp;cur&ensp;文字目から&ensp;型&ensp;を抽出する<br>string&ensp;parseTYPE(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;string&ensp;ID&ensp;=&ensp;&quot;&quot;;<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;isdigit(S[cur]))throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;while(true){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size())throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(!isdigit(S[cur])&ensp;&amp;&amp;&ensp;!isupper(S[cur])&ensp;&amp;&amp;&ensp;!islower(S[cur])&ensp;&amp;&amp;&ensp;S[cur]&ensp;!=&ensp;&apos;_&apos;)&ensp;break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ID&ensp;+=&ensp;S[cur++];<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;if(ID.size()&ensp;==&ensp;0)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;return&ensp;ID;<br>}<br>//&ensp;数字を読んで返す<br>int&ensp;parseDIGIT(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;!isdigit(S[cur]))throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;return&ensp;S[cur++]&ensp;-&ensp;&apos;0&apos;;<br>}<br>//&ensp;数を読んで返す<br>int&ensp;parseNUMBER(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;int&ensp;res&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;!isdigit(S[cur]))throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;while(true){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;!isdigit(S[cur]))break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;*=&ensp;10;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;+=&ensp;parseDIGIT(S,cur);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>}<br>//&ensp;接尾辞項<br>int&ensp;parseSuffixTERM(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;int&ensp;res&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size())throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;if(S[cur]&ensp;!=&ensp;&apos;*&apos;)return&ensp;1;//&ensp;int&ensp;乗算の単位元<br>&ensp;&ensp;&ensp;&ensp;cur++;<br>&ensp;&ensp;&ensp;&ensp;return&ensp;parseTERM(S,cur);<br>}<br>//&ensp;項<br>int&ensp;parseTERM(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;int&ensp;res&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size())throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;//&ensp;&lt;項&gt;&ensp;::=&ensp;&lt;項&gt;&lt;接尾辞項&gt;&ensp;の、右辺の&lt;項&gt;&ensp;を特定する&ensp;(-&lt;項&gt;&ensp;or&ensp;(&lt;式&gt;)&ensp;or&ensp;&lt;数&gt;&ensp;or&ensp;&lt;ID&gt;&ensp;)<br>&ensp;&ensp;&ensp;&ensp;if(S[cur]==&apos;-&apos;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;負の項<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cur++;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;=&ensp;parseTERM(S,cur)*int(-1);<br>&ensp;&ensp;&ensp;&ensp;}else&ensp;if(S[cur]==&apos;(&apos;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;()&ensp;付きの式<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cur++;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;=&ensp;parseEXPRESSION(S,cur);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;)&apos;)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;)&ensp;の分<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;}else&ensp;if(isdigit(S[cur])){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;数<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;=&ensp;parseNUMBER(S,cur);<br>&ensp;&ensp;&ensp;&ensp;}else&ensp;if(isupper(S[cur])&ensp;||&ensp;islower(S[cur])&ensp;||&ensp;S[cur]&ensp;==&ensp;&apos;_&apos;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;識別子<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;string&ensp;ID&ensp;=&ensp;parseID(S,cur);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(exist_int[ID]&ensp;==&ensp;false)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;=&ensp;value_int[ID];<br>&ensp;&ensp;&ensp;&ensp;}else&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;接尾辞項が空になれば勝手に再帰ループが終了する<br>&ensp;&ensp;&ensp;&ensp;if(cur&ensp;&lt;&ensp;S.size())res&ensp;*=&ensp;parseSuffixTERM(S,cur);<br>&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>}<br>//&ensp;式<br>int&ensp;parseEXPRESSION(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size())throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;int&ensp;res&ensp;=&ensp;parseTERM(S,cur);<br>&ensp;&ensp;&ensp;&ensp;while(cur&ensp;&lt;&ensp;S.size()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(S[cur]&ensp;==&ensp;&apos;+&apos;)&ensp;{cur++;&ensp;res&ensp;+=&ensp;parseTERM(S,cur);}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(S[cur]&ensp;==&ensp;&apos;-&apos;)&ensp;{cur++;&ensp;res&ensp;-=&ensp;parseTERM(S,cur);}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(S[cur]&ensp;==&ensp;&apos;*&apos;)&ensp;{cur++;&ensp;res&ensp;*=&ensp;parseTERM(S,cur);}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;break;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>}<br>//&ensp;宣言/初期化&ensp;を実行<br>//&ensp;ID:&lt;型&gt;&ensp;=&ensp;&lt;式&gt;;&ensp;|&ensp;ID:&lt;型&gt;;&ensp;を読むだけ<br>void&ensp;execute_init(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;string&ensp;ID&ensp;=&ensp;parseID(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(ID&ensp;==&ensp;&quot;print&quot;&ensp;||&ensp;ID&ensp;==&ensp;&quot;int&quot;)throw(ID&ensp;+&ensp;&quot;&ensp;is&ensp;reserved&ensp;as&ensp;language&ensp;support.&quot;);<br>&ensp;&ensp;&ensp;&ensp;if(exist_int[ID]&ensp;==&ensp;true)throw(ID&ensp;+&ensp;&quot;&ensp;is&ensp;already&ensp;used.&quot;);<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;:&apos;)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;:&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;string&ensp;TYPE&ensp;=&ensp;parseTYPE(S,cur);<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size())throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;//&ensp;型ごとに処理<br>&ensp;&ensp;&ensp;&ensp;if(TYPE&ensp;==&ensp;&quot;int&quot;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(S[cur]&ensp;==&ensp;&apos;=&apos;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;=&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;val&ensp;=&ensp;parseEXPRESSION(S,cur);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;value_int[ID]&ensp;=&ensp;val;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;exist_int[ID]&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;}else{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;throw(string(&quot;undefined&ensp;type&ensp;was&ensp;used.&quot;));<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;;&apos;)throw(string(&quot;;&ensp;must&ensp;be&ensp;put&ensp;on&ensp;end&ensp;of&ensp;order.&quot;));<br>&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;;&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;return;<br>}<br>//&ensp;代入を実行<br>//&ensp;ID&ensp;=&ensp;&lt;式&gt;;&ensp;を読むだけ<br>void&ensp;execute_assign(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;string&ensp;ID&ensp;=&ensp;parseID(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(ID&ensp;==&ensp;&quot;print&quot;&ensp;||&ensp;ID&ensp;==&ensp;&quot;int&quot;)throw(ID&ensp;+&ensp;&quot;&ensp;is&ensp;already&ensp;used.&quot;);<br>&ensp;&ensp;&ensp;&ensp;if(exist_int[ID]&ensp;==&ensp;false)throw(ID&ensp;+&ensp;&quot;&ensp;is&ensp;not&ensp;declared.&quot;);<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;=&apos;)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;=&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;int&ensp;val&ensp;=&ensp;parseEXPRESSION(S,cur);<br>&ensp;&ensp;&ensp;&ensp;value_int[ID]&ensp;=&ensp;val;<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;;&apos;)throw(string(&quot;;&ensp;must&ensp;be&ensp;put&ensp;on&ensp;end&ensp;of&ensp;order.&quot;));<br>&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;;&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;return;<br>}<br>//&ensp;出力を実行<br>void&ensp;execute_print(string&amp;&ensp;S&ensp;,&ensp;int&amp;&ensp;cur){<br>&ensp;&ensp;&ensp;&ensp;string&ensp;ID&ensp;=&ensp;parseID(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(ID&ensp;!=&ensp;&quot;print&quot;)throw(string(&quot;undefined&ensp;function.&quot;));<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;(&apos;)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;cur++;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;v&ensp;=&ensp;parseEXPRESSION(S,cur);<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;)&apos;)throw(PARSE_ERROR(S,cur));<br>&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;)&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;shrinkspace(S,cur);<br>&ensp;&ensp;&ensp;&ensp;if(cur&gt;=S.size()&ensp;||&ensp;S[cur]&ensp;!=&ensp;&apos;;&apos;)throw(string(&quot;;&ensp;must&ensp;be&ensp;put&ensp;on&ensp;end&ensp;of&ensp;order.&quot;));<br>&ensp;&ensp;&ensp;&ensp;cur++;//&ensp;;&ensp;のぶん<br>&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;&quot;&ensp;&gt;&gt;&ensp;&quot;&ensp;&lt;&lt;&ensp;v&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;return;<br>}<br>//&ensp;ソースコードを実行<br>void&ensp;execute(string&ensp;source){<br>&ensp;&ensp;&ensp;&ensp;vector&lt;BNF_Token&gt;&ensp;order;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;grobal_cursor&ensp;=&ensp;0;//&ensp;パースする位置&ensp;(左から)<br>&ensp;&ensp;&ensp;&ensp;while(source.size()&ensp;&gt;&ensp;grobal_cursor){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;try{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;order.push_back(Reader(source,grobal_cursor));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}catch(string&ensp;es){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;es&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;grobal_cursor&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;for(int&ensp;o&ensp;:&ensp;order){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;try{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(o&ensp;==&ensp;INIT)execute_init(source,grobal_cursor);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(o&ensp;==&ensp;ASSIGN)execute_assign(source,grobal_cursor);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(o&ensp;==&ensp;OUT)execute_print(source,grobal_cursor);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;throw(&quot;undefined&ensp;order.&quot;);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}catch(string&ensp;es){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;es&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br>}<br>int&ensp;main(){<br>&ensp;&ensp;&ensp;&ensp;while(true){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cout&ensp;&lt;&lt;&ensp;&quot;&lt;&lt;&ensp;&quot;;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;string&ensp;code;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;getline(std::cin,code);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(code&ensp;==&ensp;&quot;Q&quot;)break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;execute(code);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;return&ensp;0;<br>}<br></pre>
+                <br>
+                <h3>
+                    使用例
+                </h3>
+                <p>
+                    実行するとインタラクティブ Python のような CUI が出ます。
+                </p>
+                <pre>
+                    <br>&lt;&lt;
+                </pre>
+                <p>
+                    試しに適当な命令を行ってみましょう。
+                </p>
+                <pre><br>&lt;&lt; b:int = 122;      <br>&lt;&lt; </pre>
+                <p>
+                    エラーが出なかったので、無事命令できたみたいです。さらに命令してみましょう。
+                </p>
+                <pre><br>&lt;&lt; b:int = 122;      <br>&lt;&lt; b:string = "okoyeiyu&okoteiyu";<br>b is already used.<br>&lt;&lt; 
+                </pre>
+                <p>
+                    今度はエラーが出ました。色々構文に違反してますが、最左導出で初めてヒットしたエラーが出力され、この命令は無かったことにされます。
+                </p>
+                <pre><br>&lt;&lt; b:int = 122;      <br>&lt;&lt; b:string = "okoyeiyu&okoteiyu";<br>b is already used.<br>&lt;&lt; print(-5+b*(b-22));<br>    >> 12195<br>&lt;&lt;</pre>
+                <p>
+                    式の出力もできます。
+                </p>
+                <pre><br>&lt;&lt; b:int = 122;      <br>&lt;&lt; b:string = "okoyeiyu&okoteiyu";<br>b is already used.<br>&lt;&lt; print(-5+b*(b-22));<br>    >> 12195<br>&lt;&lt; c:int = b+2-4*(b+9);  <br>&lt;&lt;</pre>
+                <p>
+                    新たに変数を宣言して。
+                </p>
+                <pre><br>&lt;&lt; b:int = 122;      <br>&lt;&lt; b:string = "okoyeiyu&okoteiyu";<br>b is already used.<br>&lt;&lt; print(-5+b*(b-22));<br>    >> 12195<br>&lt;&lt; c:int = b+2-4*(b+9);  <br>&lt;&lt; print(c*100);<br>    >> -40000<br>&lt;&lt;</pre>
+
+            </section>
+        </div>
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

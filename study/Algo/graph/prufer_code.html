@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    prufer code<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <p>
+                    いつか書く。
+                </p>
+                
+
+                
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre>class&ensp;prufer_code{<br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;int&gt;&ensp;&gt;&ensp;G;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;pair&lt;int,int&gt;&ensp;&gt;&ensp;edges;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;p;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;V;&ensp;//頂点数&ensp;(最大の頂点番号は&ensp;V-1)<br>&ensp;&ensp;&ensp;&ensp;prufer_code(int&ensp;V_){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;V&ensp;=&ensp;V_;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G.resize(V);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p.resize(V-1);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;void&ensp;add_edge(int&ensp;u&ensp;,int&ensp;v){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G[u].push_back(v);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G[v].push_back(u);<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;void&ensp;convert(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;parent(V,-1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;queue&lt;int&gt;&ensp;bfs;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bfs.push(V-1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;degree(V,0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(!bfs.empty()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;bfs.front();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bfs.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;degree[now]&ensp;=&ensp;G[now].size();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;nx&ensp;:&ensp;G[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(parent[nx]&ensp;!=&ensp;-1)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;parent[nx]&ensp;=&ensp;now;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bfs.push(nx);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;priority_queue&lt;int&ensp;,&ensp;vector&lt;int&gt;&ensp;,&ensp;greater&lt;int&gt;&ensp;&gt;&ensp;pq;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;u&ensp;=&ensp;0&ensp;;&ensp;u&ensp;&lt;&ensp;V-1&ensp;;&ensp;u++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(degree[u]&ensp;==&ensp;1)pq.push(u);//&ensp;V-1以外の、外部頂点<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;0&ensp;;&ensp;i&ensp;&lt;&ensp;int(p.size())-1&ensp;;&ensp;i++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;leaf&ensp;=&ensp;pq.top();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;pq.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p[i]&ensp;=&ensp;parent[leaf];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;degree[p[i]]--;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(degree[p[i]]&ensp;==&ensp;1)pq.push(p[i]);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p.back()&ensp;=&ensp;V-1;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;void&ensp;debug(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;:&ensp;p)cerr&ensp;&lt;&lt;&ensp;x&ensp;&lt;&lt;&ensp;&quot;&ensp;&quot;;cerr&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;void&ensp;encode(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;forbidden(V,0);//&ensp;0&ensp;でない限り、葉頂点の復元の候補にならない<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;:&ensp;p)forbidden[x]++;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;set&lt;int&gt;&ensp;s;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;v&ensp;=&ensp;0&ensp;;&ensp;v&ensp;&lt;&ensp;V&ensp;;&ensp;v++)s.insert(v);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//復元part(&ensp;prufer[i]&ensp;につながる葉頂点を特定していく)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;:&ensp;p)s.erase(x);&ensp;//&ensp;候補から除外<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;:&ensp;p){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(s.size()&ensp;!=&ensp;0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;child&ensp;=&ensp;*s.begin();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;edges.emplace_back(x,child);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;s.erase(child);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;forbidden[x]--;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(forbidden[x]==0)s.insert(x);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;void&ensp;debug_edge(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(pair&lt;int,int&gt;&ensp;e&ensp;:&ensp;edges)cerr&ensp;&lt;&lt;&ensp;e.first&ensp;&lt;&lt;&ensp;&quot;&ensp;&quot;&lt;&lt;&ensp;e.second&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;}<br>};<br>void&ensp;test(){<br>&ensp;&ensp;&ensp;&ensp;prufer_code&ensp;p(7);<br>&ensp;&ensp;&ensp;&ensp;p.add_edge(0,1);<br>&ensp;&ensp;&ensp;&ensp;p.add_edge(0,2);<br>&ensp;&ensp;&ensp;&ensp;p.add_edge(2,4);<br>&ensp;&ensp;&ensp;&ensp;p.add_edge(4,5);<br>&ensp;&ensp;&ensp;&ensp;p.add_edge(5,3);<br>&ensp;&ensp;&ensp;&ensp;p.add_edge(2,6);<br>&ensp;&ensp;&ensp;&ensp;p.convert();<br>&ensp;&ensp;&ensp;&ensp;p.debug();<br>&ensp;&ensp;&ensp;&ensp;p.encode();<br>&ensp;&ensp;&ensp;&ensp;p.debug_edge();<br><br></pre>
+                        <br>
+                        <br>
+                        
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

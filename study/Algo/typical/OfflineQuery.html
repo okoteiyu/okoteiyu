@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    クエリを時間で分割統治<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <br>(ABC342-G より抜粋)
+                <br>\(0\) で初期化された列 \(A\) に対して、以下のようなクエリ処理を考えます。  
+                <ol>
+                    <li>\(l\) 番目から \(r-1\) 番目までの要素のうち、\(x\) 未満のものを \(x\) で置き換える。(<b>更新クエリ</b>)
+                        <br>これを \(\mathrm{RangeChMax}(l,r,x)\)と表記する</li>
+                    <li>\(t\) 番目に処理したクエリを<b>無かったことにする。</b>ただし、\(t\) 番目のクエリはタイプ \(1\) である。</li>
+                    <li>\(A\) の \(i\) 番目の値を出力する。(<b>取得クエリ</b>)</li>
+                </ol>
+                <br>まずは、クエリを \(1\) つ処理するごとに時刻が \(1\) 進むものとして考え、クエリの時系列に注目します。  
+                <br>
+                <br><img src = "./../../images/OfflineQuery/OfflineQuery.001.jpeg" class = "StandardImageStyle">
+                <br>
+                <br>タイプ \(1,3\) のクエリは<b>双対セグメント木</b>によって処理することができるので、タイプ \(2\) のクエリをうまく捌く方法を考える必要があります。  
+                <br>以降、タイプ \(1,3\) のクエリは双対セグメント木で処理するものとします。  
+                <br>
+                <br>タイプ \(2\) のクエリはタイプ \(1\) のクエリを無効にすることに注目すると、
+                <br>タイプ \(1\) のクエリには、クエリの時間軸上での<b>有効期限</b>が存在します。
+                <br>
+                <br><img src = "./../../images/OfflineQuery/OfflineQuery.002.jpeg" class = "StandardImageStyle">
+                <br>
+                <br>図のように、ある時刻 \(t\) における列 \(A\) には、<b>時刻 \(t\) の時点で有効期限内の更新クエリが適用されています。</b>
+                <br>ここで、以下の列を定義します。  
+                <ul>
+                    <li>\(\mathrm{prod}[t]\) := 時刻 \(t\) 時点で有効な更新クエリの集合</li>
+                </ul>
+                (簡略化のために、更新クエリ : \(\mathrm{RangeChMax}(l,r,x)\) を単に \((l,r,x)\) と表記します。)
+                <br><img src = "./../../images/OfflineQuery/OfflineQuery.003.jpeg" class = "StandardImageStyle">
+                <br>
+                <br>これによって、任意の時刻 \(t\) における列 \(A\) の状態がわかりました。  
+                <br>しかし、クエリの有効期限は時間軸上の長さ \(O(Q)\) の区間なので、\(O(Q)\) 個のクエリを時刻ごとにまとめるとそれだけで空間計算量が \(O(Q^2)\) となります。  
+                <br>
+                <br>
+                <br>そこで、クエリの有効期限が区間であることに注目し、列 \(\mathrm{prod}\) をセグメントツリーにします。  
+                <br>
+                <br><img src = "./../../images/OfflineQuery/OfflineQuery.004.jpeg" class = "StandardImageStyle">
+                <br>
+                <br>そうすることによって、あるクエリを管理する区間が \(O(\log{Q})\) 個で済み、全体で \(O(Q\log{Q})\) の空間計算量となります。  
+                <br>
+                <br>次の課題は、ある時刻 \(t\) における列 \(A\) の状態を取得することです。  
+                <br>各時刻において、列 \(A\) には \(O(Q)\) のクエリがかかっているので、各 \(t\) ごとに有効なクエリを全て \(A\) に適用することはできません。  
+                <br>
+                <br>ここで、時間軸上のセグメント木に乗っているクエリの総数が \(O(Q\log{Q})\) しかないことを利用します。  
+                <br>具体的には、時間軸上のセグメント木の根から DFS を行い、DFS の処理中に以下の処理を行います。  
+                <ol>
+                    <li>頂点 \(v\) に<b>初めて到達</b>したら、頂点 \(v\) に乗っている更新クエリを全て列 \(A\) に適用する</li>
+                    <li>頂点 \(v\) から親方向に移動する時、頂点 \(v\) に乗っている更新クエリを全て<b>解消する</b></li>
+                </ol>
+                <img src = "./../../images/OfflineQuery/OfflineQuery.005.jpeg" class = "StandardImageStyle">
+                <br>
+                \(2\) の<b>解消する</b>という操作ですが、頂点 \(v\) を出る時点で、頂点 \(v\) が持つ更新クエリとは、列 \(A\) に対して<b>適用した直近の更新クエリ</b>なので、頂点 \(v\) が持つ更新クエリを解消するとは、\(A\) に適用した<b>直近いくつかの</b>更新クエリを無かったことにするのと同じです。
+                <br>
+                <br>
+                <br>直近の更新クエリを無かったことにする操作を <b>rollback または undo</b> と呼び、たいていのデータ構造では更新クエリによって変更があった場所と変更前の値をスタックに積んでおくことで、これまでに適用した更新クエリを、直近のものから順に無かったことにすることができます。  
+                <br>一般に、この操作は更新クエリと同じ計算量であると考えておけば OK です(多分)。
+                <br>
+                <br><img src = "./../../images/OfflineQuery/OfflineQuery.006.jpeg" class = "StandardImageStyle">
+                <br>
+                <br>この手順で DFS を行うと、\(O(Q\log{Q})\) 個のクエリを \(O(\log{N})\) 時間で処理するので、全体で \(O(Q\log{Q}\log{N})\) 時間で、任意の時刻における列 \(A\) の状態を把握することができます。
+                <br>
+                <br>
+                <br><img src = "./../../images/OfflineQuery/OfflineQuery.007.jpeg" class = "StandardImageStyle">
+                <br>
+                <br><br>時刻 \(t\) での取得クエリ(タイプ \(3\) のクエリ)は、DFS 時に<b>時刻 \(t\) に対応するノードに到達した時に</b>列 \(A\) から取得して ans 配列などにメモしておくことで答えることができます。  
+                <br>以上で、タイプ \(1~3\) の全てのクエリにオフライン(クエリ先読み)で答えることができました。  
+                <br>
+                
+
+                
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre><br><br><br><br>/*<br>&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;-&ensp;更新クエリの有効期限が決まっているようなクエリ処理をオフライン(クエリ先読み)で行うコードのテンプレート<br>&ensp;&ensp;&ensp;&ensp;-&ensp;クエリが&ensp;1&ensp;つ飛んでくるごとに時刻が&ensp;1&ensp;進む問題が対象。&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;更新クエリを処理するためのデータ構造を必要とし、直近の更新クエリを無かったことにする&ensp;rollback&ensp;機能を持つ必要がある。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;これらの操作&ensp;+&ensp;取得クエリは高速である必要がある<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;更新クエリの引数は&ensp;update&ensp;構造体&ensp;,&ensp;取得クエリの引数は&ensp;get&ensp;構造体&ensp;に対応<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;クエリの寿命を列の区間と捉え、セグメントツリーに有効期限をのせる<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;apply()&ensp;:&ensp;クエリを適用する<br>&ensp;&ensp;&ensp;&ensp;-&ensp;クエリの適用は、セグメントツリーの根から&ensp;DFS&ensp;を行い、<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;あるセグメントに入った時、そのセグメントの有効期限にかかっている更新クエリをデータ構造に適用<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;あるセグメントから出る時、入る時に適用したクエリ数だけデータ構造を&ensp;roolback&ensp;(無かったことにする)<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;末端ノード&ensp;x&ensp;に到達した時点で、データ構造には時刻&ensp;Range[x].first&ensp;(ノード&ensp;x&ensp;の区間の左)&ensp;における更新クエリが全て適用されている。<br>&ensp;&ensp;&ensp;&ensp;-&ensp;時刻&ensp;qtime&ensp;に取得クエリが登録されているなら、このタイミングで&ensp;ans[qtime]&ensp;に書き込む<br><br>&ensp;&ensp;&ensp;&ensp;-&ensp;設計&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;データ構造&ensp;S&ensp;は自由だが、以下を持つ必要がある。&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;更新クエリ&ensp;update&ensp;に対応する更新クエリ処理<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;取得クエリ&ensp;get&ensp;に対応する取得クエリ処理<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;直近の更新クエリ適用を無かったことにする&ensp;rollback&ensp;関数<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;データ構造&ensp;S&ensp;に初期値が必要な場合、以下のように全ての時刻にクエリを適用すれば&ensp;OK<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;i&ensp;番目を&ensp;a[i]&ensp;で初期化する場合&ensp;:&ensp;QS.add_query(0,QS.tlimit(),QS.make_query(i,i+1,a[i]));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;add_update_query(l&ensp;,&ensp;r&ensp;,&ensp;q)&ensp;:&ensp;有効期限が&ensp;[l,r)&ensp;の更新クエリ&ensp;q&ensp;を追加する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;add_get_query(t&ensp;,&ensp;q)&ensp;:&ensp;時刻&ensp;t&ensp;における取得クエリ&ensp;q&ensp;を登録する&ensp;(ask&ensp;を参照)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;apply(引数入れちゃダメ)&ensp;:&ensp;クエリを処理して&ensp;ans&ensp;に答えを書き込む<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;ask[t]&ensp;:=&ensp;時刻&ensp;t&ensp;における取得クエリについて&ensp;{存在するか&ensp;,&ensp;&ensp;取得クエリ}&ensp;のペア<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;ans[t]&ensp;:=&ensp;時刻&ensp;t&ensp;における取得クエリが存在するなら、その答えを保存しておく<br><br><br>*/&ensp;&ensp;<br>class&ensp;OfflineQueryTemplate{<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;//&ensp;更新クエリのメンバ<br>&ensp;&ensp;&ensp;&ensp;struct&ensp;update{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;l&ensp;,&ensp;r&ensp;,&ensp;x;//&ensp;クエリのメンバ<br>&ensp;&ensp;&ensp;&ensp;};<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;取得クエリの取得クエリのメンバ<br>&ensp;&ensp;&ensp;&ensp;struct&ensp;get{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;i;<br>&ensp;&ensp;&ensp;&ensp;};<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;取得する計算結果の型<br>&ensp;&ensp;&ensp;&ensp;using&ensp;result&ensp;=&ensp;long&ensp;long;<br><br>&ensp;&ensp;&ensp;&ensp;private:<br>&ensp;&ensp;&ensp;&ensp;//&ensp;[x]&ensp;:=&ensp;頂点&ensp;x&ensp;がカバーする期限にかかる更新クエリの集合<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;update&gt;&gt;&ensp;QNode;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;array_size;<br>&ensp;&ensp;&ensp;&ensp;int&ensp;tree_size;<br>&ensp;&ensp;&ensp;&ensp;const&ensp;static&ensp;int&ensp;SegTreeRoot&ensp;=&ensp;1;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;pair&lt;int,int&gt;&gt;&ensp;Range;<br><br><br>&ensp;&ensp;&ensp;&ensp;void&ensp;init(int&ensp;N){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;array_size&ensp;=&ensp;1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(array_size&lt;N)array_size*=2;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;tree_size&ensp;=&ensp;array_size*2;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;QNode&ensp;=&ensp;vector&lt;vector&lt;update&gt;&gt;(tree_size);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Range&ensp;=&ensp;vector&lt;pair&lt;int,int&gt;&ensp;&gt;(tree_size);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;0&ensp;;&ensp;i&ensp;&lt;&ensp;array_size&ensp;;&ensp;i++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;index&ensp;=&ensp;i&ensp;+&ensp;array_size;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Range[index]&ensp;=&ensp;{i,i+1};<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;index&gt;&gt;=1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(index&gt;=SegTreeRoot){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Range[index]&ensp;=&ensp;&ensp;{Range[index*2].first&ensp;,&ensp;Range[index*2+1].second};<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;index&gt;&gt;=1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;有効期限が&ensp;[l,r)&ensp;のクエリを時系列セグ木に追加<br>&ensp;&ensp;&ensp;&ensp;void&ensp;add_query_sub(int&ensp;l&ensp;,&ensp;int&ensp;r&ensp;,&ensp;update&ensp;x&ensp;,&ensp;int&ensp;SubRoot&ensp;=&ensp;SegTreeRoot){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;部分木の区間<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;left&ensp;=&ensp;Range[SubRoot].first;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;right&ensp;=&ensp;Range[SubRoot].second;<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(r&ensp;&lt;=&ensp;left)return;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(l&ensp;&gt;=&ensp;right)return;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;else&ensp;if(&ensp;l&ensp;&lt;=&ensp;left&ensp;&amp;&amp;&ensp;right&ensp;&lt;=&ensp;r){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;QNode[SubRoot].push_back(x);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;add_query_sub(l,r,x,SubRoot*2);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;add_query_sub(l,r,x,SubRoot*2+1);&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;vector&lt;result&gt;&ensp;ans;//&ensp;[t]&ensp;:=&ensp;時刻&ensp;t&ensp;における取得クエリの答えを格納<br>&ensp;&ensp;&ensp;&ensp;vector&lt;pair&lt;bool,get&gt;&gt;&ensp;ask;//&ensp;[t]&ensp;:=&ensp;時刻&ensp;t&ensp;における取得クエリの内容(存在しなければ&ensp;frist&ensp;が&ensp;false)<br><br>&ensp;&ensp;&ensp;&ensp;public:<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;クエリ数(時系列のスケール)と、列のサイズ&ensp;N&ensp;を受け取る<br>&ensp;&ensp;&ensp;&ensp;OfflineQueryTemplate(int&ensp;Q,int&ensp;N){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;init(Q);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ans.resize(array_size,result(-1));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ask.resize(array_size,{false,get()});<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;時刻の上限(tlimit()は含まない)<br>&ensp;&ensp;&ensp;&ensp;int&ensp;tlimit(){return&ensp;array_size;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;有効期限が&ensp;[l,r)&ensp;の更新クエリ&ensp;x&ensp;を追加<br>&ensp;&ensp;&ensp;&ensp;void&ensp;register_update_query(int&ensp;l&ensp;,&ensp;int&ensp;r&ensp;,&ensp;update&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(l&lt;r);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=r&ensp;&amp;&amp;&ensp;l&ensp;&lt;&ensp;tlimit());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&ensp;&lt;&ensp;r&ensp;&amp;&amp;&ensp;r&ensp;&lt;=&ensp;tlimit());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;add_query_sub(l,r,x);<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;時刻&ensp;t&ensp;の時点での取得クエリを登録<br>&ensp;&ensp;&ensp;&ensp;//&ensp;適用する時刻はユニーク<br>&ensp;&ensp;&ensp;&ensp;void&ensp;register_get_query(int&ensp;t&ensp;,&ensp;get&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(0&lt;=t&ensp;&amp;&amp;&ensp;t&ensp;&lt;&ensp;tlimit());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ask[t]&ensp;=&ensp;{true,x};<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;クエリを適用していくテンプレート(SegTreeRoot&ensp;から&ensp;DFS)<br>&ensp;&ensp;&ensp;&ensp;void&ensp;apply(int&ensp;now&ensp;=&ensp;SegTreeRoot){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;ノードに入る時に、このノードがカバーする期間で有効なクエリを全て適用する<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(update&ensp;qr&ensp;:&ensp;QNode[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;===========&ensp;編集領域&ensp;===========<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;データ構造に更新クエリ&ensp;qr&ensp;を適用する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;===========&ensp;編集領域&ensp;===========<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;葉ノードの場合、取得クエリがある可能性がある<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(Range[now].second&ensp;-&ensp;Range[now].first&ensp;==&ensp;1){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;qtime&ensp;=&ensp;Range[now].first;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;取得クエリが存在する場合<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(ask[qtime].first){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;get&ensp;qr&ensp;=&ensp;ask[qtime].second;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;===========&ensp;編集領域&ensp;===========<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;データ構造に取得クエリ&ensp;qr&ensp;を適用し、結果を&ensp;ans[qtime]&ensp;に格納する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;===========&ensp;編集領域&ensp;===========<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;内部ノードの場合、時系列セグ木の左右に降りる<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;apply(now*2);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;apply(now*2+1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;ノードから出る時に、このノードがカバーする期間で有効なクエリを全て無かったことにする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;qr&ensp;の中身は関係なく、QNode[now]&ensp;のサイズ回取り消す<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(update&ensp;qr&ensp;:&ensp;QNode[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;/*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;===========&ensp;編集領域&ensp;===========<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;データ構造の最後の操作を取り消す(rollback)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;===========&ensp;編集領域&ensp;===========<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;時刻&ensp;t&ensp;の取得クエリの結果<br>&ensp;&ensp;&ensp;&ensp;//&ensp;時刻&ensp;t&ensp;に取得クエリが存在しない場合、first&ensp;が&ensp;false&ensp;(second&ensp;は未定義)<br>&ensp;&ensp;&ensp;&ensp;pair&lt;bool,result&gt;&ensp;res(int&ensp;t){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(!ask[t].first)return&ensp;{false,result(-1)};<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;{true,ans[t]};<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;<br>};<br><br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

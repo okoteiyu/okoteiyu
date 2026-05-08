@@ -1,0 +1,176 @@
+
+:root{
+    --post-icon-size:32px;
+
+    --post-bg-color: white;
+}
+
+
+/*===================================================================================================
+## 表示コンテナ
+===================================================================================================*/
+
+/* ポストを表示する場所 */
+#priority_post_container{
+    position: relative;
+    width: 98%;
+    margin: 0 auto;
+    margin-bottom: 10px;
+}
+/* ポストを表示する場所 */
+#PostContainerID {
+    position: relative;
+    width: 98%;
+    margin: 0 auto;
+    margin-top: 15px;
+    
+}
+
+/*===================================================================================================
+## ポスト要素
+===================================================================================================*/
+
+/* 通常のポスト */
+.post_item {
+    position: relative;
+    padding: 10px 10px;
+    padding-right: var(--post-icon-size);
+    background-color: var(--post-bg-color);
+    margin-bottom: 22px;
+    border-bottom: 3px solid #e6e4e4;
+    box-sizing: border-box;
+    display: flex;
+    border-radius: 18px;
+    cursor: pointer;
+
+    border-top: 18px solid rgb(138, 141, 170);
+}
+
+.post_item:hover{
+    background-color:rgb(189, 206, 206);
+}
+.post_item::before{
+    content: "";
+    position: absolute;
+    text-align: center;
+    top:0px;
+    left:0px;
+    width:100%;
+    height:4px;
+    background-color: rgb(209, 218, 225);
+}
+.post_item:hover::before{
+    background-color: white;
+}
+
+/* テキスト */
+.post_item::after {
+    content: "";
+    position: absolute;
+    text-align: center;
+    letter-spacing: 0.1em;
+    font-weight: 350;
+    top: -12px;
+    right: 10px;
+    width: 40%;
+    height:12px;
+    border-radius: 6px 6px 0px 0px ;
+    background-color: rgb(199, 206, 213);
+}
+.post_item:hover::after{
+    background-color: rgba(0,0,0,0);
+}
+
+/* 優先ポスト */
+.priority_post_item{
+    flex: 0 0 auto;
+    display: flex;
+
+    background-color: var(--post-bg-color);
+
+    margin: auto 10px;
+    height: inherit;
+    width: 240px;
+    padding: 10px;
+
+    box-sizing: border-box;
+    border: 5px #d2e19c solid;
+
+    overflow: hidden;
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+.priority_post_item:hover{
+    border: 5px white solid;
+    background-color:rgb(189, 206, 206);
+}
+
+
+
+
+/*===================================================================================================
+## ポストの中身
+===================================================================================================*/
+
+/* 横の列に、アイコンの列用のスペースを用意 */
+.post_icon_column{
+    padding-left: 5px;
+    padding-right: 10px;
+    width:var(--post-icon-size);
+    
+}
+
+.post_icon_column .profile_icon{
+    border-radius: 100%;
+    width:var(--post-icon-size);
+    height:var(--post-icon-size);
+}
+
+
+/* テキスト部分をまとめる */
+.post_textwrapper{
+    min-width: 0;/*中身のサイズに引っ張られないように*/
+}
+
+/* 名前 */
+.post_textwrapper .post_username {
+    font-weight: bold;
+
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+/* サブ情報 */
+.post_textwrapper .post_state {
+    color: gray;
+    font-size: 14px;
+    padding-left: 2px;
+
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+/* 内容 */
+.post_textwrapper .post_content {
+    margin-top: 5px;
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+    min-width: 0;
+}
+
+
+/* サムネイル */
+.post_thumbnail {
+    margin-top: 15px;
+
+    border: 1px solid gray;
+    border-radius: 20px;
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 300px;
+    overflow: hidden;
+}

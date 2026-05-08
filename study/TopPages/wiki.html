@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/common_pc.css">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../static/css/article_pc.css">
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>おこていゆアーカイブ説明ウィッキ</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">   
+                <h2>   
+                    ウィッキ<br></h2>
+            </section>
+            <section class = "Explanation">
+                <h2>
+                    目次
+                </h2>
+                <ol>
+                    <li>
+                        Index ページについて
+                    </li>
+                    <li>
+                        記事内の要素について
+                    </li>
+                    <li>
+                        JavaScript について
+                    </li>
+                </ol>
+                <br>
+                <h2>
+                    Index ページについて
+                </h2>
+                <p>
+                    記事ページの管理を行います。TODO : SEO 対策のアレコレ、サイトマップの登録を行う。
+                </p>
+                <br>
+                <h3>
+                    メニューボタンまわり
+                </h3>
+                <p>
+                    上部のバーにはメニュー選択 UI を実装しています。構成は以下を参照です。
+                </p>
+                <br><img src = "./../images/Index_menubutton/Index_menubutton.001.jpeg" class = "StandardImageStyle">
+                <br>
+                <h3>
+                    アイテムリスト
+                </h3>
+                <p>
+                    左の項目一覧に記事の表示切り替えを担当するボタンがあります。
+                </p>
+                <p>
+                    <code>sftg</code> タグは、項目のサブ要素を書く際に使います。基本的に見た目重視の方針のため、内容は短く、個数も \(2\) 個程度が望ましいです。
+                </p>
+                <br>
+                <h3>
+                    項目の編集
+                </h3>
+                <p>
+                    <code>index.html</code> の記事項目の要素は以下の構成になります。
+                </p>
+                <pre>//&nbsp;カテゴリの定義&nbsp;(カテゴリごとに&nbsp;CategoryField&nbsp;要素を作成)<br>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;CategoryField&quot;&nbsp;id&nbsp;=&nbsp;&quot;[カテゴリID-1]&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;LeftSizeFolderCategory&quot;&gt;[カテゴリ名-1]&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;カテゴリに属するフォルダの宣言<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FolderItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[フォルダ名-1]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenFolder(event)&apos;&gt;🗂[タイトル1]&lt;/button&gt;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FolderItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[フォルダ名-2]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenFolder(event)&apos;&gt;🗂[タイトル2]&lt;/button&gt;&nbsp;&nbsp;<br>&lt;/div&gt;<br>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;CategoryField&quot;&nbsp;id&nbsp;=&nbsp;&quot;[カテゴリID-2]&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;LeftSizeFolderCategory&quot;&gt;[カテゴリ名-2]&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FolderItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[フォルダ名-3]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenFolder(event)&apos;&gt;🗂[タイトル3]&lt;/button&gt;&nbsp;&nbsp;<br>&lt;/div&gt;<br><br>//&nbsp;カテゴリの定義で宣言したフォルダを定義<br>//&nbsp;フォルダの表示順は宣言の順になるので、ここでは順不同になる<br>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;FolderDefinitionField&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;FolderContentsField&quot;&nbsp;id&nbsp;=&nbsp;&apos;[フォルダ名-1]&apos;&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;フォルダでまとめる記事を列挙<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FileItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[記事HTMLへの相対パス-1]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenPage(event)&apos;&gt;📃[ファイルタイトル-1]&nbsp;&lt;sftg&gt;[タグ-1]&lt;/sftg&gt;&nbsp;&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FileItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[記事HTMLへの相対パス-2]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenPage(event)&apos;&gt;📃[ファイルタイトル-2]&nbsp;&lt;sftg&gt;[タグ-2]&lt;/sftg&gt;&nbsp;&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;FolderContentsField&quot;&nbsp;id&nbsp;=&nbsp;&apos;[フォルダ名-2]&apos;&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FileItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[記事HTMLへの相対パス-3]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenPage(event)&apos;&gt;📃[ファイルタイトル-3]&nbsp;&lt;sftg&gt;[タグ-3]&lt;/sftg&gt;&nbsp;&lt;sftg&gt;[タグ-4]&lt;/sftg&gt;&nbsp;&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;FolderContentsField&quot;&nbsp;id&nbsp;=&nbsp;&apos;[フォルダ名-3]&apos;&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;class&nbsp;=&apos;FileItem&apos;&nbsp;name&nbsp;=&nbsp;&apos;[記事HTMLへの相対パス-4]&apos;&nbsp;onclick&nbsp;=&nbsp;&apos;OpenPage(event)&apos;&gt;📃[ファイルタイトル-4]&nbsp;&lt;sftg&gt;[タグ-5]&lt;/sftg&gt;&nbsp;&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&lt;/div&gt<br></pre>
+                <p>
+                    コンテンツの分類の階層としては <code>カテゴリ/フォルダ/ファイル</code> となっています。<code>index.html</code> では、先にカテゴリフィールド及びフォルダボタンを列挙した要素を書きます。ここでは、カテゴリ及びフォルダの表示順序の定義を行い、また、フォルダ名がこれから使用されることを宣言します。C++ の宣言みたいなものです。
+                </p>
+                <p>
+                    その後、先に宣言したそれぞれのフォルダに対して、そのフォルダの中身を定義する部分を書きます。すでにフォルダの表示順は定義されているので、この部分の順序は順不同です。
+                </p>
+                <br>
+                <h2>
+                    記事内の要素について
+                </h2>
+                <p>
+                    記事の中にはスライドやソースコードを埋め込む機会がありますが、謎の思想によりすべて自前実装します。
+                </p>
+                <br>
+                <h3>
+                    記事内に表示するコードブロック
+                </h3>
+                <p>
+                    記事でソースコードなどを表示するとき、以下のコード (<code>code_to_html.py</code>) を用いて <code>code.txt</code> のコードを <code>&lt;pre></code> タグ要素に変換する。<code>pre</code> タグのスタイルはカスタマイズしています。
+                </p>
+                <pre>html_code:str&nbsp;=&nbsp;&quot;&quot;;<br><br>file&nbsp;=&nbsp;open(&quot;./code.txt&quot;,&quot;r&quot;);<br>lines&nbsp;=&nbsp;file.readlines();<br>file.close();<br><br>html_code&nbsp;+=&nbsp;&quot;&lt;pre&gt;&quot;<br><br>for&nbsp;i&nbsp;in&nbsp;range(len(lines)):<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;lines[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&apos;&amp;&apos;&nbsp;,&quot;&amp;amp;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&apos;&lt;&apos;,&quot;&amp;lt;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&apos;&gt;&apos;&nbsp;,&quot;&amp;gt;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&apos;&nbsp;&apos;,&quot;&amp;nbsp;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&apos;&quot;&apos;&nbsp;,&quot;&amp;quot;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&apos;&copy;&apos;&nbsp;,&quot;&amp;copy;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;line.replace(&quot;&apos;&quot;&nbsp;,&quot;&amp;apos;&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;行末は改行コードなのでそれを省く<br>&nbsp;&nbsp;&nbsp;&nbsp;if(i+1&nbsp;!=&nbsp;len(lines))&nbsp;:&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;html_code&nbsp;+=&nbsp;line[0:len(line)-1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;html_code&nbsp;+=&nbsp;&quot;&lt;br&gt;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;:&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;html_code&nbsp;+=&nbsp;line;<br><br>html_code&nbsp;+=&nbsp;&quot;&lt;/pre&gt;&quot;;<br><br>file&nbsp;=&nbsp;open(&quot;./code.txt&quot;,&quot;w&quot;);<br>file.write(html_code);<br>file.flush();<br>file.close();</pre>
+                <br>
+                <h3>
+                    文章内に登場するコード
+                </h3>
+                <p>
+                    文章に改行のないコードを登場させるときは <code>&lt;code>&lt;/code></code> でコードを囲う。<code>code</code> タグのスタイルはカスタマイズしています。
+                </p>
+                <br>
+                <h3>
+                    スライドの挿入
+                </h3>
+                <p>
+                    スライドを画像としてエクスポートして、以下のフォーマットで挿入します。スライドの画像のサイズはエクスポートした時点から変更しないでください。
+                </p>
+                <pre>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;slide_content_field&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;ページ番号を管理するためだけのdiv&nbsp;(中身の数値を&nbsp;JS&nbsp;が参照する)&nbsp;--&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;slide_pagenum_store&quot;&nbsp;id&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&gt;&lt;/div&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;タイトル&nbsp;--&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;slide_title&quot;&gt;コンテンツハイライト&lt;/div&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;内容&nbsp;--&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;img&nbsp;src=&quot;[1&nbsp;ページ目の画像へのリンク]&quot;&nbsp;&nbsp;class&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;img&nbsp;src=&quot;[2&nbsp;ページ目の画像へのリンク]&quot;&nbsp;&nbsp;class&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;img&nbsp;src=&quot;[3&nbsp;ページ目の画像へのリンク]&quot;&nbsp;&nbsp;class&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;img&nbsp;src=&quot;[4&nbsp;ページ目の画像へのリンク]&quot;&nbsp;&nbsp;class&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;ボタンなどのスライド操作用ツールバー--&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;slide_button_field&quot;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;onclick=&quot;select_back(event)&quot;&nbsp;name&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&nbsp;class&nbsp;=&nbsp;&quot;slide_back_button&quot;&gt;&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class&nbsp;=&nbsp;&quot;slide_pagenum_field&quot;&nbsp;title&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&nbsp;&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button&nbsp;onclick=&quot;select_next(event)&quot;&nbsp;name&nbsp;=&nbsp;&quot;[スライド識別&nbsp;ID]&quot;&nbsp;&nbsp;class&nbsp;=&nbsp;&quot;slide_next_button&quot;&gt;&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&lt;/div&gt<br></pre>
+                <p>
+                    スライドの操作のため、各スライドには ID が割り振られます。スライドのページはこの ID によってグルーピングされ、JavaScript 側からもこの ID を参照して操作を実行します。そのため、当然 1 つの記事に複数のスライドを埋め込む時、同じ識別 ID を用いることは出来ません。
+                </p>
+                <p>
+                    ちなみに JavaScript は以下のような感じ。
+                </p>
+                <pre>const&nbsp;target_SampleCodeField&nbsp;=&nbsp;&quot;SampleCode&quot;;<br>const&nbsp;target_HideCheckButton&nbsp;=&nbsp;&quot;HideCheck&quot;;<br><br>initialize_slide();<br><br><br>//&nbsp;スライド表示の初期状態設定<br>function&nbsp;initialize_slide(){<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ページ内のすべてのスライドそれぞれの代表要素&nbsp;(ページ番号管理)&nbsp;を取得<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;slide_counters&nbsp;=&nbsp;document.getElementsByClassName(&quot;slide_pagenum_store&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;それぞれのスライドについて、ページ表示を&nbsp;1&nbsp;ページ目で設定<br>&nbsp;&nbsp;&nbsp;&nbsp;for(var&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;slide_counters.length&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;pagenum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;slidename&nbsp;=&nbsp;slide_counters[i].id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;slide_counters[i].innerText&nbsp;=&nbsp;pagenum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;PageList&nbsp;=&nbsp;document.getElementsByClassName(slidename);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(PageList.length&nbsp;==&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PageList[pagenum].style.display&nbsp;=&nbsp;&quot;block&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_slide_pagenum(slidename&nbsp;,&nbsp;pagenum+1&nbsp;,&nbsp;PageList.length);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br><br><br><br>//&nbsp;slidename&nbsp;のスライドのページ番号表示を&nbsp;a/b&nbsp;に<br>function&nbsp;set_slide_pagenum(slidename&nbsp;,&nbsp;a&nbsp;,&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;display_field&nbsp;=&nbsp;document.getElementsByClassName(&quot;slide_pagenum_field&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;for(var&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;display_field.length&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(display_field[i].title&nbsp;!=&nbsp;slidename)continue;//&nbsp;対象と関係ない部分は無視<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display_field[i].innerText&nbsp;=&nbsp;&quot;(&quot;&nbsp;+&nbsp;a&nbsp;+&nbsp;&quot;/&quot;&nbsp;+&nbsp;b&nbsp;+&nbsp;&quot;)&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br><br><br>//&nbsp;スライドを制御&nbsp;:&nbsp;div&nbsp;要素の&nbsp;name&nbsp;でスライド名を定義。&nbsp;id&nbsp;=&nbsp;スライド名&nbsp;の要素の&nbsp;innerText&nbsp;がページ番号に対応<br>function&nbsp;select_next(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;PageList&nbsp;=&nbsp;document.getElementsByClassName(e.target.name);<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;counter_div&nbsp;=&nbsp;document.getElementById(e.target.name);<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;pagenum&nbsp;=&nbsp;parseInt(counter_div.innerText);<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;PageList_size&nbsp;=&nbsp;PageList.length;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(pagenum==PageList_size-1)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;//close&nbsp;current&nbsp;page<br>&nbsp;&nbsp;&nbsp;&nbsp;PageList[pagenum].style.display&nbsp;=&nbsp;&quot;none&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;pagenum++;<br>&nbsp;&nbsp;&nbsp;&nbsp;//display&nbsp;next&nbsp;page<br>&nbsp;&nbsp;&nbsp;&nbsp;PageList[pagenum].style.display&nbsp;=&nbsp;&quot;block&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;counter_div.innerText&nbsp;=&nbsp;pagenum;//カウンターを更新<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ページ移動した場合のみ変更&nbsp;(&amp;&nbsp;1-index&nbsp;に変換)<br>&nbsp;&nbsp;&nbsp;&nbsp;set_slide_pagenum(e.target.name&nbsp;,&nbsp;pagenum+1&nbsp;,&nbsp;PageList_size);<br>}<br><br>function&nbsp;select_back(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;PageList&nbsp;=&nbsp;document.getElementsByClassName(e.target.name);<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;counter_div&nbsp;=&nbsp;document.getElementById(e.target.name);<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;pagenum&nbsp;=&nbsp;parseInt(counter_div.innerText);<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;PageList_size&nbsp;=&nbsp;PageList.length;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(pagenum==0)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;//close&nbsp;current&nbsp;page<br>&nbsp;&nbsp;&nbsp;&nbsp;PageList[pagenum].style.display&nbsp;=&nbsp;&quot;none&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;pagenum--;<br>&nbsp;&nbsp;&nbsp;&nbsp;//display&nbsp;next&nbsp;page<br>&nbsp;&nbsp;&nbsp;&nbsp;PageList[pagenum].style.display&nbsp;=&nbsp;&quot;block&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;counter_div.innerText&nbsp;=&nbsp;pagenum;//カウンターを更新<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ページ移動した場合のみ変更&nbsp;(&amp;&nbsp;1-index&nbsp;に変換)<br>&nbsp;&nbsp;&nbsp;&nbsp;set_slide_pagenum(e.target.name&nbsp;,&nbsp;pagenum+1&nbsp;,&nbsp;PageList_size);<br>}<br></pre>
+                <br>
+                <h3>
+                    Tips と Column
+                </h3>
+                <p>
+                    記事の内容を補足する内容を記述する際は、<code>&lt;div class = "Highlight"> ... &lt;/div></code> のなかに Tips セクションまたは Column セクションを設けます。それぞれ、以下の規則で使い分けます。
+                </p>
+                <div class = "Highlight">
+                    <ul>
+                        <li>
+                            Tips : <u>記事に書かれた</u>特定の内容について、補足の情報を補足する目的。
+                        </li>
+                        <li>
+                            Column : 記事の<u>内容に関連する情報</u>を記述する目的。
+                        </li>
+                    </ul>
+                </div>
+                <br>
+                <h3>
+                    ハイライトその他
+                </h3>
+                <p>
+                    <code>&lt;groupblock></code> で囲うと、<groupblock>このように文中に登場する長方形ブロックになる</groupblock>。
+                </p>
+                <p>
+                    <div class = FlowBlock>
+                        <code>FlowBlock</code> クラスは、
+                        <div class = FlowBlock>
+                            このように
+                            <div class = FlowBlock>
+                                構造をネストする
+                            </div>
+                            <groupblock>ことが</groupblock>
+                            <div class = FlowBlock>
+                                できる。
+                            </div>
+                        </div>
+                    </div>
+                    
+                </p>
+                <br>
+                <h2>
+                    JavaScript について
+                </h2>
+                <p>
+                    HTML をすべて構築してから JavaScript を呼びたいので、JavaScript の外部ファイルは HTML の末尾で読んでいるよ!!! 
+                </p>
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../static/js/article_constructor.js"></script>
+<script src="./../../static/js/common_constructor.js"></script>

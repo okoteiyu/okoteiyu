@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../static/css/common_pc.css">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./static/css/index_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./static/css/index_pc.css">
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+
+    <head>
+        <title>Okoteiyu Archive</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name = "description" content="情報系の分野の記事を投稿しています。特に、競技プログラミングの分野ではセグメント木や DP などの基礎的なものから、平衡二分探索木などや Wavelet Matrix などの応用の多いもの、Suffix Tree (接尾辞木) や Link-Cut Tree (リンクカット木) のような上級者向けの記事まで幅広く扱っています。">
+    </head>
+
+    
+
+    <body> 
+        <!--トップバー + Menu周り-->
+        <div class ='TopBar' style = "position: absolute;">
+            <!--メニューを開くボタンまわり-->
+            <div class = "MenuButton"  onclick = "OpenMenu()"></div>
+            <div class = "MenuField" id = "MenuFieldID">
+                <!--menu欄のbody-->
+                <div class = "MenuItemList">
+                    
+                    <!--項目を縦に並べる列をいくつか用意する(現時点では3列の予定)-->
+                    <div class = "MenuItemList_Column" id = "MenuItemListColumn_1">
+                        <a href = "https://atcoder.jp/users/okoteiyu" target = blank><div class = "MenuItem" ><p class = "MenuItem_Title">AtCoder</p></div></a>
+                        <a href = "https://mobile.twitter.com/okoteiyu" target = blank><div class = "MenuItem" ><p class = "MenuItem_Title">Twitter</p></div></a>
+                        <div class = "MenuItem" ><p class = "MenuItem_Title">Comong Soon</p></div>
+                    </div>
+
+                    <div class = "MenuItemList_Column_Interval"></div><!--ItemListの列のインターバル-->
+                    
+                    <div class = "MenuItemList_Column" id = "MenuItemListColumn_2">
+                        <a href = "https://qiita.com/okoteiyu" target = blank><div class = "MenuItem" ><p class = "MenuItem_Title">Qiita 記事一覧</p></div></a>
+                        <a href = "https://okoteiyu.com" target = blank><div class = "MenuItem" ><p class = "MenuItem_Title">ファンサイト</p></div></a>
+                        <div class = "MenuItem" ><p class = "MenuItem_Title">Comong Soon</p></div>
+                    </div>
+                    
+                    <div class = "MenuItemList_Column_Interval"></div><!--ItemListの列のインターバル-->
+                    
+                    <div class = "MenuItemList_Column" id = "MenuItemListColumn_3">
+                        <a href = "https://github.com/okoteiyu" target = blank><div class = "MenuItem" ><p class = "MenuItem_Title">github</p></div></a>
+                        <div class = "MenuItem" ><p class = "MenuItem_Title">Comong Soon</p></div>
+                        <div class = "MenuItem" ><p class = "MenuItem_Title">Comong Soon</p></div>
+                    </div>
+
+                    <div  style = "clear:both;"></div><!--最後にfloatを消す-->
+
+                </div>
+                
+            </div>
+            <!--いろいろな項目を入れておく-->
+        </div>
+
+
+
+        <!--
+            横の枠の開閉ボタン
+            いい感じの形にするため、空白を入れる
+        -->
+        <div onclick = 'Scaling_LeftDoor()'  id = "ScalingButton" class = "ScalingButton">
+            <br>&nbsp;閉<br>&nbsp;じ<br>&nbsp;る<br>
+        </div>
+    
+
+        <!--左に表示する項目のリスト-->
+        <div id = 'ItemList' class = "LeftSide_ItemListField">
+            <!--トグルボタン (common_constructor.js/css 参照) など-->
+            <!--カテゴリに属さない基本要素なのだ-->
+            <br>
+            <section>
+                <div class = "toggleButtonField" onclick = "togglebutton(event);toggle_autoclose()" 
+                    id = "autoMenuCloseChecker" data-toggle-state = "0">
+                    <div class = "toggleButton"></div>
+                </div>
+                <span> 選択時に閉じる </span>
+            </section>
+            <br>
+            <section>
+                <!-- ダークモードを司るボタン。他の部分で変更があったらここの見た目も変える必要がある -->
+                <div class = "toggleButtonField" onclick = "togglebutton(event);change_display_mode()" 
+                    id = "DarkModeToggle" data-toggle-state = "0">
+                    <div class = "toggleButton"></div>
+                </div>
+                <span> ダークモード </span>
+            </section>
+            <br>
+            <div class = "CategoryField" id = "top_pages_field_ID">
+                <button class ='FileItem' id ="AboutThisPage_id" name = './TopPages/explain.html' onclick = 'OpenPage(event)'>📃About This Page <sftg>default</sftg></button>
+                <button class ='FileItem' id ="WikiPage_id" name = './TopPages/wiki.html' onclick = 'OpenPage(event)'>📃wiki <sftg>開発者</sftg></button>
+                <button class ='FileItem' id ="TechnicalReportPage_id" name = './TopPages/TechnicalReport.html' onclick = 'OpenPage(event)'>📃テクレポ <sftg>開発者</sftg></button>
+            </div>
+
+            <!--フォルダの記述開始。書き方は wiki を参照。-->
+
+            <!-- メタ的な話やコラム -->
+            <div class = "CategoryField" id = "MetaColumnCategory">
+                <!-- カテゴリタイトル -->
+                <div class = "LeftSizeFolderCategory">コラム</div>
+                
+                <button class ='FolderItem' name = 'EducationFolder' onclick = 'OpenFolder(event)'>🗂一般教養</button>
+            </div>
+
+            <!-- コンピュータカテゴリ -->
+            <div class = "CategoryField" id = "ComputerCategory">
+                <!-- カテゴリタイトル -->
+                <div class = "LeftSizeFolderCategory">コンピュータ</div>
+                
+                <button class ='FolderItem' name = 'InfoTheoryFolder' onclick = 'OpenFolder(event)'>🗂情報理論</button>   
+                <button class ='FolderItem' name = 'ProgrammingFolder' onclick = 'OpenFolder(event)'>🗂プログラミング講座</button>   
+                <button class ='FolderItem' name = 'MachineFolder' onclick = 'OpenFolder(event)'>🗂CS 一般 <sftg>内容未定</sftg></button>   
+                <button class ='FolderItem' name = 'artificial_intelligence_Folder' onclick = 'OpenFolder(event)'>🗂AI / 人工知能</button>   
+                <button class ='FolderItem' name = 'ComputerGraphicFolder' onclick = 'OpenFolder(event)'>🗂3D CG</button>   
+            </div>
+
+            <!-- アルゴリズム カテゴリ -->
+            <div class = "CategoryField" id = "AlgorithmCategory">
+                <!-- カテゴリタイトル -->
+                <div class = "LeftSizeFolderCategory">アルゴリズムとデータ構造</div>
+                
+                <button class ='FolderItem' name = 'TypicalAlgoFolder' onclick = 'OpenFolder(event)'>🗂典型テクニック <sftg>☆1~4</sftg> </button>
+                <button class ='FolderItem' name = 'GraphAlgoFolder' onclick = 'OpenFolder(event)'>🗂グラフ <sftg>☆2~3</sftg> </button>
+                <button class ='FolderItem' name = 'StringAlgoFolder' onclick = 'OpenFolder(event)'>🗂文字列 <sftg>☆2~4</sftg> </button>   
+                <button class ='FolderItem' name = 'DP_folder' onclick = 'OpenFolder(event)'>🗂DP <sftg>☆2~4</sftg> </button>   
+                <button class ='FolderItem' name = 'DataStructureFolder' onclick = 'OpenFolder(event)'>🗂データ構造 <sftg>☆3~4</sftg> </button>
+                <button class ='FolderItem' name = 'AlgoMathFolder' onclick = 'OpenFolder(event)'>🗂数学 <sftg>☆1~4</sftg> </button>   
+                <button class ='FolderItem' name = 'AlgoProblemFolder' onclick = 'OpenFolder(event)'>🗂練習問題集 <sftg>☆1~5</sftg></button>   
+                <button class ='FolderItem' name = 'HeuristicAlgoFolder' onclick = 'OpenFolder(event)'>🗂Heuristic</button>   
+            </div>
+            
+            <!-- Web-Network カテゴリ -->
+            <div class = "CategoryField" id = "Web-Network">
+                <div class = "LeftSizeFolderCategory">Web/Network</div>
+                
+                <button class ='FolderItem' name = 'NetworkFolder' onclick = 'OpenFolder(event)'>🗂ネットワーク</button>  
+                <button class ='FolderItem' name = 'WebFolder' onclick = 'OpenFolder(event)'>🗂Web</button>  
+            </div>
+
+            
+            <!-- その他 カテゴリ-->
+            <div class = "CategoryField" id = "OtherCategory">
+                <!-- カテゴリタイトル -->
+                <div class = "LeftSizeFolderCategory">その他</div>
+                
+                <button class ='FolderItem' name = 'BrainTrainingFolder' onclick = 'OpenFolder(event)'>🗂Beta 開発</button>
+                <button class ='FolderItem' name = 'DataAnalysisFolder' onclick = 'OpenFolder(event)'>🗂データ分析</button>   
+            </div>
+
+            <!-- フォルダの中身を、フォルダごとに整理して置いておくのだ-->            
+            <!-- フォルダの中身を、フォルダごとに整理して置いておくのだ-->            
+            <!-- フォルダの中身を、フォルダごとに整理して置いておくのだ-->            
+            <div class = "FolderDefinitionField">
+                <!-- フォルダを閉じるボタン (フォルダが開かれた際に出現する) -->
+                <button class ='CloseFolderButton' onclick = 'CloseFolder()' style="display: none;">フォルダを閉じる ⇦ </button>
+                <!-- フォルダが開かれた時、いずれかの FolderContentsField のみが dispay:block; になるので、ボタンはそれらで共用する-->
+
+                
+                <div class = "FolderContentsField" id = 'WebSiteOperationFolder' >
+                    <button class ='FileItem' name = './Others/Education/Japanese.html' onclick = 'OpenPage(event)'>📃正しい日本語理解講座 <sftg>コラム</sftg> </button>
+                </div>
+                
+                <div class = "FolderContentsField" id = 'EducationFolder' >
+                    <button class ='FileItem' name = './Others/Education/Japanese.html' onclick = 'OpenPage(event)'>📃正しい日本語理解講座 <sftg>コラム</sftg> </button>
+                    <button class ='FileItem' name = './Others/Education/StockInvestment.html' onclick = 'OpenPage(event)'>📃株入門 <sftg>コラム</sftg> </button>
+                </div>
+            
+
+                <!-- 情報理論 -->
+                <div class = "FolderContentsField" id = 'InfoTheoryFolder' >
+                    
+                    <button class ='FileItem' name = './Informatics/Theory/encoding.html' onclick = 'OpenPage(event)'>📃符号化基礎 <sftg>CS</sftg></button>
+                    
+                </div>
+
+                <!-- AI -->
+                <div class = "FolderContentsField" id = 'artificial_intelligence_Folder' >
+                    
+                    <button class ='FileItem' name = './Informatics/AI/overview.html' onclick = 'OpenPage(event)'>📃AI 概論</button>
+                    
+                </div>
+
+                <!-- プログラミング -->
+                <div class = "FolderContentsField" id = 'ProgrammingFolder' >
+                    
+                    <button class ='FileItem' name = './Informatics/Programming/MacEnv.html' onclick = 'OpenPage(event)'>📃Mac OS 環境構築 <sftg>OS</sftg></button>
+                    <button class ='FileItem' name = './Informatics/Programming/CppBasic.html' onclick = 'OpenPage(event)'>📃C++ マスター講座 <sftg>プログラミング言語</sftg> </button>
+                    <button class ='FileItem' name = './Informatics/Programming/CppTopic.html' onclick = 'OpenPage(event)'>📃C++ 言語機能等トピック一覧<sftg>プログラミング言語</sftg> </button>
+                    <button class ='FileItem' name = './Informatics/Programming/MultiThread.html' onclick = 'OpenPage(event)'>📃並列処理 <sftg>CS</sftg></button>
+                    
+                </div>
+                <!-- CS 一般 -->
+                <div class = "FolderContentsField" id = 'MachineFolder' >
+                    <button class ='FileItem' name = './Others/IT_basic/ITPass.html' onclick = 'OpenPage(event)'>📃I パス <sftg>書きかけ</sftg> </button>
+                </div>
+                <!--3D CG-->
+                <div class = "FolderContentsField" id = 'ComputerGraphicFolder' >
+                    
+                </div>
+                <!-- ネットワーク -->
+                <div class = "FolderContentsField" id = 'NetworkFolder' >
+
+                </div>
+
+                <!-- Web -->
+                <div class = "FolderContentsField" id = 'WebFolder' >
+                    <button class ='FileItem' name = './Informatics/Web/JavaScript.html' onclick = 'OpenPage(event)'>📃JavaScript <sftg>基礎</sftg> </button>
+                </div>
+
+                <!--競プロ典型-->
+                <div class = "FolderContentsField" id = 'TypicalAlgoFolder' >
+                    <button class ='FileItem' name = './Algo/typical/competitive_programming.html' onclick = 'OpenPage(event)'>📃競プロ基本事項 <sftg>イントロダクション</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/PrefixSum.html' onclick = 'OpenPage(event)'>📃累積和 <sftg>prefix sum</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/subscript_tech.html' onclick = 'OpenPage(event)'>📃添字の書き方 <sftg>コーディング</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/BruteForce.html' onclick = 'OpenPage(event)'>📃全探索 <sftg>Brute Force</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/range_schedule.html' onclick = 'OpenPage(event)'>📃区間スケジューリング問題 <sftg>有名問題</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/BinarySearch.html' onclick = 'OpenPage(event)'>📃二分探索 <sftg>Binary Search</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/make_faster_typical.html' onclick = 'OpenPage(event)'>📃計算量削減典型テクニック集 </button>
+                    <button class ='FileItem' name = './Algo/typical/syakutori.html' onclick = 'OpenPage(event)'>📃尺取り法 </button>
+                    <button class ='FileItem' name = './Algo/typical/Physical_Logical.html' onclick = 'OpenPage(event)'>📃プログラミングにおける物理的と論理的 </button>
+                    <button class ='FileItem' name = './Algo/typical/deque_technique.html' onclick = 'OpenPage(event)'>📃デックのテクニック <sftg>deque</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/Heiho.html' onclick = 'OpenPage(event)'>📃クエリ平方分割  </button>
+                    <button class ='FileItem' name = './Algo/typical/MosAlgo.html' onclick = 'OpenPage(event)'>📃Mo's Algorithm  </button>
+                    <button class ='FileItem' name = './Algo/typical/OfflineQuery.html' onclick = 'OpenPage(event)'>📃クエリを時間で分割統治  <sftg>segment tree</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/GameTheory.html' onclick = 'OpenPage(event)'>📃ゲーム理論典型 </button>
+                    <button class ='FileItem' name = './Algo/typical/sekinowa.html' onclick = 'OpenPage(event)'>📃積の和典型 <sftg>数え上げ</sftg> <sftg>組合せ</sftg> </button>
+                    <button class ='FileItem' name = './Algo/typical/parse.html' onclick = 'OpenPage(event)'>📃構文解析 </button>    
+                    <button class ='FileItem' name = './Algo/typical/BitInteger.html' onclick = 'OpenPage(event)'>📃ビットアクセス可能整数 </button>    
+                    <button class ='FileItem' name = './Algo/typical/BasicTool.html' onclick = 'OpenPage(event)'>📃基本的なツール </button>    
+                    <button class ='FileItem' name = './Algo/typical/ArraySqrtDiv.html' onclick = 'OpenPage(event)'>📃列の平方分割テンプレート </button>    
+                </div>
+
+                <!--グラフ理論-->
+                <div class = "FolderContentsField" id = 'GraphAlgoFolder' >
+                    <button class ='FileItem' name = './Algo/graph/GraphBasic.html' onclick = 'OpenPage(event)'>📃グラフ理論基礎 <sftg>Graph</sftg></button>
+                    <button class ='FileItem' name = './Algo/graph/Tree.html' onclick = 'OpenPage(event)'>📃木構造典型 <sftg>Tree</sftg> </button>
+                    <button class ='FileItem' name = './Algo/graph/WarshallFloyd.html' onclick = 'OpenPage(event)'>📃ワーシャル・フロイド法 <sftg>Floyd-Warshall</sftg></button>
+                    <button class ='FileItem' name = './Algo/graph/SCC_decomposition.html' onclick = 'OpenPage(event)'>📃強連結成分分解 <sftg>SCC</sftg></button>
+                    <button class ='FileItem' name = './Algo/graph/extended_dijkstra.html' onclick = 'OpenPage(event)'>📃拡張ダイクストラ </button>
+                    <button class ='FileItem' name = './Algo/graph/prob_dijkstra.html' onclick = 'OpenPage(event)'>📃確率ダイクストラ </button>
+                    <button class ='FileItem' name = './Algo/graph/potential_dijkstra.html' onclick = 'OpenPage(event)'>📃ポテンシャルダイクストラ </button>
+                    <button class ='FileItem' name = './Algo/graph/UnionFind.html' onclick = 'OpenPage(event)'>📃Union Find まわり <sftg>素集合データ構造</sftg></button>
+                    <button class ='FileItem' name = './Algo/graph/kruskal.html' onclick = 'OpenPage(event)'>📃最小全域木</button>
+                    <button class ='FileItem' name = './Algo/graph/topological_sort.html' onclick = 'OpenPage(event)'>📃トポロジカルソート</button>
+                    <button class ='FileItem' name = './Algo/graph/MaxFlow.html' onclick = 'OpenPage(event)'>📃最大流と二部マッチング <sftg>ネットワークフロー</sftg> </button>
+                    <button class ='FileItem' name = './Algo/graph/HLD.html' onclick = 'OpenPage(event)'>📃木のHL分解(HLD) </button>
+                    <button class ='FileItem' name = './Algo/graph/prufer_code.html' onclick = 'OpenPage(event)'>📃プリューファー列</button>
+                    <button class ='FileItem' name = './Algo/graph/EulerTour.html' onclick = 'OpenPage(event)'>📃オイラーツアー </button>
+                </div>
+
+                <!--文字列-->
+                <div class = "FolderContentsField" id = 'StringAlgoFolder' >
+                    <button class ='FileItem' name = './Algo/string/bubunretsuDP.html' onclick = 'OpenPage(event)'>📃部分列 DP </button>
+                    <button class ='FileItem' name = './Algo/string/RollingHash.html' onclick = 'OpenPage(event)'>📃ローリングハッシュ</button>
+                    <button class ='FileItem' name = './Algo/string/Trie.html' onclick = 'OpenPage(event)'>📃トライ木/Trie</button>
+                    <button class ='FileItem' name = './Algo/string/PalindromicTree.html' onclick = 'OpenPage(event)'>📃回文木/Palindromic Tree</button>
+                    <button class ='FileItem' name = './Algo/string/SuffixTree.html' onclick = 'OpenPage(event)'>📃接尾辞木/Suffix Tree</button>
+                    <button class ='FileItem' name = './Algo/string/StringUtility.html' onclick = 'OpenPage(event)'>📃文字列/整数 ライブラリ</button>
+                </div>
+
+                <!--DP-->
+                <div class = "FolderContentsField" id = 'DP_folder' >    
+                    <button class ='FileItem' name = './Algo/DP/DP_typical.html' onclick = 'OpenPage(event)'>📃DP 典型問題 </button>
+                    <button class ='FileItem' name = './Algo/DP/DP_hard.html' onclick = 'OpenPage(event)'>📃DP 発展的話題 </button>
+                    <button class ='FileItem' name = './Algo/DP/TreeDP.html' onclick = 'OpenPage(event)'>📃木DP</button>
+                    <button class ='FileItem' name = './Algo/DP/rerooting.html' onclick = 'OpenPage(event)'>📃全方位木DP</button>
+                    <button class ='FileItem' name = './Algo/DP/doubling.html' onclick = 'OpenPage(event)'>📃ダブリング</button>
+                    <button class ='FileItem' name = './Algo/DP/BitDP.html' onclick = 'OpenPage(event)'>📃ビットDP</button>
+                    <button class ='FileItem' name = './Algo/DP/Kitaichi_DP.html' onclick = 'OpenPage(event)'>📃期待値 DP テンプレ</button>
+                    <button class ='FileItem' name = './Algo/DP/Kitaichi_Kakuritsu_DP.html' onclick = 'OpenPage(event)'>📃期待値 DP と確率 DP 典型</button>
+                </div>
+
+                <!--データ構造-->
+                <div class = "FolderContentsField" id = 'DataStructureFolder' >
+                    <button class ='FileItem' name = './Algo/DataStructure/SplayTree.html' onclick = 'OpenPage(event)'>📃SplayTree  </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/ExtendedArray.html' onclick = 'OpenPage(event)'>📃拡張配列 </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/RangeSet.html' onclick = 'OpenPage(event)'>📃区間set </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/LinkCutTree.html' onclick = 'OpenPage(event)'>📃Link-Cut Tree </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/EulerTourTree.html' onclick = 'OpenPage(event)'>📃Euler Tour Tree </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/SegmentTree.html' onclick = 'OpenPage(event)'>📃セグメントツリー </button> 
+                    <button class ='FileItem' name = './Algo/DataStructure/MergeSortTree.html' onclick = 'OpenPage(event)'>📃Merge Sort Tree </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/kdTree.html' onclick = 'OpenPage(event)'>📃KdTree </button>
+                    <button class ='FileItem' name = './Algo/DataStructure/WaveletMatrix.html' onclick = 'OpenPage(event)'>📃Wavelet Matrix <sftg>ウェーブレット行列</sftg></button>
+                </div>
+
+
+                <!--数学-->
+                <div class = "FolderContentsField" id = 'AlgoMathFolder' >
+                    <button class ='FileItem' name = './Algo/math/InfoMath.html' onclick = 'OpenPage(event)'>📃情報数学基礎</button>
+                    <button class ='FileItem' name = './Algo/math/operator.html' onclick = 'OpenPage(event)'>📃代数構造</button>
+                    <button class ='FileItem' name = './Algo/math/Geometry.html' onclick = 'OpenPage(event)'>📃幾何学</button>
+                    <button class ='FileItem' name = './Algo/math/Delaunay.html' onclick = 'OpenPage(event)'>📃ドロネーの三角形分割</button>
+                    <button class ='FileItem' name = './Algo/math/MyMathLib.html' onclick = 'OpenPage(event)'>📃行列/初等幾何 ライブラリ</button>
+                    <button class ='FileItem' name = './Algo/math/Fraction.html' onclick = 'OpenPage(event)'>📃有理数ライブラリ</button>
+                    <button class ='FileItem' name = './Algo/math/PrimeFactors.html' onclick = 'OpenPage(event)'>📃素数判定と素因数分解</button>
+                    <button class ='FileItem' name = './Algo/math/NumberTheory_mod.html' onclick = 'OpenPage(event)'>📃mod 計算</button>
+                    <button class ='FileItem' name = './Algo/math/modlib.html' onclick = 'OpenPage(event)'>📃mod ライブラリ</button>
+                    <button class ='FileItem' name = './Algo/math/chouhuku.html' onclick = 'OpenPage(event)'>📃重複組み合わせ</button>
+                    <button class ='FileItem' name = './Algo/math/combination.html' onclick = 'OpenPage(event)'>📃場合の数典型</button>
+                    <button class ='FileItem' name = './Algo/math/InversionFormula.html' onclick = 'OpenPage(event)'>📃包除原理 <sftg>メビウスの反転公式/メビウス変換</sftg></button>
+                    <button class ='FileItem' name = './Algo/math/kazutoshiki.html' onclick = 'OpenPage(event)'>📃数と式(基本) <sftg>リニューアル予定</sftg></button>
+                    <button class ='FileItem' name = './Algo/math/LiChaoTree.html' onclick = 'OpenPage(event)'>📃Li-Chao Tree <sftg>凸包</sftg> <sftg>Convex Hull</sftg></button>
+                    <button class ='FileItem' name = './Algo/math/AngleSorter.html' onclick = 'OpenPage(event)'>📃偏角ソート <sftg>リニューアル予定</sftg></button>
+                    <button class ='FileItem' name = './Algo/math/RandomWalk.html' onclick = 'OpenPage(event)'>📃ランダムウォークとカタラン数</button>
+                    <button class ='FileItem' name = './Algo/math/FFT.html' onclick = 'OpenPage(event)'>📃高速フーリエ変換(FFT)</button>
+                    <button class ='FileItem' name = './Algo/math/NTT.html' onclick = 'OpenPage(event)'>📃高速フーリエ変換(NTT)</button>
+                    <button class ='FileItem' name = './Algo/math/FPS.html' onclick = 'OpenPage(event)'>📃FPS(形式的冪級数)</button>
+                </div>
+
+                <!--問題集-->
+                <div class = "FolderContentsField" id = 'AlgoProblemFolder' >    
+                    <button class ='FileItem' name = './Algo/problems/ABC_review_41X.html' onclick = 'OpenPage(event)'>📃ABC振り返り (410〜419)</button>
+                    <button class ='FileItem' name = './Algo/problems/Note_001.html' onclick = 'OpenPage(event)'>📃練習問題集 001</button>
+                    <button class ='FileItem' name = './Algo/problems/Note_999.html' onclick = 'OpenPage(event)'>📃雑解法まとめ</button>
+                    <button class ='FileItem' name = './Algo/problems/019_dp.html' onclick = 'OpenPage(event)'>📃 -019 区間DP</button>
+                    <button class ='FileItem' name = './Algo/problems/typical90_001.html' onclick = 'OpenPage(event)'>📃競プロ典型 90 解法まとめ 001</button>
+                    <button class ='FileItem' name = './Algo/problems/typical90_002.html' onclick = 'OpenPage(event)'>📃競プロ典型 90 解法まとめ 002</button>
+                    <button class ='FileItem' name = './Algo/problems/Problem_kiso_1.html' onclick = 'OpenPage(event)'>📃練習問題1(基礎)</button>
+                    <button class ='FileItem' name = './Algo/problems/Problem_kiso_2.html' onclick = 'OpenPage(event)'>📃練習問題2(基礎)</button>
+                    <button class ='FileItem' name = './Algo/problems/Problem_DataStructure_1.html' onclick = 'OpenPage(event)'>📃練習問題1(データ構造)</button>
+                    <button class ='FileItem' name = './Algo/problems/ARC114C.html' onclick = 'OpenPage(event)'>📃ARC114Cのテク</button>
+                </div>
+
+                <!--Heuristic-->
+                <div class = "FolderContentsField" id = 'HeuristicAlgoFolder' >
+                    <button class ='FileItem' name = './Algo/Heuristic/AHC016.html' onclick = 'OpenPage(event)'>📃AHC016参加記</button>    
+                </div>
+
+                <!--脳トレ-->
+                <div class = "FolderContentsField" id = 'BrainTrainingFolder' >
+                    <button class ='FileItem' name = './Others/Application/QuickProduct.html' onclick = 'OpenPage(event)'>📃計算トレーニング 1</button>
+                    <button class ='FileItem' name = './Others/Application/QuickSort.html' onclick = 'OpenPage(event)'>📃文字列トレーニング 1</button>
+                </div>
+
+                <!--データ分析-->
+                <div class = "FolderContentsField" id = 'DataAnalysisFolder' >
+                    <button class ='FileItem' name = './Others/DataAnalysisFolder/TableauBasic.html' onclick = 'OpenPage(event)'>📃Tableau <sftg>分析</sftg> <sftg>書きかけ</sftg> </button>
+                </div>
+                
+                <!-- フォルダを閉じるボタン (フォルダが開かれた際に出現する) -->
+                <button class ='CloseFolderButton' onclick = 'CloseFolder()' style="display: none;">フォルダを閉じる ⇦ </button>
+                <!-- フォルダが開かれた時、いずれかの FolderContentsField のみが dispay:block; になるので、ボタンはそれらで共用する-->
+            </div> <!-- FolderDefinitionField -->
+
+        </div><!-- LeftSide_ItemListField -->
+
+        <!-- 左の項目リストを覆うためのドアっぽいオブジェクト -->
+        <div id = "LeftDoor" class = "LeftDoorClass">
+            <div style = "position:relative;left:75%;top:45%;overflow: hidden;">
+                <img src = "./static/image/MyIcon.jpeg"
+                    style = "width:20%;border-radius: 100%;border: 2px black solid;"
+                >
+            </div>
+        </div>
+
+        <!-- 記事の内容を表示 -->
+        <!-- 記事を選択すると、そのページのHTMLファイルの中身を、ここに表示させる -->
+        <!-- 何も選択されていないとき、このページの説明を入れておく(初期値) -->
+        <div class = 'Contents_class' id = 'PageContents'><!-- 表 -->
+            <iframe id = 'ArticleField' style = 'width:100%; height:100%;position:relative;'></iframe>
+        </div>
+
+        <!-- 履歴の移動に関して & 記事単体のページにジャンプ ボタン -->
+        <div class = "index_under_ToolBar">
+            <button class = "index_under_ToolBar_item" onclick="shareURL()">📎(共有リンク)</button>
+            <button class = "index_under_ToolBar_item" id = "HistoryGoback" onclick="goback_history()">履歴を戻る</button>
+            <button class = "index_under_ToolBar_item" id = "HistoryGoforward" onclick="goforward_history()" >履歴を進む</button>
+        </div>
+
+    </body>
+
+</html>
+<script src="./static/js/index_constructor.js"></script>
+<script src="./../static/js/common_constructor.js"></script>
+
+

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>FPS(形式的冪級数)</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    FPS(形式的冪級数)<br></h2>
+                
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    まえがき
+                </h3>
+                <p>
+                    FPS を勉強するなら<a href = "https://nyaannyaan.github.io/library/fps/formal-power-series.hpp.html"> Nyaan さんの記事</a>を読むといいです。
+                </p>
+                <h3>
+                    形式的冪級数 (fps)
+                </h3>
+                <p>
+                    数列 \(A_0,A_1,A_2,\dots A_{N-1}\) と <b>不定元</b> \(x\) に対して以下で定義される多項式 (級数) を形式的冪級数 (Formal Power Series) と言います。
+                    <ul>
+                        <li>
+                            \(F(x) := \sum{A_{i}x^{i}} = A_{0}x^{0} + A_{1}x^{1} + A_{2}x^{2} + \dots + A_{N-1}x^{N-1}\)
+                        </li>
+                    </ul>
+                    fps ライブラリでは、多項式同士の <b>\(\mathrm{mod}\space P\) の世界</b>での演算をサポートします。
+                </p>
+                <h3>
+                    \(f(x) + g(x)\) の計算
+                </h3>
+                <p>
+                    <ul>
+                        <li>
+                            \(a,b\) の index 範囲外の値を \(0\) で定義し、\(c_{i} = a_{i} + b_{i}\) が係数の多項式 \(c_{0}x^{0} + c_{0}x^{0} + c_{0}x^{0} + \dots \) とします。
+                        </li>
+                    </ul>
+                </p>
+                <h3>
+                    \(f(x) \cdot g(x)\) の計算
+                </h3>
+                <p>
+                    \(f,g\) を以下で定義します。
+                    <ul>
+                        <li>
+                            \(f(x) := a_{0}x^{0} + a_{1}x^{1} +a_{2}x^{2} + \dots + a_{n-1}x^{n-1}\)
+                        </li>
+                        <li>
+                            \(g(x) := b_{0}x^{0} + b_{1}x^{1} +b_{2}x^{2} + \dots + b_{m-1}x^{m-1}\)
+                        </li>
+                    </ul>
+                    \(2\) つの多項式 \(f,g\) の積を取った結果は以下になります。
+                    <ul>
+                        <li>
+                            \(f(x)\cdot g(x) = (a_{0}b_{0})x^{0} + (a_{0}b_{1} + a_{1}b_{0})x^{1} + (a_{0}b_{2}+a_{1}b_{1} + a_{2}b_{0})x^{2} + \dots \)
+                        </li>
+                    </ul>
+                    \(f,g\) の積 \(h(x)\) の \(x^k\) の項の係数は、数列 \(a,b\) の添字の畳み込みです。よって \(h(x)\) は数列 \(a,b\) の畳み込み \(c\) を用いて以下のように表せます。
+                    <ul>
+                        <li>
+                            \(h(x) = c_{0}x^{0} + c_{1}x^{1} + c_{2}x^{2} + \dots + c_{n+m-2}x^{n+m-2}\)
+                        </li>
+                    </ul>
+                    これは \(\mathrm{mod}\space P\) の世界での FFT を用いて \(O(\log{n+m})\) 時間で計算できます。
+                </p>
+                <h3>
+                    \(f(x)\) の逆元の計算
+                </h3>
+                <p>
+                    多項式 \(f(x)\) に対して \(1 = f(x)\cdot G(x)\space\mathrm{mod}\space P\) である \(G(x)\) を計算します。ただし、<b>定数項が \(0\) の多項式の逆元は逆元は未定義</b>であることに注意してください。
+                </p>
+                <p>
+                    \(G(x)\) を無限に続く多項式 (級数) \(g(x)\) で近似します。\(g\) は無限に続く多項式(級数)ですが、実際の計算に必要なのはそのうち有限個の項であることが一般的です。計算に必要な項が \(0\) 次から \(k-1\) 次までの \(k\) 項であるとき、\(g\) の代わりに \(g(x) \space\mathrm{mod}\space x^k\) が分かれば良いです。
+                </p>
+                <p>
+                    \(g\) の次数が小さい順の \(k\) 項からなる多項式を \(g_{k}(x)\) とします。このとき \(g_{k}(x)\) は \(\mathrm{mod}\space x^k\) の世界で \(f(x)\cdot g_{k}(x) = 1\) を満たします。
+                </p>
+                <p>
+                    \(g_{1}(x)\) は \(\mathrm{mod}\space x\) の世界で \(f(x)\cdot g_{1}(x) = 1\) なので、\(g_{1}(x)\) は \(f(x)\) の定数項の逆元(逆数)です。係数は modint なので、簡単に計算できます。
+                </p>
+                <p>
+                    さて \(f(x)\cdot g_{k}(x) = 0 \space\mathrm{mod}\space x^k\) である \(g_{k}(x)\) がわかっているとします。このとき、\(g_{2k}(x)\) を以下の式で計算できると<a href = "https://nyaannyaan.github.io/library/fps/formal-power-series.hpp.html"> Nyaan さんの記事</a>に書いてありました。
+                    <ul>
+                        <li>
+                            \(g_{2k}(x) = 2g_{k}(x) - f(x)\cdot g^{2}_{k}(x) \space\mathrm{mod}\space x^{2k}\)
+                        </li>
+                    </ul>
+                    Nyaan さんの記事に書いてある式変形は全然難しいものではなかったですが、どういう気持ちでそう変形したのかわからなかったのでここでは割愛します。
+                </p>
+                <p>
+                    \(g_{1}(x)\) が分かれば、\(g_{2}(x) , g_{4}(x) , g_{8}(x) , \dots\) と倍々で計算していくことができます。ちょうど \(g_{k}(x)\) でなくとも、\(k \leq 2^p\) である \(p\) に対して \(g_{2^p}(x)\) が分かればよいです。よって計算量は \(O(次数\cdot\log{k})\) です。
+                </p>
+                <h3>
+                    \(f(x)\) の右シフト/左シフト
+                </h3>
+                <p>
+                    \(f(x)\) のシフト演算を以下で定義します。
+                    <ul>
+                        <li>
+                            \(f(x) &lt;&lt; p := f(x) \cdot x^p\)
+                        </li>
+                        <li>
+                            \(f(x) >> p := f(x)\) を \(x^p\) で割り、余りを切り捨てたもの。
+                        </li>
+                    </ul>
+                    これらは多項式の積/商の特殊な例であり、積や商の計算を行わなくても、単に係数の数列を左右にシフトするだけで計算できます。
+                </p>
+                <h3>
+                    \(f(x),g(x)\) の商の計算
+                </h3>
+                <p>
+                    \(f(x) = g(x)\cdot q(x) + r(x)\) を満たす多項式 \(q(x)\) を計算します。\(f(x)\) が \(n\) 項からなる \(n-1\) 次式、\(g(x)\) が \(m\) 項からなる \(m-1\) 次式のとき、\(q(x)\) は \(n-m+1\) 項からなる \(n-m\) 次式になります。
+                </p>
+                <p>
+                    \(q\) は以下で計算できると<a href = "https://nyaannyaan.github.io/library/fps/formal-power-series.hpp.html"> Nyaan さんの記事</a>に書いてありました。
+                    <ul>
+                        <li>
+                            \(r_{k}(F):=\) 多項式 \(F(x)\) から次数が小さい方から順に \(k\) 項を取り出し、それらの係数の順番を逆転させたもの。
+                        </li>
+                        <li>
+                            \(r_{n-m+1}(q) = \frac{r_{n}(f)}{r_{m}(g)}\space\mathrm{mod}\space x^{n-m+1} \) である。
+                        </li>
+                        <li>
+                            \(r_{m}(g)\) の定数項は \(0\) ではないので、\(\mathrm{mod}\space x^{n-m+1} \) での逆元を計算できる。
+                        </li>
+                        <li>
+                            \(q = r_{n-m-1}(r_{n-m+1}(q))\) である (もう一度反転させたもの)。
+                        </li>
+                    </ul>
+                </p>
+                <p>
+
+                </p>
+                <h3>
+                    参考文献
+                </h3>
+                <p>
+                    <ul>
+                        <li>
+                            <a href = "https://nyaannyaan.github.io/library/fps/formal-power-series.hpp.html"> Nyaan さんの記事</a>
+                        </li>
+                    </ul>
+                    
+                </p>
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+
+                        <br>
+                        <a href = "./modlib.html">コードはこちらを参照</a>
+                        <br>
+                        <br>
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

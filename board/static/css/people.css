@@ -1,0 +1,90 @@
+:root{
+    --profile-icon-size:24px;
+
+    --person-list-bg-color: white;
+}
+
+
+/*===================================================================================================
+## コンテナ
+===================================================================================================*/
+
+/* 投稿者一覧 */
+#person_list{
+    min-width: 0;/* 中身のサイズに引っ張れないようにする */
+    position: relative;
+    width: 98%;
+    margin: 0 auto;
+    margin-top: 20px;
+    background-color: var(--person-list-bg-color);
+}
+
+/*===================================================================================================
+## アイテム
+===================================================================================================*/
+
+.person_item{
+    position: relative;
+    padding: 8px 6px;
+    margin-right: 0px;
+    border-bottom: 3px solid #e6e4e4;
+    box-sizing: border-box;
+    display: flex;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.person_item:hover{
+    background-color: rgb(189, 206, 206);
+}
+
+
+
+/* 横の列に、アイコンの列用のスペースを用意 */
+.profile_icon_column{
+    padding-left: 5px;
+    padding-right: 10px;
+    width:var(--profile-icon-size);
+    
+}
+
+.profile_icon_column .profile_icon{
+    border-radius: 100%;
+    width:var(--profile-icon-size);
+    height:var(--profile-icon-size);
+}
+
+
+/* テキスト部分をまとめる */
+.profile_textwrapper{
+    min-width: 0;/*中身のサイズに引っ張られないように*/
+}
+
+/* 名前 */
+.profile_textwrapper .profile_username {
+    font-weight: bold;
+
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+/* サブ情報 */
+.profile_textwrapper .profile_subinfo {
+    color: gray;
+    font-size: 14px;
+    padding-left: 2px;
+    right: 0%;
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+/* 内容 */
+.profile_textwrapper .profile_content {
+    font-size: 13px;
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+

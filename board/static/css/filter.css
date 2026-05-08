@@ -1,0 +1,167 @@
+
+:root{
+    --post-icon-size:32px;
+
+    --post-bg-color: white;
+}
+
+
+/*===================================================================================================
+## フィルター状態コンテナ
+===================================================================================================*/
+
+/* フィルター情報を格納する場所 */
+#filter_state_list_id{
+    position: relative;
+    margin: 10px;
+}
+.filter_state_list::before{
+    content: "フィルタ :";
+    font-size: 14px;
+    position: relative;
+    left:0%;
+    margin: 10px;
+
+}
+
+/*===================================================================================================
+## フィルター要素
+===================================================================================================*/
+
+/* フィルター情報の1項目 */
+.filter_state_item{
+    margin: 5px;
+    padding :2px;
+    color: gray;
+    border: 1px dashed gray;
+    box-sizing: border-box;
+    border-radius: 5px;
+    background-color: rgb(229, 238, 239);
+    font-size: 13px;
+
+    display: inline-block;
+    vertical-align: middle;
+
+    max-width: 200px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clear_filter_button{
+    font-size: 14px;
+    color: gray;
+    cursor: pointer;
+    margin: 10px;
+    white-space: nowrap;
+}
+.clear_filter_button:hover{
+    color: black;
+}
+
+
+/*===================================================================================================
+## フィルター入力
+===================================================================================================*/
+
+
+
+
+
+.filter_field {
+    margin: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #ded4f9;
+}
+
+
+
+/* ツールチップ表示*/
+.filter_field .info_button {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    
+    width: 25px;
+    aspect-ratio: 1/1;
+    text-align: center;
+
+    border-radius: 100%;
+    border: 1px solid black;
+}
+.filter_field .info_button::before{
+    position: relative;
+    content: "？";
+    font-size: 20px;
+}
+
+
+.info_button .tooltip {
+    position: absolute;
+    
+    width:200px;
+    transform: translateX(-30px);
+
+    font-size: 13px;
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+
+    padding: 5px 5px;
+    background: #b2b4b5;
+    color: rgb(1, 1, 1);
+    border-radius: 6px;
+
+    visibility: hidden;
+
+    z-index: 10;
+}
+
+.info_button:hover .tooltip {
+    visibility: visible;
+}
+
+.filter_item {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+
+
+.filter_field label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.filter_field input,
+.filter_field select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+}
+
+
+
+.execute_button {
+    padding: 8px 16px;
+    background-color: #5695dd;
+    font-size: 15px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    height: 34px;
+}
+
+.execute_button {
+    background-color: #3f7ab5;
+}

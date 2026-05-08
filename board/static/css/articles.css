@@ -1,0 +1,150 @@
+
+/*===================================================================================================
+## 色々
+===================================================================================================*/
+
+
+
+
+/* 変数 */
+:root {
+    
+    --transparent-color: rgba(0,0,0,0);
+
+    /* 画面端やアイコン同士の間隔 */
+    --maxwidth-Inner : 920px;
+    
+    --MainContents-padding-top : 12px;
+    
+
+    --bg-color : #D7D3DD;
+    --article-bg-color : #FFFFFF;
+}
+  
+
+
+/*===================================================================================================
+## 基本
+===================================================================================================*/
+
+
+body {
+	margin: 0px;
+	padding: 0px;
+	color: rgb(0, 0, 0);	
+	
+	font-size: 14px;
+	line-height: 2;		
+	background-color: var(--bg-color);
+	-webkit-text-size-adjust: none;
+}
+
+
+.Title{
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 15px;
+	position: relative;	
+	width: 96%;
+    max-width: var(--maxwidth-Inner);
+	margin:0 auto;
+    margin-top: var(--MainContents-padding-top);
+	padding-top: 5px;
+	padding-bottom: 5px;
+    text-align: center;
+    background-color: white;
+    border: 1px solid gray;
+    box-sizing: border-box;
+}
+
+
+.article_data_field{
+    position: relative;
+    
+    width: 96%;
+    max-width: var(--maxwidth-Inner);
+	margin:0 auto;
+    margin-top: 2px;
+
+    
+}
+
+.article_data{
+    position: relative;
+    text-align: right;
+    padding-right: 10px;
+}
+
+
+.Inner{
+    border-radius: 15px;
+	position: relative;	
+	width: 96%;
+    max-width: var(--maxwidth-Inner);
+	margin:0 auto;
+    margin-top: 2px;
+    top: var(--MainContents-padding-top);
+	padding-top: 10px;
+	padding-bottom: 30px;
+    background-color: white;
+}
+
+
+/*===================================================================================================
+## 文章ブロック
+===================================================================================================*/
+
+
+/* 投稿者の発言 */
+.text_block{
+    width:95%;
+    margin: 20px auto;
+    display: flex;
+}
+
+/* listener の発言*/
+.text_block_listener{
+    width:95%;
+    margin: 20px auto;
+    display: flex;
+}
+
+
+
+/* アイコン */
+.text_block_icon{
+    width:32px;
+    height:32px;
+    border-radius: 100%;
+}
+
+/* 文章 */
+.text_block_content{
+    right: 10px;
+    margin-left:15px;
+    padding-top: 10px;
+
+    /*文章折り返し*/
+    overflow-wrap: break-word;
+    word-break: break-all;
+    line-height: 1.2rem;
+}
+
+
+
+/*===================================================================================================
+## フッター
+===================================================================================================*/
+#footer{
+    position: relative;
+    bottom:0px;
+    width:100%;
+    height: 45px;
+    background-color: rgb(223, 223, 223);
+    align-items: center;
+    padding-top: 10px;
+}
+#footer #copyright{
+    text-align: center;
+    font-size: 15px;
+}

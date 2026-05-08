@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    オイラーツアー<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <p>
+                    木に関するクエリ問題では、部分木に対するクエリがよく出題されます。そこで、部分木に関するクエリを列に対するクエリに変換することで、セグ木などを用いて効率的に処理することを考えます。
+                </p>
+                <p>
+                    部分木 → 列に変換するアルゴリズムに、以下で紹介する Euler Tour というものがあります。
+                </p>
+                <br><img src = "./../../images/EulerTour/EulerTour.001.jpeg"  class = "StandardImageStyle">
+                <br><img src = "./../../images/EulerTour/EulerTour.002.jpeg"  class = "StandardImageStyle">
+                <br><img src = "./../../images/EulerTour/EulerTour.003.jpeg"  class = "StandardImageStyle">
+                <p>
+                    ある頂点 \(s\) の部分木の部分とそうでない部分は、Euler Tour で \(s\) 位置の両端の内外で分別されています。
+                </p>
+                <p>
+                    部分木を列に変換すると嬉しい場面として
+                    <ul>
+                        <li>
+                            適当な根に対して、部分木の更新や取得のクエリを処理する → セグ木で管理する。
+                        </li>
+                        <li>
+                            部分木に対する取得クエリのみがくる → 区間に変換して Mo's Algorithm をする
+                        </li>
+                        <li>
+                            動的な木の部分木に対してクエリを行う → 変換した列を Splay 木で扱う(Euler Tour Tree)
+                        </li>
+                    </ul>
+                </p>
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

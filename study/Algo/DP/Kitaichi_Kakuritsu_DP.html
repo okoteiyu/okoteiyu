@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>期待値DP</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    確率DPと期待値DPテンプレ<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <!--
+                <div class = "TitleLine"><h2>タイトルとか</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>問題文とか、簡単なコードとか
+                    </pre>      
+                    <br>文章とか
+                    <ul>    
+                        <li>箇条書き</li>
+                        <li>とか</li>
+                    </ul>
+                    <br>
+                </div>
+                -->
+                <br>
+                <br>
+                <h2>TODO : ひどい記事なので書き直す</h2>
+                <div class = "TitleLine"><h2>確率的 Nim </h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>初め、N 枚のカードがある。
+                        <br>プレイヤーは以下の操作を繰り返す。
+                        <br>・現在のカードの枚数を M とした時、0 ~ M が等確率で出るサイコロを振って出た目の枚数分だけカードを燃やす。
+                        <br>・ただし、カードの枚数がちょうど 1 枚の際は、カードを燃やすことができず、ゲームオーバーとなる。
+                        <br>プレイヤーが全てのカードを燃やし尽くす確率を計算してください。  
+                    </pre>      
+                    ・\(DP_X\) := 残りカード数が \(X\) 枚の状態から操作を始める場合の確率
+                    <br>とし、\(X\) が小さい方から DP テーブルを埋めていきます。  
+                    <br>DP の式は、以下のようになります。  
+                    <ul>    
+                        <li>\(DP_X =  \frac{DP_{X}}{X+1} + \frac{DP_{X-1}}{X+1} + \dots + \frac{DP_{1}}{X+1} + \frac{DP_{0}}{X+1}\)</li>
+                    </ul>
+                    サイコロは 0 の目も出るので、状態の遷移が起こらない場合も考慮しなければなりません。
+                    <br>その結果、左辺にも右辺にも \(DP_X\) が登場するので、\(DP_X\) の項を左辺に移動します。
+                    <br>\(DP_X\) は以下の式で求めることができます。
+                    <br>・\(DP_X = \sum_{1 \leq i \leq X}{\frac{DP_{X-i}}{X}} \)</li>
+                </div>
+                <br>
+                <h2>TODO : ひどい記事なので書き直す</h2>
+                <br>
+                <div class = "TitleLine"><h2>確率的 Nim の期待値</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>初め、N 枚のカードがある。
+                        <br>プレイヤーは以下の操作を繰り返す。
+                        <br>・現在のカードの枚数を M とした時、0 ~ M が等確率で出るサイコロを振って出た目の枚数分だけカードを燃やす。
+                        <br>プレイヤーが全てのカードを燃やし尽くすまでにサイコロを振る回数の期待値を計算してください。 
+                    </pre>      
+                    ・\(DP_X\) := 残りカード数が \(X\) 枚の状態から操作を始める場合の期待値
+                    <br>とし、\(X\) が小さい方から DP テーブルを埋めていきます。  
+                    <br>DP の式は、以下のようになります。  
+                    <ul>    
+                        <li>\(DP_X = 1 + \frac{DP_{X}}{X+1} + \frac{DP_{X-1}}{X+1} + \dots + \frac{DP_{1}}{X+1} + \frac{DP_{0}}{X+1}\)</li>
+                    </ul>
+                    サイコロを振る分 1 を加算し、出た目に応じた遷移先の状態からの期待値の平均を加算しています。
+                    <br>また、この式を代数的に解くことで以下の式を得られます。  
+                    <ul>
+                        <li>\(DP_X = \frac{X+1}{X} + \sum_{1 \leq i \leq X}\frac{DP_{X-i}}{X}\)</li>
+                    </ul>
+                    これは、期待値 DP テンプレの記事で紹介したテンプレの式に当てはまります。  
+                </div>
+                <h2>TODO : ひどい記事なので書き直す</h2>
+            </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                      
+                        
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

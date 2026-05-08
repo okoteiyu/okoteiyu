@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>期待値DP</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    期待値DPと確率について<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>TODO : ひどい記事なので書き直す</h2>
+
+                <br>DPの典型として、期待値DPというものがあります。
+                <br>
+                <br>期待値DPとは、ある状態 G から始まる(もしくは、G に到達するまでの)操作を終えるまでの操作回数の<b>期待値</b>を、DPを用いて求める手法です。
+                <br>
+                <br>
+                <div class="Box">
+                    <h2>期待値とは</h2>
+                    
+                    <br>期待値を競プロっぽくいうと、運ゲーを攻略した時の結果の平均である。
+                    <br>
+                    <br>ex.1 : 確率 \(0.1\) で \(5000\) 円当たり、確率 \(0.9\) で何ももらえない運ゲーの期待値は <b>\(5000 \cdot 0.1 + 0\cdot 0.9 = 500円\)</b> である。
+                    <br>
+                    <br>ex.2 : 毎日一度サイコロを振り、1 以外が出たら帰宅できる職場で、最初に帰宅できるのは(期待値を考えると) <b>1.2 日目</b>である。 
+                    <br>
+                    <br>ex1 による期待値の計算は、期待値の計算そのもの...
+                    <br>ex1 を言い換えると、\(5000\) 円札が \(1\) 枚と、\(0\) 円札が \(9\) 枚あり、これらの平均を求める問題と同じ。
+                    <br>逆に、平均値というのは各状態に<b>重み</b>をつけて和を求めたものでありますが、この<b>重み</b>というのは確率のことです。
+                    <br>
+                    <br>
+                    <br>ex2 は、ある事象 \(A\) が起こるまでの試行回数の期待値です。
+                    <br>この期待値は、\(A\) が確率 \(P\) で起こるとき <b>\(\frac{1}{P}\)</b> になると知られています。
+                    <br>こちらは頻出です。
+                    <br>
+                </div>
+
+                <br>
+                <h2>TODO : ひどい記事なので書き直す</h2>
+                <br>
+                <br>期待値DPを説明する上で、もう一つ知っておかなければならないことがあります。
+                <br>
+                <br>
+                <br>
+                <div class ="Box">
+                    <br><h2>条件付き確率</h2>
+                    <br>事象Aが起きたとわかっている時、事象Bが起きる条件付き確率を<b> \(P( B|A )\) </b> とかきます。
+                    <br>
+                    <br>ex. : サイコロを振った時、偶数が出たことがわかっているとします。その目が4以上である確率を求めてください。
+                    <br>
+                    <br>直感的な回答をします。偶数は \(3\) つあるので分母が \(3\)。\(4\) 以上の値は \(2\) つあるので分子は \(2\)。よって\(\frac{2}{3}\) である。
+                    <br>ここで、分母に注目です。サイコロを振った場合の事象は6パターンあるので、本来サイコロを振る確率を考えるときは、分母は6のはずですが、今回は「偶数が出たとわかっている」という条件があるので、その条件に当てはまる事象の集合を分母にしました。
+                    <br>
+                    <br>ここで、直感的な理解を手助けする考え方を見てみましょう(競プロではこれに近い考えで解きますので)。
+                    <br>
+                    <br><img src = "./../../images/Joukentsuki.png"  class = "StandardImageStyle">
+                    <br>
+                    <br>最後に、\(P(B|A)\) の公式です。
+                    <br>\(P(s)\) を事象 \(s\) が起こる確率とします。
+                    <br>この時、\(P(B|A) = \frac{P(A\cap B) }{ P(A)} \) です。
+                    <br>
+                </div>
+
+                <br>
+                <h2>TODO : ひどい記事なので書き直す</h2>
+                <br>さて、ここから本題になります。
+                <br>\(DP_X :=\) 状態 \(X\) から、目的の状態に達するまでに行う試行回数の期待値 とします。
+                <br>
+                <br>\(DP_X\) を \(X\) からの<b>意味のある</b> 遷移先の集合 \(S\) を用いて求めます。
+                <br>ここで<b>意味のある</b>とは、遷移先が自分自身でないこと、つまり遷移が起こることです。
+                <br>
+                <h3>問題設定テンプレ</h3>
+                <ul>
+                    <li>状態 \(X\) から遷移しうる <b>\(X\) 以外の状態</b>の集合を \(Y\) とする。</li>
+                    <li>一度の操作で \(Y\) への遷移が起こる確率を \(p\) とし、遷移が起こらない(\(X\) 自信に遷移する)確率を \(1-p\) とする。</li>
+                    <li>\(Y\) は \(M\) 個の状態 \(S_1,S_2 , \dots , S_M\) からなる集合であるとする。</li>
+                    <li>\(P(s)\) を、状態 \(X\) から状態 \(s\) に遷移する確率とします。</li>
+                    <li>\(P(B|A)\) を、状態 \(X\) から状態 \(A\) に遷移したことが既に確定している時、その遷移先が状態 \(B\) である条件付き確率とします。</li>
+                </ul>
+                <br>このような状況では、以下のテンプレで式を立てることができます。
+                <br><h2>・\(DP_X = \frac{1}{p} + \sum_{1 \leq i \leq M}(P(S_i|Y)\cdot DP_{S_i}) \)</h2>
+                <br>
+                <br>これは、先ほど述べた式を使った結果です。
+                <ul>
+                    <li>\(\frac{1}{p}\) = 確率 \(p\) の事象 (事象の集合\(Y\)) が起きるまで試行を行う回数の期待値</li>
+                    <li>\(P(S_i|Y)\cdot DP_{S_i}\) = 遷移が起こった時、その遷移先が状態 \(S_i\) である場合の答えを \(DP_{S_i}\) を参照している</li>
+                </ul>   
+                <br>
+                <br>
+                <h2>TODO : ひどい記事なので書き直す</h2>
+                
+
+                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>EDPC - J , Sushi です。  
+                        <br>
+                        <br>\(dp_{ (寿司が1の皿の枚数 , 2の枚数 , 3の枚数) }\) とすると、
+                        <br>\(dp_{(i,j,k)}\) の時、\(p = \frac{ i + j + k }{ N}\) である。  
+                        <br>起こる事象としては、{ 1 の皿が選ばれる , 2 の皿が選ばれる , 3 の皿が選ばれる } のいずれかなので、
+                        <br>\(Y\) = {\( (i-1,j,k) , (i+1,j-1,k) , (i,j+1,k-1) \)} である。
+                        <br>これらを先ほどの式に当てはめれば良い
+                        
+                        <br>
+                        <br>
+                        <br>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;N&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;vector&lt;double&gt;&nbsp;&gt;&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp(302,vector&lt;vector&lt;double&gt;&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(302,vector&lt;double&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(302,100000000)));<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;a(n);<br>&nbsp;&nbsp;&nbsp;&nbsp;CIN(a);<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;one&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;two&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;three&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a[i]&nbsp;==&nbsp;1)one++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a[i]&nbsp;==&nbsp;2)two++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(a[i]&nbsp;==&nbsp;3)three++;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;dp[0][0][0]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(k,301){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(j,301){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(i,301){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;S&nbsp;=&nbsp;(i+j+k);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;p&nbsp;=&nbsp;S/N;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(p&nbsp;==&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i][j][k]&nbsp;=&nbsp;1/p;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i!=0)dp[i][j][k]&nbsp;+=&nbsp;dp[i-1][j][k]*(i/S);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(j!=0&amp;&amp;i&lt;=300)dp[i][j][k]&nbsp;+=&nbsp;dp[i+1][j-1][k]*(j/S);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(k!=0&amp;&amp;j&lt;=300)dp[i][j][k]&nbsp;+=&nbsp;dp[i][j+1][k-1]*(k/S);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;cout.precision(15);<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;dp[one][two][three]&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

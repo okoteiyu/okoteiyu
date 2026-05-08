@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    解法を雑にまとめる<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <!--
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        タイトル
+                    </h3>
+                    <p>
+                        問題文
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            解説
+                        </p>
+                        コード
+                    </details>
+                </div>
+
+                -->
+
+
+
+
+                <!-- 解いた問題を追加したい場合のテンプレ
+                    
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "" >見出し</a></h2></div> 
+                <div class = "Box"> 
+                    <br>
+                </div>
+                
+                
+                -->
+                <br>
+                <div class = "TitleLine"><h2><a href = "https://atcoder.jp/contests/arc154/tasks/arc154_b" target="_blank">ARC154-B</a></h2></div> 
+                <div class = "Box"> 
+                    <br>S の先頭から x 個取り除き、それらを S の残りの部分の好きな場所に挿入する。
+                    <br>そうしてできる文字列を T と一致させるためには必要な x の最小値を求める。
+                    <br>
+                    <br>解法 : 
+                    <br>f( x ) := S の先頭から x 個取り除くとき、そこから操作することで T に一致させることができるか
+                    <br>とした時、f は O(|S|) で判定でき、
+                    <br>f( x ) は false と true の領域に二分されているので、f( x ) = true になるような最小の x は二分探索することができます。 
+                </div>
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a href = "https://atcoder.jp/contests/arc152/tasks/arc152_a" target ="_blank" >ARC152-A</a></h2></div> 
+                <div class = "Box"> 
+                    <br>最も嫌な座り方をさせたいです。
+                    <br>前から貪欲に嫌な座り方をさせたいです。
+                    <br>
+                    <br>各グループを、一個間を開けて座らせます。
+                    <br>ただし、席の状態を持つのは効率が悪いので、持たせる情報は
+                    <br>rem : 右側にいくつ余白があるか
+                    <br>space : 埋まってる席どうしの間隔の個数
+                    <br>
+                    <br>とすると、効率良く嫌な座り方の情報を保存できます。
+                </div>
+                
+
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a href = "https://atcoder.jp/contests/arc151/tasks/arc151_a" target="_blank" >ARC151-A</a></h2></div> 
+                <div class = "Box"> 
+                    <br>S のみ 1 であるindexの集合を ps , T のみ 1 であるindexの集合を pt とすると、
+                    <br>abs( |pt| - |ps| ) が 2 で割り切れるならば、大きい方の集合から U において index が辞書順で影響が小さいような箇所に 1 を置くことで解決できる。
+                    <br>
+                    <br>
+                </div>
+                
+
+                
+
+                <br>
+                <div class = "TitleLine"><h2><a href = "https://atcoder.jp/contests/arc154/tasks/arc154_b" target="_blank">ARC154-B</a></h2></div> 
+                <div class = "Box"> 
+                    <br>S の先頭から x 個取り除き、それらを S の残りの部分の好きな場所に挿入する。
+                    <br>そうしてできる文字列を T と一致させるためには必要な x の最小値を求める。
+                    <br>
+                    <br>解法 : 
+                    <br>f( x ) := S の先頭から x 個取り除くとき、そこから操作することで T に一致させることができるか
+                    <br>とした時、f は O(|S|) で判定でき、
+                    <br>f( x ) は false と true の領域に二分されているので、f( x ) = true になるような最小の x は二分探索することができます。 
+                </div>
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc150/tasks/arc150_a" >ARC150-A</a></h2></div> 
+                <div class = "Box"> 
+                    <br>? は 0にも変化させることができるので、
+                    <br>両端が 1 でない長さ k+2 の区間 : [ i , i+k+1 ]を選択し、両端を除く部分が全て 0 でないかつ、それ以外の箇所に 1 が現れていない区間が存在すれば、条件を満たすような置き換えが可能、
+                    <br>i を 0 みていき、以上を満たすような区間の個数をカウントして、それがちょうど 1 であれば "Yes"。
+                    <br>
+                    <br>区間の判定は累積和を用いるとよく、また実装を簡単にするために、S の両端に余分に 0 を追加しておくといい。
+                    <br>
+                </div>
+
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc149/tasks/arc149_a" >ARC149-A</a></h2></div> 
+                <div class = "Box"> 
+                    <br>やるだけ。
+                    <br>強いて言うなら、1 つ目の条件を満たす数を小さい順に見ていく必要があり、最後に 2 つ目の条件を満たしていたものを出力する必要がある。
+                    <br>
+                    <br>長さ L の数を M で割ったあまりは、同じ文字を使う長さ L - 1 の数を用いて計算できる。
+                    <br>M は任意だが、modpowしか使わないので問題ない。
+                </div>
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc148/tasks/arc148_b" >ARC148-B</a></h2></div> 
+                <div class = "Box"> 
+                    <br>文字列 T に関して、区間 : [ L , R ] を f( T ) で置き換えることを考える。
+                    <br>
+                    <br>すると、L は<b> T で初めて p が現れる場所</b>以外にする意味がないので、L を固定できる。
+                    <br> L が固定されると、あとは R を調べればいいのだが、|T| が 5000以下なので、R を全探索して、できた文字列をソートして一番小さいものを出力すれば良い。
+                    <br>
+                </div>
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc144/tasks/arc144_b" >ARC144-B</a></h2></div> 
+                <div class = "Box"> 
+                    <br>スコアを X 以上にできるかと言う判定を考えると、X を 「できる領域」と「できない領域」に二分できる。
+                    <br>よって二分探索してみよう。
+                    <br>
+                    <br>A[ i ] の値が X 以上であれば、A[ i ] に何回 -b できるかをカウントする。
+                    <br>A[ i ] の値が X 未満であれば、A[ i ] に何回 +a する必要があるかをカウントする。
+                    <br>それぞれのカウントは 0( 1 ) ででき、 +a のカウントが -b のカウント以下であれば良い。
+                    <br>判定が O( N ) でできたので、二分探索することで X の最大値がもとまる。
+                    <br>
+                </div>
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc140/tasks/arc140_a" >ARC140-A</a></h2></div> 
+                <div class = "Box"> 
+                    <br>f( S ) は、 S の最短周期の長さがいくつかということである。
+                    <br>つまり、S を 長さ L の文字列が N/L 個連結したものと考えると、操作を k 回以下行った上でそれらの文字列全てを同じにできるような L を最小化する問題と言い換えれる。
+                    <br>
+                    <br>L の候補は、N の約数のみである。
+                    <br>
+                    <br>S を N/L 個の文字列に分けた時、
+                    <br>それら N/L 個の文字列が全て同じになるような操作回数は、
+                    <br><b>各領域の x 文字目を全て同じ文字にするために必要な操作回数</b>
+                    <br>を x についての足し合わせたものである。これが k 以下であれば良い。
+                    <br>
+                    <br>N は 2000以下、L は N の約数全てなので、愚直にしても間に合う。
+                    <br>
+                </div>
+
+
+
+
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc140/tasks/arc140_b" >ARC140-B</a></h2></div> 
+                <div class = "Box"> 
+                    <br>文字列 S の連続部分文字列で、AA..A R C..CC となっている部分、つまり x 個の A と 1 個の R と x 個の C が順に並んでいる部分を全て取り出す。
+                    <br>なお、それらの部分文字列は重複する区間を持たないことがわかる。
+                    <br>
+                    <br>取り出した区間たちの長さを記録した数列を S とする。
+                    <br>取り出した部分文字列を１つ選び、偶数回目の操作を行うと、操作を行った部分文字列にはそれ以降操作を行えなくなる。
+                    <br>よって、長さが長い部分文字列に対して偶数回目の操作を行うことはもったいないことがわかる。
+                    <br>
+                    <br>以上から、操作回数を最大化するためには、
+                    <br>奇数番目の操作は、長さが最大の部分文字列に対して行い、
+                    <br>偶数回目の操作は、長さが最小の部分文字列に対して行う
+                    <br>(そして、偶数回目の操作を行った文字列はSからpopする)。
+                    <br>これを操作が行えなくなるまで行えば良い。
+                    <br>
+                    <br>平衡二分木を使うと、最大/最小を高速に取り出した上で、push、popもできる。
+                    <br>
+                </div>
+
+
+                
+            -->
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc065/tasks/arc076_b" >Built?</a></h2></div> 
+            <div class = "Box"> 
+                <br>x 座標で街をソートした配列を A , y 座標でソートした配列を B とすると、
+                <br> 街 A[ i ] と A[ i + 2 ] の間に辺を貼る場合のコストは、A[ i ] と A[ i + 1 ] と A[ i + 2 ]の3つの街に 2 つの辺を貼ってつなげる場合のコストと等しい。
+                <br>つまり、 線形性から x 座標が寄与する辺の繋げ方は、 A の中身を左から(隣接する要素に)つなげていくとよいと分かる。B も同様。
+                <br>x , y 座標が寄与する辺を貼ったので、クラスカル法で全域木の最小コストを求めればそれが答えである。
+            </div>
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/zone2021/tasks/zone2021_e" >潜入</a></h2></div> 
+            <div class = "Box"> 
+                <br>ダイクストラだが、4 つ目の操作が曲者。
+                <br>2 つの世界を移動することを考える。
+                <br>1 ~ 3 の操作は 1 つ目の世界を、各移動毎に、決められたコストを払って移動するとして、
+                <br>4 つ目の操作を行ったら、コストを 1 払って 2 つ目の世界に移動することとする。
+                <br>
+                <br>2 つ目の世界では、上に 1 移動するたびに コストが 1 かかり、任意の座標から1 つ目の世界にコスト 0 で戻ってこれることとする。
+                <br>
+                <br>こうすることで、 4 つ目の操作で上に i 移動した際のコストは、
+                <br>・1 払って 2 つ目の世界に移動する.
+                <br>・i 払って 2 つ目の世界で上に i 移動する。
+                <br>となるので、見事 i + 1 コストで 4 つ目の操作を実現できました。
+                <br>
+            </div>
+            
+            
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc192/tasks/abc192_f" >Potion</a></h2></div> 
+            <div class = "Box"> 
+                <br>K 個選んで作る時、毎秒魔力が K 増加する。
+                <br>K は定数なので、K 個選んで作ったポーションの初期の魔力が m とした時、X - m が K の倍数でなければならない。
+                <br>
+                <br>DP 配列を、次のように宣言する。
+                <br>dp[ i ][ K ][ m ] := i 番目までの素材から、 初期の魔力と X との差を K で割ったあまりが m となるように K 個選んだ時の 初期の魔力の最大値。
+                <br>
+                <br>すると、m が 0 であるような選び方の初期値は、時間が経てばいつか魔力が X になる。
+                <br>よって、 m が 0 であるような選び方の初期値から、最短時間を計算できる。
+            </div>
+            
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/code-festival-2015-quala/tasks/codefestival_2015_qualA_d" >壊れた電車</a></h2></div> 
+            <div class = "Box"> 
+                <br>f( x ) := x 分以内に点検ができるか
+                <br>という判定を考えます。
+                <br>
+                <br>左の整備士から順に、
+                <br>&ensp;&ensp;&ensp;&ensp;x 分以内に、点検していない車両に当たるまで左に移動し、左側に点検していない車両がなくなれば進めるだけ右に進む。
+                <br>という操作を考えます。
+                <br>この操作ののちに、点検されていない車両がなければ x 分以内に点検可能と判定できます。
+                <br>
+                <br>すると、左から i + 1 番目の整備士は、左から i 番目の整備士よりも左の車両を見る必要がなくなり、これは直感的にも最適な点検方法です(右を見る分には、余った時間で好きなだけ見ても良いし、整備士がいる場所にあたれば、そこで打ち切っても良い)。
+                <br>
+                <br>すると、関数 f の計算が O( M ) で可能なので、二分探索ができます。
+            </div>
+
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc132/tasks/abc132_e" >Hopscotch Addict</a></h2></div> 
+            <div class = "Box"> 
+                <br>うまく変形するとダイクストラ法に落とし込める。
+                <br>
+                <br>ケン・ケン・パ の パ で目的地につきたいので、隣の頂点に移動した回数を、3で割った余が 0 であれば良い。
+                <br>ここで、ダイクストラで使う dpテーブル (dist配列) を拡張して、[ 頂点 ][ 移動回数を3で割ったあまり ] を添字として持たせる。
+                <br>すると、3 で割った余りとは、ダイクストラ法のアルゴリズムに直接関連しないので、3 通りの状態で通常通りダイクストラ法を行える。
+                <br>
+                <br>これは、3 つの世界でダイクストラを行う拡張ダイクストラといえる。
+                <br>(移動毎に別の世界に移動するダイクストラと言い換えれる)
+                
+            </div>
+            
+                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc066/tasks/arc077_b" >11</a></h2></div> 
+            <div class = "Box"> 
+                <br>仮に、数列 a が全て互いに異なる数なら、答えは二項係数で |a| Combination k である(|a| 個から k 個選ぶ方法の総数)。
+                <br>今回は鳩の巣原理で重複する要素のくみがちょうど 1 組だけが a に含まれる。
+                <br>
+                <br>その重複する 2 つの要素を 左から al , ar とすると、|a| Combination k は以下の場合を重複して数えてしまうことになる。
+                <br>・al よりも左の要素と、ar よりも右の要素から k-1 個選び、al , ar 農地どちらかを選ぶ。
+                <br>al , ar のどちらを選んでも、部分列は同じになるので、この選び方で得られる部分列たちは、ちょうど 2 回 選ばれていることになる。
+                <br>
+                <br>よって、答えは |a| Combination k から 上記の重複する場合の総数を引いたものが答えとなる。( al より左 + ar より右 から k 個選ぶ総数 を引く )
+            </div>
+            
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc042/tasks/arc042_c" >おやつ</a></h2></div> 
+            <div class = "Box"> 
+                <br>dp[i][x] := <b>値段が高い順に</b> i 番目まで見て、x 円で買えるおやつの満足度の和の max
+                <br>とする。これは通常のナップサックDPです。
+                <br>
+                <br>しかしこれだけでは不十分で、任意のおやつを抜いた場合に、P 円以下になれば良いという条件を考えないといけません。
+                <br>
+                <br><b>おやつの値段が高い順に見ているので、</b>i 番目のおやつを見ている時点で dp[i] の値に寄与しているおやつは、i 番目のおやつよりも値段が高いことがわかります。
+                <br>つまり、i 番目のおやつまで見た時、どのおやつを抜いても i 番目のおやつを抜いた場合の値段以下の値段になります。
+                <br>よって、i 番目のおやつまで見た時、<b> P + i 番目のおやつの値段 </b>までならおやつを買って良いとわかります(任意のおやつを抜くことで、P 円以下になるので)。
+                <br>
+                <br>よって、通常通りナップサックDPを行いながら、各おやつを見るタイミングで 満足度の max を更新していけば良いです。
+                <br>
+            </div>
+            
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc044/tasks/arc060_a" >高橋君とカード</a></h2></div> 
+            <div class = "Box"> 
+                <br>dp[ i ][ j ][ k ] := i 番目までで j 個選んで合計を k にする方法。
+                <br>とすると、答えは 全てのx  について dp[ n ][ x ][ Ax ] の総和である。
+                <br>
+                <br>dp[ i ][ j ][ k ] = dp[ i-1 ][ j ][ k ] + dp[ i-1 ][ j-1 ][ k-a[ i ] ] で更新できる。
+                <br>
+            </div>
+            
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc183/tasks/abc183_f" >confluence</a></h2></div> 
+            <div class = "Box"> 
+                
+                <br>・人が属する登校グループの特定は UnionFind でできる。
+                <br>・同じ登校グループに属する人たちの属するクラスの情報を保存する必要がある。
+                <br>→UnionFind でグループをマージする際に、属する人たちのクラスの情報もマージすれば良い。
+                <br>
+                <br>あるグループに属する人のうち、あるクラスに属する人の人数は、set (平衡二分木) で計算可能なので、UnionFindの各グループに set を持たせておけば良い。
+                <br>ただし、グループをマージするときに何も考えずにマージすると、最悪、毎回 set のサイズ分の計算を行う必要が出てくるので、マージする際は set のサイズが大きいほうが UnionFind Tree の根になるようにつなげる必要がある。
+                <br>
+            </div>
+            
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc040/tasks/abc040_d" >道路の老朽化</a></h2></div> 
+            <div class = "Box"> 
+                <br>基本的なアイデア : 人と道路を<b>年代が新しい順に</b>ソートして、新しいものから処理していく。
+                <br>道路はUnionFindで連結し、
+                <br>人の情報なら、その時点でその人が住む都市が属する連結成分のサイズを答えれば良い(その時点で連結成分を構成している道路はその年代以降のものである)。
+                <br>ただし、同じ年代のものを処理する場合、人の情報を先に処理して道を後に処理する必要がある(希望する年代<b>以前</b>を使えないので)。
+            </div>
+            
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/arc027/tasks/arc027_3" >最高のトッピングにしような</a></h2></div> 
+            <div class = "Box"> 
+                <br>dp しましょう。
+                <br>dp[ i ][ x ][ y ] := i 番目まで見て、x 枚のスペシャルチケットと y 枚の通常チケットを使って得られる嬉しさの合計の max 
+                <br>
+                <br>通常のナップサックDPをするとよいが、スペシャルチケットは通常チケットの代わりをできることから、スペシャルチケットは大事に使う必要がある。
+                <br>よって、DP の遷移においても、通常チケットを使える分(最大 t[ i ] - 1 枚)だけ使って、残りをスペシャルチケットで補うという遷移を行う。
+                <br>
+                <br>
+            </div>
+            
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc062/tasks/arc074_b" >3N Numbers</a></h2></div> 
+            <div class = "Box"> 
+                <br>元の数列を前半後半の二つに分けることを考える(それぞれ、最低サイズが N 以上)。
+                <br>
+                <br>前半の数列を F 、後半の数列を B とすると、
+                <br>スコアは "" F の大きい方から N 個の和 - B の小さい方から N 個の和 ""
+                <br>となり、F , B それぞれにおいて選ばれなかった要素は、元の数列から取り除かれたものとみなすことができる。
+                <br>
+                <br>よって、仕切りの位を x とすると、x 以前を F , x より後を B とすると、
+                <br>x が小さい方から見ていくことで、F , B を O( logN ) (平衡二分木などを使うので) で更新可能で、大きい方、小さい方から N 個のの総和も O( logN ) で計算可能。
+            </div>
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc061/tasks/abc061_d" >Score Attack</a></h2></div> 
+            <div class = "Box"> 
+                <br>負辺があるので、ベルマンフォード法を使いましょう。
+                <br>スコアを最大化したいので、c に -1 をかけることで最小化問題に変換します。
+                <br>
+                <br>また、スコアがいくらでも大きくなる(頂点 1 から到達可能で 頂点 N に到達可能な負閉路が存在する) → ベルマンフォード法によって解が収束しない。
+                <br>よって、スコアが一定の値を超えたり、計算回数が一定回数を超えたらベルマンフォード法を打ち切るようにすれば良い。
+            </div>
+                                
+
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc110/tasks/abc110_d" >Factorization</a></h2></div> 
+            <div class = "Box"> 
+                <br>M を素因数分解すると、各素因数がいくつあるかがわかる。
+                <br>
+                <br>数列 a の各要素は、1 に M のいくつかの素因数をかけたものである(重複あり)。
+                <br>逆に、M の各素因数に対して、a のどの要素にかけるかを考えたら良い。
+                <br>
+                <br>各素因数について、個数が x 個であるとしたら、求める場合の数は N 個の区別する箱に x 個の区別しないボールを入れる場合の数と同じである。
+                <br>
+            </div>
+                                
+            <br>
+            <br>
+            <br>
+            <div class = "TitleLine"><h2><a target="_blank" href = "https://atcoder.jp/contests/abc311/tasks/abc311_g" >ABC311 - G</a></h2></div> 
+            <div class = "Box"> 
+                X 以上の要素だけ残したグリッドを考える。
+                <br>
+                <br>X 未満の要素がある位置を穴として考えて、穴を含まないような長方形だけを見ると良い。
+                <br>これは、上から i 行目までを見ると、i 行目を底辺とするような長方形を i 行目を底とするヒストグラムから長方形を取り出す問題と捉えることができます。
+                <br>
+                <br>具体的には i 行目から上方向に、穴に当たるまでヒストグラムを伸ばすことを考えます。
+                <br>i 行目 j 列目のヒストグラムの高さ : H_j がボトルネックであるような長方形を取り出すことを考えます。
+                <br>これは、高さ H_j の長方形を j 列目から左右に伸ばせるだけ伸ばす問題になり、これは蟻本に乗っている問題と同じ解法で解くことができます。
+                <br>
+                <br>要素が X 以上のグリッドを考えていますので、長方形内の要素の和 × X が評価値になります。
+                <br>これを、全ての X について計算しても間に合わせることができます。
+            </div>
+            
+
+
+
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

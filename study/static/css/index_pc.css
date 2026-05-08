@@ -1,0 +1,601 @@
+
+
+/*
+    index.htmlのcss
+*/
+
+input[type="button"] {
+    -webkit-appearance: none;
+    border-radius: 0;
+}
+
+
+
+
+/*
+    変数
+*/
+:root {
+    --transparent-color: rgba(0,0,0,0);
+
+    /*上段のバーのサイズなど*/
+    --top-bar-height: 42px;
+    --top-bar-bg-color: #F2F3F4;
+    --top-bar-font-color: #333132;
+
+    /*横のメニュー項目について*/
+    --leftside-itemlist-width: 25%;
+    --leftside-itemlist-closed: 0%;
+    --leftside-itemlist-bg-color: #FAFBFD;
+    --leftside-itemlist-font-color: black;
+    
+
+    --folder-category-color:black;
+
+    --folderitem-color-split:9%;
+    --folderitem-color: #D3D9DE;
+    --folderitem-font-color: black;
+
+    --fileitem-color-split:9%;
+    --fileitem-color:rgb(40, 98, 53);
+    --fileitem-font-color: white;
+    
+    --colsefolder-button-color : #73799F;
+
+    /*メニュー表示欄の縦サイズ*/
+    --menu-field-height : 120px;
+    /*メニュー表示欄の横方向のbodyの幅(余白がどれだけあるか)*/
+    --menu-field-padding-x : 90%;
+
+
+    /*メニュー表示欄の列の幅と、列同士の間隔。現在3列の予定なので、30%あたり*/
+    --menu-itemListColumn-width:30%;
+    --menu-itemListColumn-interval:5%;/*横方向の間隔*/
+
+
+    /*
+        項目の高さは、under barが見えるように、全体で数%余るようにしておく
+        項目を1列にX個入れたい場合, (100/X)%にする(ただし、1%ぐらいはあまりが出るようにしたい)
+    */
+    --menu-item-height:33%;
+
+    
+    /*ツールバー(記事の履歴移動や、記事の拡大をする場所)に関して*/
+    --tool-bar-bg-color:#F2F3F4;
+    --tool-bar-font-color:black;
+
+    /* z-index の const */
+    --menu-field-z-index : 123123;
+    --left-door-z-index : 123;
+
+}
+
+
+html{
+    width: 100%;
+	height: 100%;
+	touch-action: manipulation;/*ダブルタップでの拡大無効*/
+}
+
+body {
+	
+	margin: 0px;
+	padding: 0px;
+	color: rgb(0, 0, 0);	
+	
+	font-size: 11px;	
+	line-height: 2;		
+	background: rgb(173, 178, 181);
+	-webkit-text-size-adjust: none;
+}
+
+
+
+
+/*
+----------------------------------------------------------------------------------------------------------------
+TopBar / Menu まわり
+----------------------------------------------------------------------------------------------------------------
+*/
+
+
+
+
+
+
+
+
+/*
+    トップのバーのクラス
+*/
+.TopBar{
+    background-color:var(--top-bar-bg-color);
+    position: absolute;
+    z-index: var(--z-index-priority-001);
+    height:var(--top-bar-height);
+    width:100%;
+    right:0%;
+}
+
+
+
+
+/*
+    メニューボタン
+    top_barにつけるボタン
+*/
+.MenuButton{
+    position : relative; /*他の要素に関わらず中央に配置したいので*/
+
+    background-color: rgba(255, 255, 255, 0);
+    color:var(--top-bar-font-color);
+    
+
+
+    margin: 16px auto auto auto;/*topのみ指定*/
+    width:27px;/*中央に配置するためには、指定しないといけない*/
+    height:15px;
+    
+
+    box-sizing: border-box;
+    border-top: solid 2px var(--top-bar-font-color);
+    border-bottom: solid 2px var(--top-bar-font-color);
+
+    z-index: var(--page-icons-z-index);
+
+}
+
+
+.MenuButton:hover{
+    width:30px;
+    box-sizing: border-box;
+    border-top: solid 3px var(--top-bar-font-color);
+    border-bottom: solid 3px var(--top-bar-font-color);
+}
+
+
+
+/*メニューを表示する場所(外枠)*/
+.MenuField{
+    position: absolute;
+    
+    width:100%;
+    
+    background-color: var(--top-bar-bg-color);
+    color:var(--top-bar-font-color);
+    
+    box-sizing: border-box;
+    
+    z-index: var(--menu-field-z-index);
+    height:0px;
+    top: var(--top-bar-height);
+    
+    overflow: hidden;
+}
+
+/*メニュー欄の表示、非表示のアニメーション*/
+@keyframes MenuField_appear {
+    0%{height:0px;} 100%{height:var(--menu-field-height);}
+}
+
+/*メニュー欄の表示、非表示のアニメーション*/
+@keyframes MenuField_disappear {
+    0%{height:var(--menu-field-height);} 100%{height:0px;}
+}
+
+
+
+
+
+
+
+
+
+/*メニュー項目を並べるところ*/
+.MenuItemList{
+    position: relative;
+
+    box-sizing: border-box;
+
+    margin: 0 auto auto auto;/*top以外autoにすることで、横方向に中央ぞろえ*/
+    width:var(--menu-field-padding-x);
+    height:100%;
+
+    background-color: var(--top-bar-bg-color);
+}
+
+/*項目は、列をいくつか用意して、それぞれの中に縦に並べる*/
+.MenuItemList_Column{
+
+    position: relative;
+    float : left;
+
+    height:100%;
+    width:var(--menu-itemListColumn-width);
+
+}
+
+/*メニュー表示欄の列同士の間隔*/
+.MenuItemList_Column_Interval{
+    box-sizing: border-box;
+    position: relative;
+    float:left;
+    background-color: rgba(255, 255, 255, 0);
+
+    height: 100%;
+    width:var(--menu-itemListColumn-interval);
+    
+}
+
+
+
+
+
+
+
+/*メニューの項目のボタン(List_Columnに縦に並べるので、widthは100%)*/
+.MenuItem{
+    position: relative;
+    display: table;/*項目のサムネを中央に表示するため、tableに*/
+
+    height: var(--menu-item-height);
+    width:100%;
+
+    color:var(--top-bar-font-color);
+    background-color: var(--top-bar-bg-color);
+
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid var(--top-bar-font-color);
+    
+}
+
+.MenuItem:hover{
+    border-bottom: 2px solid var(--top-bar-font-color);
+}
+
+/*メニュー項目の説明(タイトル)*/
+.MenuItem_Title{
+    box-sizing: border-box;
+    display: table-cell;
+    vertical-align: middle;/*親要素の中央に配置*/
+    width:100%;
+    text-align: center;
+}
+
+
+
+
+
+
+/*
+----------------------------------------------------------------------------------------------------
+ページの左側に項目リストを作る。
+----------------------------------------------------------------------------------------------------
+*/
+
+
+
+
+
+/*
+    アイテムリスト(項目の一覧を表示する)クラス
+
+*/
+.LeftSide_ItemListField{
+    color:var(--leftside-itemlist-font-color);
+    position:absolute;
+    top:var(--top-bar-height);
+    left:0%;
+    bottom:0%;
+    width :var(--leftside-itemlist-width);
+    background-color:var(--leftside-itemlist-bg-color);
+
+    box-sizing: border-box;
+    border: none;
+    border-top: 1px solid black;
+
+    padding-left: 3px;
+    padding-right: 8px;
+    
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+
+
+
+/* フォルダ群の仕切り */
+.LeftSizeFolderCategory{
+    border: 2px solid var(--folder-category-color); 
+    width:fit-content;
+    border-radius: 4px;
+    margin: 15px 5px 5px 5px;
+    padding: 2px;
+}
+
+/* カテゴリわけされたものを表示 */
+.CategoryField{
+    width: 100%;
+    height: fit-content;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--folder-category-color); ;
+}
+
+/*
+    項目のフォルダーボタン
+*/
+.FolderItem{
+    color:var(--folderitem-font-color);
+    background: linear-gradient(90deg, 
+    var(--transparent-color) 0%,
+    var(--transparent-color) var(--folderitem-color-split),
+    var(--folderitem-color) var(--folderitem-color-split), 
+    var(--folderitem-color) 100%);
+    
+    padding-left: var(--folderitem-color-split);
+
+    margin-top:8px;
+	font-size: 12px;
+    min-height: 30px;
+    width: 100%;
+    /*width:fit-content;*/
+
+    justify-content: center;
+	align-items: center;
+	
+    text-align: left;
+	text-decoration: none;
+	position: relative;
+	transition-duration: 0.2s;
+
+    box-sizing: border-box;
+    border: solid 1px var(--folderitem-color);
+    border-radius: 8px;
+}
+
+
+.FolderItem:hover{
+    border-bottom: solid 2px var(--folderitem-color);
+    background: var(--leftside-itemlist-bg-color);
+    color:var(--leftside-itemlist-font-color);
+}
+
+
+
+/*
+    フォルダの中身一覧を表示する場所
+*/
+.FolderContentsField{
+    position: relative;
+    margin-left: 14px;
+    margin-top: 7px;    
+    margin-bottom: 7px;    
+    box-sizing: border-box;
+    border-left: solid 1px var(--leftside-itemlist-font-color);
+    display: none;
+}
+
+
+
+/*
+    ファイル項目のボタン
+*/
+.FileItem{
+    color:var(--leftside-itemlist-font-color);
+    background: linear-gradient(90deg, 
+        var(--fileitem-color) 0%,
+        var(--fileitem-color) var(--fileitem-color-split),
+        var(--transparent-color) var(--fileitem-color-split),
+        var(--transparent-color) 100%);
+
+    padding-left: var(--fileitem-color-split);
+
+	font-size: 12px;
+    min-height: 30px;
+    width:100%;
+    
+    margin-top:2px;
+
+    justify-content: center;
+	align-items: center;
+	
+    text-align: left;
+	text-decoration: none;
+	position: relative;
+	transition-duration: 0.2s;
+
+    box-sizing: border-box;
+    border: solid 1px var(--fileitem-color);
+    border-radius: 18px;
+}
+
+
+.FileItem:hover{
+    background-color: var(--fileitem-color);
+    color: var(--fileitem-font-color);
+}
+
+
+
+.CloseFolderButton{
+    width:fit-content;
+    color: var(--leftside-itemlist-font-color);
+    background-color: var(--transparent-color);
+    height:27px;
+    font-size: 12px;
+    border: 2px solid var(--colsefolder-button-color); 
+    width:fit-content;
+    border-radius: 4px;
+    margin: 5px;
+    padding: 2px;
+    opacity: 0.6;
+}
+
+
+.CloseFolderButton:hover{
+    opacity: 1;
+}
+
+
+/* 横の項目リストを隠すドア風のオブジェクト */
+.LeftDoorClass{
+    z-index: var(--left-door-z-index);
+    position:absolute;
+    top:var(--top-bar-height);
+    left:0%;
+    bottom:0%;
+    width :0px;/* デフォルトでは左に隠れている */
+    background-color:var(--leftside-itemlist-bg-color);
+    box-sizing: border-box;
+}
+
+/* 左のドアオブジェクトが一瞬閉じてまた開く演出 */
+@keyframes LeftDoorAnimation {
+    0%{width:0px;border : solid 5px black;}
+    30%{width:var(--leftside-itemlist-width);border : solid 5px black;}
+    70%{width:var(--leftside-itemlist-width);border : solid 5px black;}
+    100%{width:0px;border:none;}
+}/* 同じアニメーションを 2 つ用意して交互に使うことで、何度もアニメーションを起動する (on JavaScript) */
+@keyframes LeftDoorAnimation_back {
+    0%{width:0px;border : solid 5px black;}
+    30%{width:var(--leftside-itemlist-width);border : solid 5px black;}
+    70%{width:var(--leftside-itemlist-width);border : solid 5px black;}
+    100%{width:0px;border:none;}
+}
+
+
+
+
+
+
+
+
+/*
+    記事の拡大、縮小を担うボタン
+*/
+.ScalingButton{
+    color: var(--leftside-itemlist-font-color);
+    position:absolute;
+
+    left:var(--leftside-itemlist-width);
+    top:var(--top-bar-height);
+    z-index: var(--left-door-z-index);
+    width:30px;
+    height: 80px;
+    
+    font-size: 14px;
+    line-height: 14px;
+
+    background-color: var(--leftside-itemlist-bg-color);
+    border-radius: 0% 12px 12px 0%;
+    
+    box-sizing: border-box;
+    border: 1px solid black;
+    border-left: none;   
+}
+
+
+/*
+    記事の中身を表示する
+*/
+.Contents_class{
+    position:absolute;
+    background-color: rgba(128, 167, 230, 0);
+    right: 0%;
+    top:var(--top-bar-height);
+    width:calc(100% - var(--leftside-itemlist-width));
+    box-sizing: border-box;
+    border: none;
+    bottom:0%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+
+
+/*
+    拡大縮小で使うアニメーション
+*/
+
+/*ItemListを縮める*/
+@keyframes ItemList_shrink {
+    0%{width:var(--leftside-itemlist-width);}
+    100%{width:var(--leftside-itemlist-closed);display:none;}
+}
+
+
+/*ItemListを拡大*/
+@keyframes ItemList_expand {
+    0%{width:var(--leftside-itemlist-closed);display:block;}
+    100%{width:var(--leftside-itemlist-width);}
+}
+
+
+/*記事を縮める*/
+@keyframes Contents_shrink {
+    0%{right:0%;width:calc(100% - var(--leftside-itemlist-width));}
+    100%{right:0%;width:calc(100% - var(--leftside-itemlist-closed));}
+}
+
+
+/*記事を拡大*/
+@keyframes Contents_expand {
+    0%{right:0%;width:calc(100% - var(--leftside-itemlist-closed));}
+    100%{right:0%;width:calc(100% - var(--leftside-itemlist-width));}
+}
+
+
+
+
+/*ScalingButtonを縮める(右に移動)*/
+@keyframes ScalingButton_MoveRight {
+    0%{left:var(--leftside-itemlist-closed);} 
+    100%{left:var(--leftside-itemlist-width)};
+}
+
+
+/*ScalingButtonを拡大(左に移動)*/
+@keyframes ScalingButton_MoveLeft {
+    0%{left:var(--leftside-itemlist-width);} 
+    100%{left:var(--leftside-itemlist-closed);}
+}
+
+
+
+
+
+
+/* 下部ツールバー */
+.index_under_ToolBar{
+    z-index: var(--page-icons-z-index);
+    position:absolute;
+
+    bottom: 0%;
+    right:0%;
+    height: fit-content;
+    padding: 4px;
+
+    box-sizing: border-box;
+    border: 1px solid black;
+    border-radius: 10px 0px 0px 10px;
+    background-color: var(--tool-bar-bg-color);
+}
+
+/* 下部ツールバー用のボタン */
+.index_under_ToolBar_item{
+    position:relative;
+    
+    box-sizing: border-box;
+    border: none;
+
+    width:fit-content;
+    height:fit-content;
+
+    color: var(--tool-bar-font-color);
+    font-size: 14px;
+    background-color: var(--transparent-color);
+}
+.index_under_ToolBar_item:hover{
+    border-bottom: 1px dashed gray;
+}

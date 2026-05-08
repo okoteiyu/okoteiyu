@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>幾何</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    幾何<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    二次元ベクトル
+                </h3>
+                <p> 
+                    \(\overrightarrow{v}\) が二次元ベクトルのとき、\(2\) つの実数 \(a,b\) を用いて \(\overrightarrow{v} = (a,b) \) と表記できます。
+                </p>
+                <p>
+                    \(a\) のことを \(x\) 成分、\(b\) のことを \(y\) 成分と呼び、直感的に説明すると、これらの成分は二次元平面上での移動方向と距離を表します。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.001.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    また、ある \(2\) 点を結ぶベクトルの成分は、終端の座標から始点の座標を引いたものです。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.002.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    特に、始点が原点 \((0,0)\) であるベクトルを位置ベクトルと言います。
+                </p>
+                <h3>
+                    Counter Clockwise (ccw)
+                </h3>
+                <p>
+                    ある \(3\) 点 \(A,B,C\) に対して、点 \(B\) から見て \(A\rightarrow C\) が Counter Clockwise であるということを以下で定義します。
+                    <ul>
+                        <li>
+                            点 \(A\) が点 \(C\) に向かって<b>最短</b>で移動するとき、線分 \(BA\) の回転の軌跡が軸 (点 \(B\)) から見て反時計回りである。
+                        </li>
+                    </ul>
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.003.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    <b>符号付き面積</b>の定義から天下り的に ccw の判定を説明します。線分 \(BA\) が通る領域について、符号付き面積 \(S\prime\) を以下で定義します。\(BA\) が通る領域の面積を \(S\) とします。
+                    <ul>
+                        <li>\(A\rightarrow C\) が ccw ならば \(S\prime = S\)</li>
+                        <li>\(A\rightarrow C\) が ccw でないならば \(S\prime = -S\)</li>
+                    </ul>
+                    すると、\(S \geq 0\) より \(S\prime\) の符号を確かめることで \(A \rightarrow C\) が ccw かどうか判定することができます。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.004.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    線分 \(BA\) が通る領域の符号付き面積 \(S\prime\) は、\(2\) つのベクトル \(\overrightarrow{BA},\overrightarrow{BC}\) を並べた \(2\times 2\) 行列の行列式を \(2\) で割ったものです。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.005.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    よって \(2\times S\prime = {y_c}{x_a} - {y_a}{x_c}\) です。ccw の判定では \(S\prime\) の符号にしか興味がないので、\(2\times S\prime\) の符号を調べることで \(A\rightarrow C\) が ccw かどうか判別することができます。
+                </p>
+                <p>
+                    符号付き面積の \(2\) 倍を調べることで、座標が整数の場合に誤差を出さずに ccw の判定ができて嬉しいです。
+                </p>
+
+                <h3>
+                    凸包 (Convex Hull)
+                </h3>
+                <p>
+                    \(G\) を二次元座標上の点からなる集合とします。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.006.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    \(G\) に対して、凸包を以下で定義します。
+                    <ul>
+                        <li>
+                            \(G\) に属する点を全て辺上または内部に含む最小の多角形
+                        </li>
+                    </ul>
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.007.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    この時、凸包の各頂点は \(G\) に属する点のいずれかです。逆に、これらの点を計算することが凸包を計算することと言えます。場面によっては、凸包の辺上の点を計算する場合もありますが、本質的な違いはありません。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.008.jpeg" class = "StandardImageStyle"><br>
+                <h4>
+                    グラハムスキャン
+                </h4>
+                <p>
+                    凸包の下半分の頂点をなす点 \(H_1,H_2,H_3,\dots\) を求めるアルゴリズムです。手続きを以下にまとめます。
+                    <ul>
+                        <li>
+                            点の集合を \(xy\) 座標の <b>辞書順</b> の昇順にソートする。ただし \(2\) 点 \(A,B\) の辞書順の順序は以下で定義される。
+                            <ul>
+                                <li>
+                                    \(A,B\) の \(x\) 座標が等しいなら、\(y\) 座標の順序。
+                                </li>
+                                <li>
+                                    \(A,B\) の \(x\) 座標が異なるなら、\(x\) 座標の順序。
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            はじめ、ソートした点の先頭 \(2\) 点を凸包下部の候補として \(H\) に追加しておく。
+                        </li>
+                        <li>
+                            残りの点を辞書順に調べ、凸包下部の候補 \(H\) に加えていく。このとき新たに追加する点を \(P\) とし、以下の手続きを行う。
+                            <ol>
+                                <li>
+                                    以下の操作で \(H\) から候補が除外される限り、以下を繰り返す。
+                                </li>
+                                <ul>
+                                    <li>
+                                        点 \(P\) を候補に追加した結果、\(H\) に含まれる点のうち直近に追加されたものが凸包の頂点に成り得なくなるならば、その点を \(H\) から pop する。
+                                    </li>
+                                </ul>
+                                <li>
+                                    \(P\) を \(H\) の末尾に追加する。
+                                </li>
+                            </ol>
+                        </li>
+                    </ul>
+                    具体的な様子を以下の図で示します。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.009.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    はじめ、候補 \(H\) には辞書順で先頭の \(2\) 点が順に格納されています。その後、残りの点を候補 \(H\) に追加していく手続きに移ります。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.010.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    このとき、調べた点 \(P\) を候補 \(H\) に追加する前に、\(H\) の点のうち、この時点で凸包をなし得ない点を、直近に追加されたものから順に pop していきます。
+                </p>
+                <p>
+                    \(H\) の末尾の要素 \(H\prime\) は、以下が成り立つ場合は凸包に含まれません。
+                    <ul>
+                        <li>
+                            \(H\prime\) から見て、\(1\) つ前の \(H\) の点から \(P\) への最短の移動が ccw である。
+                        </li>
+                    </ul>                    
+                    よってこのステップでは \(H_2\) を候補から除外し、その後新たに \(P\) を候補に追加します。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.011.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    次のステップでは候補 \(H\) からどの点も除外する必要はありません。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.012.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    ここで、図の \(H_1 \rightarrow P\) の軌跡が \(H_2\) を軸として見て時計回りであることも確認できます。
+                </p>
+                <p>
+                    同じ手続きで、\(H_4,H_5\) を追加していきます。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.013.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    次に \(H_6\) を追加すると、凸包の頂点に成り得ない点が \(H\) から pop されます。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.014.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    図より、\(H_5\) は候補から除外されます。次に \(H_4\) を調べた結果、\(H_4\) も以下の図より除外されます。いずれも直近 \(2\) つの候補と \(P\) の ccw に注目して判別します。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.015.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    残った点たちはこの時点では下に凸なので、\(H_3\) は凸包の候補としてキープされます。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.016.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    このような手続きを繰り返し、最終的に凸包の下側部分 \(H\) を得ることができます。
+                </p>
+                <p>
+                    またこのとき、\(H\) の点は \(xy\) 座標の辞書順でソートされています。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.017.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    次に、点を \(xy\) 座標の辞書順の逆順でソートして、これと同じことを今度は上側領域に対して行います。今度は候補が上に凸である必要があるという点に注意が必要です。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.018.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    こうして得られた凸包上側の点を \(\overline{H}\) とします。また、\(\overline{H}\) に含まれる点は \(xy\) 座標の辞書順の逆順でソートされています。
+                </p>
+                <p>
+                    なお上側を求める実装は、点の座標全てに \(-1\) をかけることで、下側を求めるアルゴリズムを使い回すことができます。ただし再度 \(-1\) をかけて元に戻す必要があることに注意してください。
+                </p>
+                <p>
+                    これにて、凸包の上下を求めることができました。
+                </p>
+                <img src = "./../../images/GrahamScan/GrahamScan.019.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    \(H\) の末尾と \(\overline{H}\) の先頭は同じ点であり、\(\overline{H}\) の末尾と \(H\) の先頭も同じ点なので、凸包の頂点は、\(H,\overline{H}\) それぞれの末尾の要素を pop したものを順に連結した列です。また、こうして得られる列は、凸包の頂点を左下の点 (辞書順最小の点) から反時計回りに並べたものです。
+                </p>
+                <h3>
+                    多角形の面積
+                </h3>
+                <p>
+                    多角形の各頂点が与えられるとき、通常は適当な点 \(O\) から時計回り (または反時計回り) の順に与えられます。与えられた点の列を \(P\) とすると、\(P\) において隣接する \(2\) 点間、および \(P\) の先頭と末尾の点の間に多角形の辺が存在します。逆に、これら以外に辺は存在せず、また \(P\) から多角形は一意に定まります。
+                </p>
+                <img src = "./../../images/AreaOfPolygon/AreaOfPolygon.001.jpeg" class = "StandardImageStyle"><br>
+                <h4>
+                    アルゴリズム
+                </h4>
+                <p>
+                    点 \(O\) から移動をはじめ、辺に沿って反時計回りに多角形を一周します。すると、再度 \(O\) に戻るまでに \(|P|\) 回頂点間の移動が行われます。
+                </p>
+                <p>
+                    \(|P|\) 回の移動それぞれについて以下を計算し、それらの総和を計算します。ここで、一度の移動の始点と終点をそれぞれ \(S , T\) とします。
+                    <ul>
+
+                        <li>
+                            \(S\rightarrow T\) の移動で線分 \(OS\) が通る領域の符号付き面積
+                        </li>
+                    </ul>
+                </p>
+                <div class = "slide_content_field">
+                    <!-- ページ番号を管理するためだけのdiv (中身の数値を JS が参照する) -->
+                    <div class = "slide_pagenum_store" id = "AreaOfPolygonSlide"></div>
+                
+                    <!-- タイトル -->
+                    <div class = "slide_title">符号付き面積</div>
+                
+                    <!-- 内容 -->
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.002.jpeg"  class = "AreaOfPolygonSlide">
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.003.jpeg"  class = "AreaOfPolygonSlide">
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.004.jpeg"  class = "AreaOfPolygonSlide">
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.005.jpeg"  class = "AreaOfPolygonSlide">
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.006.jpeg"  class = "AreaOfPolygonSlide">
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.007.jpeg"  class = "AreaOfPolygonSlide">
+                    <img src="./../../images/AreaOfPolygon/AreaOfPolygon.008.jpeg"  class = "AreaOfPolygonSlide">
+                    <!-- ボタンなどのスライド操作用ツールバー-->
+                    <div class = "slide_button_field">
+                        <button onclick="select_back(event)" name = "AreaOfPolygonSlide" class = "slide_back_button"></button>
+                        <div class = "slide_pagenum_field" title = "AreaOfPolygonSlide" ></div>
+                        <button onclick="select_next(event)" name = "AreaOfPolygonSlide"  class = "slide_next_button"></button>
+                    </div>
+                </div>
+                <p>
+                    この操作で求めた符号付き面積の総和が、多角形の面積です。図を確認すると、符号付き面積の符号によってうまい具合に各領域の面積が重複しないように加算されていることが確認できます。
+                </p>
+                <p>
+                    今回は反時計回りに調べましたが、時計回りに一周すると面積に \(-1\) をかけた値になります。
+                </p>
+
+                <h3>
+                    線分の交差
+                </h3>
+                <p> 
+                    平面座標系上に \(2\) つの線分 \(P,Q\) があります。\(P,Q\) に交点が存在するかを判定し、存在するなら答えてください。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.001.jpeg" class = "StandardImageStyle"><br>
+                <u>
+                    交点が存在するかどうか
+                </u>
+                <p>
+                    判定の方法は様々ですが、今回は直感的にわかりやすい方法で行います。
+                </p>
+                <p>
+                    まず、コーナーケースとして \(P,Q\) の傾きが等しい場合を処理します。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.002.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    この時、\(P,Q\) の交点が存在することと以下の \(4\) つの条件の<b>いずれか</b>を満たすことは等しいことが言えます。
+                    <ul>
+                        <li>点 \(P_A\) が線分 \(Q\) 上にある。</li>
+                        <li>点 \(P_B\) が線分 \(Q\) 上にある。</li>
+                        <li>点 \(Q_A\) が線分 \(P\) 上にある。</li>
+                        <li>点 \(Q_B\) が線分 \(P\) 上にある。</li>
+                    </ul>
+                    ということで、この場合の判定問題は「ある点 \(p\) が、線分 \(AB\) 上にあるかを判定する問題」に帰着できます。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.003.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    点 \(p\) が線分 \(AB\) 上に存在する条件は、以下の \(2\) つです。
+                    <ul>
+                        <li>
+                            \(x,y\) 座標それぞれについて、点 \(p\) の座標が点 \(A,B\) の座標の小さい方から大きい方までの間である。
+                        </li>
+                        <li>
+                            線分 \(Ap\) の傾きと線分 \(pB\) の傾きが等しい。
+                        </li>
+                    </ul>
+                    これで、\(P,Q\) の傾きが等しい場合の判定はできました。
+                </p>
+                <p>
+                    以降、\(P,Q\) の傾きは等しくないことを仮定して話します。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.004.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    突飛かもしれませんが、線分 \(Q\) のいずれかの端点 (\(Q_A\) とします) が線分 \(P\) のいずれかの端点に重なるように \(Q\) を平行移動してできる平行四辺形を考えます。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.005.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    お分かりですか？こうしてできる平行四辺形の辺は、線分\(P,Q\) が交点を持つような \(Q_B\) の境界となっています。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.006.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    よって、線分 \(P,Q\) が交点を持つ条件は、\(Q_B\) が図の平行四辺形 \(OSRU\) の内部または周上に存在することです。
+                </p>
+                <p>
+                    ある点が多角形の内部に存在するかどうかは、その点と多角形の各辺によって \(3\) 角形を作った時に、それらの \(3\) 角形の面積の総和が多角形の面積と等しくなるかどうかを確かめることで判定できます。
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.007.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    面積の比較を行う際は、 \(3\) 角形の面積の計算であらかじめ面積を \(2\) 倍したものを計算することで誤差をなくすことができます。
+                </p>
+                <p>
+                    これで交点が存在するかどうかの判定はできました。
+                </p>
+                <u>
+                    交点の計算
+                </u>
+                <p>
+                    TODO
+                </p>
+                <img src = "./../../images/SegmentIntersect/SegmentIntersect.008.jpeg" class = "StandardImageStyle"><br>          
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

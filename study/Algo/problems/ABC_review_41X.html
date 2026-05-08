@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    ABC 振り返り (410 ~ 419)<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <div class = "Highlight">
+                    <h3>
+                        このページは
+                    </h3>
+                    <p>
+                        ABC でこれ以上解けなくなって椅子を温めるのも勿体無いので、その日の ABC の問題の振り返りを書く時間にしようと思いました。社会人は忙しいのです。
+                    </p>
+                </div>
+                <div class = "slide_content_field">
+                    <!-- ページ番号を管理するためだけのdiv (中身の数値を JS が参照する) -->
+                    <div class = "slide_pagenum_store" id = "ABC410_review_slide"></div>
+                
+                    <!-- タイトル -->
+                    <div class = "slide_title">振り返り概要スライド</div>
+                
+                    <!-- 内容 -->
+                    <img src="./../../slides/ABC_review_41X/ABC_review_41X.001.jpeg"  class = "ABC410_review_slide">
+                    <img src="./../../slides/ABC_review_41X/ABC_review_41X.002.jpeg"  class = "ABC410_review_slide">
+                    <img src="./../../slides/ABC_review_41X/ABC_review_41X.003.jpeg"  class = "ABC410_review_slide">
+                    <img src="./../../slides/ABC_review_41X/ABC_review_41X.004.jpeg"  class = "ABC410_review_slide">
+                
+                    <!-- ボタンなどのスライド操作用ツールバー-->
+                    <div class = "slide_button_field">
+                        <button onclick="select_back(event)" name = "ABC410_review_slide" class = "slide_back_button"></button>
+                        <div class = "slide_pagenum_field" title = "ABC410_review_slide" ></div>
+                        <button onclick="select_next(event)" name = "ABC410_review_slide"  class = "slide_next_button"></button>
+                    </div>
+                </div>
+                <br>
+                <h2>
+                    <a href = "https://atcoder.jp/contests/abc410" target="_blank">ABC 410</a>
+                </h2>
+                <h3>
+                    感想/反省
+                </h3>
+                <p>
+                    実装も多くなく悩む時間が少なかったですが、全体的にミスが多かったのが残念ポイント。
+                </p>
+                <h3>
+                    ミス
+                </h3>
+                <p>
+                   まず、C 問題でオーバーフローをしました。業務に慣れるために <code>ll</code> などのエイリアスを使わないようにしているのです。
+                </p>
+                <p>
+                    そして、D 問題で <code>std::stack</code> が持つ値を構造化束縛で参照した後、要素を <code>pop</code> してしまったため、寿命の切れたオブジェクトにアクセスするというタブーをしていましたのです。
+                </p>
+                <p>
+                    最後に、F 問題ではサボって <code>std::unordered_map</code> を使って TLE しました。<code>std::unordered_map</code> は<b>遅いのです!!!</b> 知ってはいましたが、やはり遅いです。この問題では、ある程度のサイズの配列を何度も生成する必要があるのですが、解決策として <code>int</code> 配列を <code>pair&lt;int,int></code> 配列にし、二番目の値は<b>アクセスのタイミング</b>を記録します。現在のタイミングを表す値をプログラム中に保持しておき、配列の値がその値と一致しない場合は初期値を返し、値を書き込む際には、そのタイミングの値を書き込むことで、配列の確保を省略できます。
+                </p>
+                <br>
+                <h2>
+                    <a href = "https://atcoder.jp/contests/abc411" target="_blank">ABC 411</a>
+                </h2>
+                <p>
+                    特に反省はない。概要は冒頭のスライドを見るのね!!!
+                </p>
+                <br>
+                <h2>
+                    <a href = "https://atcoder.jp/contests/abc412" target="_blank">ABC 412</a>
+                </h2>
+                <p>
+                    F 問題に時間使いすぎ!!!! F 問題自体も典型期待値テクニックするだけなのに... そんな典型は以下です !!!
+                </p>
+                <ul>
+                    <li>
+                        確率 \(p\) で成功する事象を繰り返すとき、初めて成功するまでの操作回数の期待値は \(\frac{1}{p}\)
+                    </li>
+                    <li>
+                        詳しくは <a href = "./../DP/Kitaichi_Kakuritsu_DP.html">こちらの記事</a> に書いてあるよ!!!
+                    </li>
+                </ul>
+                <br>
+                                <h2>
+                    <a href = "https://atcoder.jp/contests/abc417" target="_blank">ABC 417</a>
+                </h2>
+                <p>
+                    Mac OS をアップデートしたら何故か C++ 環境が壊れました。仕方なく Paiza.io で出ましたありがとう。
+                </p>
+                
+                <br>
+            </section>
+            
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

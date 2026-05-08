@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>累積和</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    累積和<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                
+                <p>
+                    長さ \(N\) の数列 \(A = A_0,A_1,\dots A_{N-1}\) の先頭 \(x\) (<b>1-index</b>) 要素の総和を \(P_x\) とおくと、\(A\) の <b>0-index</b> の半開区間 \([l,r)\) 内の要素の総和が \(P_r-P_l\) で求まります。
+                </p>
+                <p>
+                    \(P_0 = 0\) で初期化して \(x\) が \(0\) から \(N_1\) まで小さい順に以下を計算することで \(P\) を計算できます。
+                    <ul>
+                        <li>
+                            \(P_{x+1} = P_x + A_x\)
+                        </li>
+                    </ul>
+                </p>
+                <p>
+                    和に限らず、接頭辞/接尾辞 に関する要素の集約を管理するテクニックは頻出です。
+                </p>
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    添字を合わせるテクニック<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <p>
+                    プログラムを書いていて。配列やvectorの添字で頭がこんがらがってしまったことはありませんか？？ほくはあります。この記事では僕がいつも行っている添字の書き方を形式的にまとめてみようと思います。
+                </p>
+                <ul>
+                    <li>
+                        step1 : <b>とりあえずテキトーに添字を書く</b>
+                    </li>
+                    <li>
+                        step2 : 手元に簡単なケースを用意して、自分の書いたプログラム通りに処理する
+                    </li>
+                    <li>
+                        step3 : 上で書いたテストケースの結果と、自分の期待する結果のズレの分だけ添字を修正する
+                    </li>
+                </ul>
+                <h3>例</h3>
+                <div class="Box">
+                    数列 \(A\) があります。各 \( 1 \leq i \leq |A| \)  について、A の \(i\) 番目から右に \(k\) 要素の和を出力してください。
+                </div>
+                <p>
+                    まずはテキトーにコードを書きましょう。
+                </p>
+                <pre>
+                    <br>vector&lt;int> A;
+                    <br>for(int i = 0 ; i &lt;A.size() ; i++ ){
+                    <br>&ensp;&ensp;&ensp;&ensp;long long sum = 0;
+                    <br>&ensp;&ensp;&ensp;&ensp;for(int j = i ; j &lt;= <b>i+k</b> ; j++ ){<b>//赤字の部分、合ってるのかなぁ....</b>
+                    <br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sum += A[j];
+                    <br>&ensp;&ensp;&ensp;&ensp;}
+                    <br>&ensp;&ensp;&ensp;&ensp;cout &lt;&lt; sum &lt;&lt; endl;
+                    <br>}
+                </pre>
+                <p>
+                    そして、手元で長さ 5 ぐらいのテストケースを用意しましょう。今回は、\(A = 1,4,2,3,4\) , \(i = 0 , k = 3\) とします。
+                </p>
+                <p>
+                    自分で書いたコード(上記のコード)通りに \(A\) を処理していき、<code>for(int j = i ; j &lt;= <b>i+k</b> ; j++ )</code> の部分に \(i\) , \(k\) を当てはめると \(j = 0 , 1 , 2 , 3 \)まで処理を繰り返すので、\(k\) 個の要素の和を求めたいはずが、 \(k+1\) 個の要素の和になっていておかしいと気付けます。
+                </p>
+                <p>
+                    実際の結果と、期待する結果のズレが 1 だったので、\(j \leq i+k \) の部分を 1 ずらすと解決できそうですね。今回だと解答の修正部分は \( j \leq i + k - 1 \) になります。
+                </p>
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

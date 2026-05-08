@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    問題集 1 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                
+                
+
+
+                <!--
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        タイトル
+                    </h3>
+                    <p>
+                        問題文
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            解説
+                        </p>
+                        コード
+                    </details>
+                </div>
+
+                -->
+
+
+                <br>
+                <div class = "TitleLine"><h2>ポテンシャル(ABC253-F)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>初期値が 0 の N 行 M 列の行列に対して Q 個のクエリ(以下の 3 種類)を順に処理せよ
+                        <br>・1 L R X : L 列目から R 列目の全ての要素に +X 加算する
+                        <br>・2 i X : i 行目の要素全てを X に更新する
+                        <br>・3 i j : i 行目の j 列目の値を出力する
+                        <br> N , M , Q ≦ 200000
+                    </pre>      
+                    行と列を独立に考えたいので、クエリ 1 と クエリ 2 を独立に考えます。
+                    <br>\(t\) 番目のクエリを処理する時刻を <b>時刻 \(t\)</b> と呼ぶことにします。
+                    <br>
+                    <br><b>ある時刻のある列にはポテンシャルが存在</b>するものとして考えます(初期値は 0)。
+                    <br>クエリ 1 を <b>L 列目から R 列までのポテンシャルに +X 加算する</b> と言い換えます。
+                    <br>以下を定義します。
+                    <ul>
+                        <li>\({A^t}_{i,j}\) := 時刻 \(t\) における \(i\) 行目の \(j\) 列目の値</li>
+                        <li><b>\({p^t}_j\) := 時刻 \(t\) における \(j\) 列目の要素が持つポテンシャル</b></li>
+                        <li>\({f^i}(t)\) := <b>時刻 \(t\) 以前に最後に \(i\) 行目が一律更新された時刻</b></li>
+                    </ul>
+                    \({A^t}_{i,j}\) = <b>(\(X\):最後に行 \(i\) を更新した値) + (\({f^i}(t)\) 以降に列 \(j\) に加算された分)</b> 
+                    <br>となります。
+                    <br>\({f^i}(t)\) 以降に列 \(j\) に加算された分というのは、<b>時刻 \(t\) と時刻 \({f^i}(t)\) におけるポテンシャルの差</b> なので、
+                    <br><h2>\({A^t}_{i,j}\) = <b>\(X + {p^t}_j - {p^{{f^i}(t)}}_j\)</b></h2> となります。
+                    <br>
+                    <br>\({p^t}_j\) の配列サイズは \(O(QN)\) ですが、\(O(Q)\) 個程度の \((時刻,列)\) のペアにのみポテンシャルを参照するので、
+                    <br>\(p\) の中身を全て保持する必要はありません。
+                    <br>
+                    <br>あらかじめ参照する \((時刻,列)\) を求めておくことで、
+                    <br><b>遅延セグメント木 \(pS\) を時系列順に区間更新しながら、各時刻において参照が必要な列のポテンシャルだけ map&lt;pair&lt;int,int>  などにメモしておく</b>
+                    <br>ことができます。
+                    <br>\(pS\) を平面走査のように更新するので、サイズの問題も OK です。
+                    <br>
+                    <pre>struct&nbsp;qr{<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;type_,l,r,i,j,x;<br>};<br>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;全て&nbsp;1-index&nbsp;とする<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;N&nbsp;,&nbsp;M&nbsp;,&nbsp;Q;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;N&nbsp;&gt;&gt;&nbsp;M&nbsp;&gt;&gt;&nbsp;Q;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;qr&gt;&nbsp;queries(Q+1);<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&gt;&nbsp;refer(Q+1);&nbsp;//[t]&nbsp;:=&nbsp;時刻&nbsp;t&nbsp;の時点でのポテンシャルを参照するべき列の&nbsp;index<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;ft(N+1,0);&nbsp;//&nbsp;[i]&nbsp;:=&nbsp;最後に行&nbsp;i&nbsp;を更新したタイミング&nbsp;(時刻&nbsp;0&nbsp;に&nbsp;0&nbsp;で更新したものとする)<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;t&nbsp;=&nbsp;1&nbsp;;&nbsp;t&nbsp;&lt;=&nbsp;Q&nbsp;;&nbsp;t++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;qr&amp;&nbsp;qrt&nbsp;=&nbsp;queries[t];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;qrt.type_;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(qrt.type_&nbsp;==&nbsp;1)cin&nbsp;&gt;&gt;&nbsp;qrt.l&nbsp;&gt;&gt;&nbsp;qrt.r&nbsp;&gt;&gt;&nbsp;qrt.x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(qrt.type_&nbsp;==&nbsp;2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;qrt.i&nbsp;&gt;&gt;&nbsp;qrt.x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最後に行&nbsp;i&nbsp;を更新したタイミング<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ft[qrt.i]&nbsp;=&nbsp;t;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;qrt.i&nbsp;&gt;&gt;&nbsp;qrt.j;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ポテンシャルを参照する&nbsp;(時刻,列)&nbsp;をメモ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;refer[t].push_back(qrt.j);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;refer[ft[qrt.i]].push_back(qrt.j);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;map&lt;int,map&lt;int,long&nbsp;long&gt;&nbsp;&gt;&nbsp;p;//&nbsp;[t][j]&nbsp;:=&nbsp;時刻&nbsp;t&nbsp;における列&nbsp;j&nbsp;のポテンシャル&nbsp;(0&nbsp;で初期化されてい都合が良い)<br>&nbsp;&nbsp;&nbsp;&nbsp;LazySplayTree&lt;long&nbsp;long&gt;&nbsp;pS;//&nbsp;区間加算ができるやつ<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,M+2)pS.push_back(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;X(N+1,0);//&nbsp;[i]&nbsp;:=&nbsp;最後に行&nbsp;i&nbsp;を更新した時の値<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;(N+1,0).swap(ft);&nbsp;//&nbsp;ft&nbsp;を初期化<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;t&nbsp;=&nbsp;1&nbsp;;&nbsp;t&nbsp;&lt;=&nbsp;Q&nbsp;;&nbsp;t++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;qr&amp;&nbsp;qrt&nbsp;=&nbsp;queries[t];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(qrt.type_&nbsp;==&nbsp;1)pS.RangeAdd(qrt.l,qrt.r+1,qrt.x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(qrt.type_&nbsp;==&nbsp;2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X[qrt.i]&nbsp;=&nbsp;qrt.x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ft[qrt.i]&nbsp;=&nbsp;t;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long&nbsp;long&nbsp;Atij&nbsp;=&nbsp;X[qrt.i]&nbsp;+&nbsp;pS[qrt.j].Value&nbsp;-&nbsp;p[ft[qrt.i]][qrt.j];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;Atij&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;参照するべき列のポテンシャルを&nbsp;pS&nbsp;から取り出す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;j&nbsp;:&nbsp;refer[t])p[t][j]&nbsp;=&nbsp;pS[j].Value;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                </div>
+
+                <br>
+                <div class = "TitleLine"><h2>function composite & reverse</h2></div>
+                <div class = "Box">
+                    <b>一次関数の列</b> : \(F_1 , F_2 , \dots , F_n\) があります。
+                    <br>以下のクエリを処理してください。
+                    <ul>    
+                        <li><code>i a b</code> : \(F_i\) を \(F_i(x) = cx+d\) に置き換える</li>
+                        <li><code>l r</code> : \(F_l,F_{l+1} , \dots F_{r-1} , F_r\) を反転する</li>
+                        <li><code>l r x</code> : \(F_r(F_{r-1}(\dots F_{l+1}(F_l(x)))) &nbsp; mod &nbsp;998244353\) を出力する</li>
+                    </ul>
+                    この問題は library checker の動的木の問題のコアな部分の要約です。
+                    <br>列の左から関数を入れ子にした合成関数(composite)を求めるのが曲者です。
+                    <br>動的木(Link Cut Tree)の問題なので、一次関数の列 \(F\) は splay 木で持ちます。
+                    <br>
+                    <br>splay 木のノードは、そのノード以下の部分木のマージ値を持ちます。
+                    <br>今回の場合は、部分木(に対応する区間)の<b>合成関数</b>の係数をもたせます。  
+                    <br>一次関数を合成しても一時関数にしかならないのがミソです。
+                    <br>
+                    <br>例えば、\(g(x) = ax + b\) と \(h(x) = px+q\) を合成すると、\(h(g(x)) = (ap)x + (bp+q)\) になります。
+                    <br>
+                    <br>以上を踏まえて、splay 木の \(i\) 番目のノードに以下を定義します。
+                    <ul>    
+                        <li>c , d : \(F_i(x)\) の係数 (\(F_i(x) = cx + d\))</li>
+                        <li>c_composite , d_composite : 部分木の関数を全て<b>左から合成</b>したときの係数</li>
+                        <li>c_Rcomposite , d_Rcomposite : 部分木の関数を全て<b>右から合成</b>したときの係数</li>
+                        <li>\(C(x)\) :=  \(F_r(F_{r-1}(\dots F_{l+1}(F_l(x))))\) : (部分木の区間内の関数を左から合成)</li>
+                        <li>\(R(x)\) :=  \(F_l(F_{l+1}(\dots F_{r-1}(F_r(x))))\) : (部分木の区間内の関数を右から合成)</li>
+                    </ul>
+                    \(C(x) , R(x)\) は定義してあるだけで、メンバとして明示的に持つものではないです。
+                    <br>本題は、\(C(c),R(x)\) の係数 (c_composite など) を求めることです。
+                    <br>
+                    <br>\(i\) 番目のノード : \(Y\) の \(C(x)\) は、ノード \(Y\) の左右の子頂点 \(Lef,Rig\) のメンバを用いて以下のように計算できます。
+                    <br>・\(Y.C(x) = Rig.C(F_i(Lef.C(x)))\) 
+                    <br>左 → 自分 → 右 順に合成するので、このような順番になります。
+                    <br>逆に、\(R(x)\) は
+                    <br>・\(Y.R(x) = Lef.R(F_i(Rig.R(x)))\) 
+                    <br>となります。  
+                    <br>\(g(x) = ax + b\) と \(h(x) = px+q\) の合成 が \(h(g(x)) = (ap)x + (bp+q)\) となることを踏まえて、
+                    <br>c_composite , c_Rcomposite などのメンバ変数に合成結果の係数を代入していけば良いです。
+                    <br>
+                    <br>また、区間反転は遅延評価で実装します。
+                    <br>\(C(x)\) と \(R(x)\) は合成の順番を逆にしたもの同士なので、区間反転が起こると \(R\) と \(C\) が入れ替わります。
+                    <br>よって、区間反転の遅延を評価する際は、\(R\) と \(C\) をスワップ、つまり 
+                    <br>・swap(c_composite , c_Rcomposite) 
+                    <br>・swap(d_composite , d_Rcomposite) 
+                    <br>すれば良いです。
+                    <br>
+                    <br>\(F_i\) を書き換える操作は、通常の splay 木で値を書き換える操作と変わらないので説明不要ですね。
+                    <br>
+                    <br>以下、splay 木ライブラリの update & eval 部分です。
+                    <br>
+                    <pre>&nbsp;void&nbsp;update(bool&nbsp;evaluate&nbsp;=&nbsp;true){<br>&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this)&nbsp;==&nbsp;false)return;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(evaluate)this-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this-&gt;left)&nbsp;&amp;&amp;&nbsp;evaluate)this-&gt;left-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this-&gt;right)&nbsp;&amp;&amp;&nbsp;evaluate)this-&gt;right-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;c_composite&nbsp;=&nbsp;this-&gt;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;d_composite&nbsp;=&nbsp;this-&gt;d;<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;c_rcomposite&nbsp;=&nbsp;this-&gt;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;d_rcomposite&nbsp;=&nbsp;this-&gt;d;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this-&gt;left)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;+=&nbsp;this-&gt;left-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;c_composite&nbsp;=&nbsp;this-&gt;left-&gt;c_composite*this-&gt;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;d_composite&nbsp;=&nbsp;this-&gt;left-&gt;d_composite*this-&gt;c&nbsp;+&nbsp;this-&gt;d;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;c_rcomposite&nbsp;=&nbsp;this-&gt;c_rcomposite*this-&gt;left-&gt;c_rcomposite;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;d_rcomposite&nbsp;=&nbsp;this-&gt;d_rcomposite*this-&gt;left-&gt;c_rcomposite&nbsp;+&nbsp;this-&gt;left-&gt;d_rcomposite;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this-&gt;right)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;+=&nbsp;this-&gt;right-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;d_composite&nbsp;=&nbsp;this-&gt;right-&gt;d_composite&nbsp;+&nbsp;this-&gt;right-&gt;c_composite*this-&gt;d_composite;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;c_composite&nbsp;=&nbsp;this-&gt;c_composite*this-&gt;right-&gt;c_composite;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;d_rcomposite&nbsp;=&nbsp;this-&gt;c_rcomposite*this-&gt;right-&gt;d_rcomposite&nbsp;+&nbsp;this-&gt;d_rcomposite;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;c_rcomposite&nbsp;=&nbsp;this-&gt;c_rcomposite*this-&gt;right-&gt;c_rcomposite;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;return;<br>}<br>void&nbsp;eval(){<br>&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;reverse_flag_lazy){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(this-&gt;left&nbsp;,&nbsp;this-&gt;right);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;反転が必要<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(this-&gt;d_rcomposite,this-&gt;d_composite);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(this-&gt;c_rcomposite,this-&gt;c_composite);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//下に伝播<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this-&gt;left))this-&gt;left-&gt;set_lazyReverse();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(isExist(this-&gt;right))this-&gt;right-&gt;set_lazyReverse();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;reverse_flag_lazy&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br></pre>
+                </div>
+
+
+                <div class = "TitleLine"><h2>区間最小値(最大値)カウント</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>区間内要素のうち、最小値であるものの個数を、平衡二分木などに乗せる
+                    </pre>      
+                    MinCount 的な名前の要素をノードに持たせると良い。  
+                    <br>以下は通常のスプレー木の Node クラスの update と eval の部分。  
+                    <pre>//&nbsp;Nodeの持っている情報をupdateする<br>void&nbsp;update(){<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;Value;<br>&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;MinCount&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(bool(this-&gt;left)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;left-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;+=&nbsp;this-&gt;left-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;Min&nbsp;==&nbsp;this-&gt;left-&gt;Min)this-&gt;MinCount&nbsp;+=&nbsp;this-&gt;left-&gt;MinCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(this-&gt;left-&gt;Min&nbsp;&lt;&nbsp;this-&gt;Min){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;left-&gt;Min;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;MinCount&nbsp;=&nbsp;this-&gt;left-&gt;MinCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;if(bool(this-&gt;right)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;right-&gt;eval();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;SubTreeSize&nbsp;+=&nbsp;this-&gt;right-&gt;SubTreeSize;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;Min&nbsp;==&nbsp;this-&gt;right-&gt;Min)this-&gt;MinCount&nbsp;+=&nbsp;this-&gt;right-&gt;MinCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(this-&gt;right-&gt;Min&nbsp;&lt;&nbsp;this-&gt;Min){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;right-&gt;Min;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;MinCount&nbsp;=&nbsp;this-&gt;right-&gt;MinCount;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;return;<br>}<br>void&nbsp;eval(){<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間代入<br>&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;lazy_update.first){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Value&nbsp;=&nbsp;this-&gt;lazy_update.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;MinCount&nbsp;=&nbsp;this-&gt;SubTreeSize;//&nbsp;全ての要素が一律&nbsp;Min&nbsp;となる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;lazy_update.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(bool(this-&gt;left))this-&gt;left-&gt;set_lazyUpdate(this-&gt;lazy_update.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(bool(this-&gt;right))this-&gt;right-&gt;set_lazyUpdate(this-&gt;lazy_update.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_update.first&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;区間アフィン変換&nbsp;(MinCountに影響なし)<br>&nbsp;&nbsp;&nbsp;&nbsp;if(this-&gt;lazy_affine.first){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Value&nbsp;=&nbsp;this-&gt;lazy_affine.second.first&nbsp;*&nbsp;this-&gt;Value&nbsp;+&nbsp;this-&gt;lazy_affine.second.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;Min&nbsp;=&nbsp;this-&gt;lazy_affine.second.first&nbsp;*&nbsp;this-&gt;Min&nbsp;+&nbsp;this-&gt;lazy_affine.second.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(bool(this-&gt;left))this-&gt;left-&gt;set_lazyAffine(this-&gt;lazy_affine.second.first,this-&gt;lazy_affine.second.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(bool(this-&gt;right))this-&gt;right-&gt;set_lazyAffine(this-&gt;lazy_affine.second.first,this-&gt;lazy_affine.second.second);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this-&gt;lazy_affine.first&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br></pre>
+                    <br>
+                </div>
+                
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+
+
+
+
+
+                        
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

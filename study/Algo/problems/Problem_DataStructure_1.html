@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>Problem_1</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            
+            <section class = "Introduction">
+                
+                <h2>   
+                    作問(1)<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <br>先日書いたSplay木についていろいろ考えているときに思いついたクエリ処理を問題にしてみました。
+                <br>
+                <br><h2>問題:Array-Set-Query</h2>
+                <br>Q個のクエリが与えられるので、処理してください。
+                <br>なお、クエリの種類は t によって指定される。
+                <br>&ensp;&ensp;始め、空の数列:Aがある。
+                <br>&ensp;&ensp;クエリ１: t=1の時、XをAの末尾に追加する。
+                <br>&ensp;&ensp;クエリ２: t=2の時、Aを昇順にソートする。
+                <br>&ensp;&ensp;クエリ３: t=3の時、Aの区間:[l,r)の和を出力する。なお、[l,r)とは l&lt;= j &lt;rを満たす整数jからなる区間である。
+                <br>
+                <br>制約:0 &lt; Q &lt;= 1000000 , t = {1,2,3} , 1 &lt;= l &lt; r&lt; = |A|+1
+                <br>
+                <br>入力: 一行目に整数Q , 続くQ行にはクエリが与えられる。各行の初めの入力はtで、クエリの形式は以下のいずれかである。
+                <br>&ensp;&ensp;
+                <br>&ensp;&ensp;t = 1 -> "1 x"
+                <br>&ensp;&ensp;t = 2 -> "2"
+                <br>&ensp;&ensp;t = 3 -> "3 l r" 
+                
+                <br>
+                <br>
+                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+                            <br>
+                            <br>
+                            まずは仮想的に数列を左右二つ、別々の数列に分けて考える。
+                            <br><br>ここで、二つの数列は以下のようなものとする。
+                            <br>左側の数列：要素間の大小関係を元に整列しており、高速なinsertと、RangeSumQueryができる(std::set + セグ木)。
+                            <br>右側の数列:要素を追加した順に整列しており、高速なpushとpopとRangeSumQueryができる。(セグ木 + (高速にpopができたら汎用性高い))
+                            <br><br>
+                            <br>クエリ1のpush_backクエリは右側の数列の末尾にpushする。
+                            <br>クエリ２のsortは、右側にある要素を全て左側に移す。左側にinsertされたものは昇順に並んでるので、これでソートできている。
+                            <br>&ensp;&ensp;また、クエリ１の個数も、左側の数列へのinsertも共にq回以下なので,insertやpushが高速ならば十分間に合う。
+                            <br>クエリ３では、右左の数列の境界と l , r の位置で場合分けし、それぞれRangeSumQueryを求めれば良い。
+                            <br>
+                            <br>
+                            <br>ここで、左側の数列とは以前書いたSplay木で実装できる<a target = "_blank" href="./../DataStructure/Splay_2.html">MultiSet</a>のことである。
+                            <br>また、右側の数列も同じく<a target = "_blank" href="./../DataStructure/Splay_1.html">SplayTree</a>のことである。
+
+
+
+
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+                
+
+                
+            </section>
+
+
+
+        </div>
+        <br>
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+

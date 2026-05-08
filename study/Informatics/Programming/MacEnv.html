@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    Mac OS 環境<br></h2>
+            </section>
+
+
+            <section class = "Explanation">
+                
+                <h3>
+                    Mac とは
+                </h3>
+                <p>
+                    Mac OS(Macintosh) とは、コンピュータの OS の種類の一つです。  
+                </p>
+                <br>
+                <h3>
+                    ターミナルとフォルダ構造
+                </h3>
+                <p>
+                    ターミナルとは、ユーザが Mac OS に命令を行うためのインターフェース(窓口) です。Finder → 上部バーの「移動」項目から「ユーティリティ」に移動すると「ターミナル」というアプリがあります。ターミナルを開くと、以下のような表示の画面が出てくると思います。  
+                </p>
+                <pre>
+                    <br>Last login: Mon Oct 30 06:49:52 on ttys036
+                    <br>[ユーザ名]@[PC名]noMac-mini ~ % 
+                </pre>
+                <p>
+                    <code>%</code> の右側にカーソルが出てると思います。この行のことを<b>コマンドライン</b>と言い、OS に命令を行う際はこのコマンドラインに命令を打ち込みます。<code>%</code> の左に <code>~</code> とありますが、これは命令を実行する (PC上の) <b>地点 (現在の作業フォルダ) </b> がログインユーザのフォルダであることを意味しています。 
+                </p>
+                <p>
+                    Mac OS は基本的にフォルダやファイルを以下のような構造で管理します。 
+                </p>
+                <br><img src = "./../../images/MacOS/MacOS.001.jpeg" class = "StandardImageStyle"> 
+                <p>
+                    もしも okoteiyu としてログインしているなら、<code>~</code> は ① のフォルダを指します。同様に、okoteiyu としてログインしているなら、<code>~</code> は ② のフォルダを指します。  
+                </p>
+                <p>
+                    また、PC のフォルダ構造における地点を表す表記として「パス」というものがあります。パスはフォルダやファイル名を <code>/</code> で繋げて表記されます。例えば <code>./nx/Dir/file1</code> というパスは、<b>現在いるフォルダからを表す <code>.</code> </b> から <code>nx → Dir → file1</code> と移動したもの、すなわち <code>nx</code> フォルダ内にある <code>Dir</code> フォルダ内の <code>file1</code> ファイルを指します。このように現在の作業フォルダを始点とするファイルパスを<b>相対パス</b>と言います。
+                </p>
+                <p>
+                    それに対して、パスは先頭を <code>/</code> から始めることで、図の ③ の root から始まるパスを記述できます。例えば、① のパスは <code>/Users/okoteiyu</code> と表記できます。これを<b>絶対パス</b>と言います。
+                </p>
+                <p>
+                    というわけで、ターミナルを開くと <code>/Users/[ログイン中のユーザ]</code> の地点で命令を実行するためのコマンドラインが開かれます。実行を行う場所を変更したい場合は、<code>cd</code> という命令でフォルダを移動することができます。例えば okoteiyu がターミナルを開いて <code>cd desktop</code> と命令すると、現在地が ④ に移動します。それ以降、コマンドラインで実行する命令は <code>/Users/okoteiyu/desktop</code> にて実行されることになります。 
+                </p>
+                <br>
+                <h3>
+                    コマンドの管理
+                </h3>
+                <p>
+                    コマンドラインでコマンドを \(X\) と打ち込むと、名前が \(X\) の実行ファイルのプログラムを実行できます。ただし、コマンドラインから呼び出すことができる実行ファイルは置かれる場所が決まっているため、PC 上のどこかに実行ファイルがあるからといって、常にそれをコマンドラインからコマンドで実行できるとは限りません。
+                </p>
+                <p>
+                    以下の図を確認すると、<code>bin</code> という名前のフォルダが \(3\) つあることに気付けます。これらに置かれている実行ファイルは、デフォルトの状態で呼び出し可能です。
+                </p>
+                <br><img src="./../../images/MacOS/MacOS.001.jpeg" ,  class = "StandardImageStyle"> 
+                <p>
+                    これら \(3\) つのファイルはコマンドラインで使用する命令の<b>実行ファイル</b>を以下のように分類して管理します。
+                </p>
+                <ul>
+                    <li>⑤ の root 直下の bin フォルダは、Mac OS の基本的なコマンドの実行ファイルが置かれています(cd など)。</li>
+                    <li>⑥ の bin フォルダは、Mac OS の基本コマンドではないコマンドの実行ファイルが置かれています(g++ , python など)。</li>
+                    <li>⑦ の bin フォルダは、ユーザーが追加した実行ファイルを置く場所です(自分で作ったコマンドを置くこともできます)。
+                </ul>
+                <p>
+                    なお、⑤ などの重要なフォルダを編集するためには<b>管理者権限</b>というものが必要になります。通常のユーザはフォルダ編集に関して制限がかけられています。
+                </p>
+                <br>
+                <h3>
+                    PATH を通す
+                </h3>
+                <p>
+                    <code>/bin</code> , <code>/usr/bin</code> , <code>/usr/local/bin</code> などにはコマンドの実行ファイルが置かれていることは先述の通りです。ターミナル (以降、zsh (ゼットシェル) と表記) にコマンドが打ち込まれた時、zsh はこれらのフォルダを参照して打ち込まれたコマンドに対応する実行ファイルを探し、同名の実行ファイルが見つかったらそれを実行します。  zsh がコマンドを参照するフォルダは自分で自由に決めることができます。例えば上に挙げたデフォルトのパス以外に、<code>/Users/okoteiyu/desktop</code> に置かれている実行ファイルをコマンドとして参照するようにしたい場合、<code>/Users/okoteiyu/desktop</code> に <b>パスを通す</b> と呼ばれる作業を行います。  
+                </p>
+                <p>
+                    OS には環境変数というものが存在します。特に <code>PATH</code> という環境変数は、zsh がコマンドを見つける際に参照する環境変数です。<code>/Users/okoteiyu/desktop</code> の実行ファイルをコマンドとして使うためには、zsh が <code>/Users/okoteiyu/desktop</code> を参照するように <code>PATH</code> を編集する必要があります。  
+                </p>
+                <p>
+                    環境変数を編集するためには、<code>~</code> フォルダに置かれている <code>.zshrc</code> ファイルを編集します。ターミナルから <code>open</code> コマンドで <code>.zshrc</code> を開いても良いですが、今回は Finder から開きましょう。<code>.zshrc</code> などの重要なファイルやフォルダは元々は Finder 上に表示されていないはずです。そこで、<code> shift + command + .</code> で <code>.zshrc</code> ファイルを含む全てのファイルやフォルダを Finder 上で表示させることができます。
+                </p>
+                <p>
+                    <code>.zshrc</code> ファイルを開いたら、以下のように書き込むことで <code>PATH</code> を変更することができます。
+                </p>
+                <pre>export PATH="[通したいパス]:$PATH"</pre>
+                <p>
+                    例えば <b>/Users/okoteiyu/desktop</b> にパスを通す場合は、以下のように追記します。<b>この時、余計な空白や改行が入ってはいけません</b>。
+                </p>
+                <pre>export PATH="/Users/okoteiyu/desktop:$PATH"</pre>
+                <p>
+                    これで okoteiyu の デスクトップ に置かれている実行ファイルをコマンドとして利用できるようになりました。>ただし <b>zsh は起動時に <code>.zshrc</code> を参照するので、変更を反映したい場合は ターミナルを再起動する必要があります。</b>
+                </p>
+                <p>
+                    <code>PATH</code> の他には <code>alias</code> というものもあり、<code>alias</code> をいじることでコマンドのエイリアスを自由に決めることができます。例えば python のバージョンが \(10000000\) になったら、python コマンドの実行のたびに python10000000 と打つことになります。しかし毎回このコマンドを打つのは大変なので、<code>.zshrc</code> に以下の行を追加し python コマンドのエイリアスを作成すると良いでしょう。
+                </p>
+                <pre>alias python='python10000000'</pre>
+                <p>
+                    これによって python10000000 と打たずとも python と打つだけで python10000000 を実行できるようになりました。 
+                </p>
+                <br>
+                <h3>
+                    環境構築/パッケージ
+                </h3>
+                <p>
+                    Mac OS にはデフォルトでプログラミング言語の C++ と python2 がインストールされています(2018 年情報)。python2 はもはや python とは呼べない代物なので、python3 を使うためには嫌でも環境構築を行う必要があります。
+                </p>
+                <p>
+                    そこで Mac OS ユーザたちは <b>Homebrew</b> というツールを用います。Homebrew とは Mac OS のためのパッケージ管理ツールです。パッケージとは、プログラムを動かすために必要な物のかたまりのことで、Homebrew はパッケージのインストールやバージョンの管理などを行なってくれます。  
+                </p>
+                <p>
+                    Homebrew を使えるようにするためには、ターミナルで以下のコマンドを実行します。 
+                </p>
+                <pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre>
+                <p>
+                    これにて、Homebrew のコマンドを使えるようになったはずです。Homebrew のコマンドは <code>brew</code> です。Homebrew がインストールされたかどうかを以下のコマンドで確かめます。
+                </p>
+                <pre>brew -v</pre>
+                <p>
+                    これは Homebrew のバージョンを確認するコマンドです。
+                </p>
+                <p>
+                    <code>brew</code> でパッケージをインストールする際は、以下を打ち込みます。
+                </p>
+                <pre>brew install [パッケージ名]</pre>
+                <p>
+                    <code>brew</code> によってインストールされたパッケージのコマンドは <code>/opt/homebrew/bin</code> というディレクトリに保存されるので、これらのコマンドを実行するためにパスを通しておいてください。なお、昔の Mac では <code>/usr/local/bin</code> に置かれていたようです。
+                </p>
+
+            
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>

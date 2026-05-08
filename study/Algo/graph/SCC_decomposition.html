@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    強連結成分分解<br></h2>
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    強連結成分とは
+                </h2>
+                <u>有向グラフの例</u>
+                <br><img src = "./../../images/SCC/SCC.001.jpeg" class = "StandardImageStyle">
+                <p>
+                    有向グラフ \(G\) の頂点集合の部分集合で、以下を満たす集合 \(S\) を<b>強連結成分 ( SCC ) </b>といいます。
+                </p>
+                <ul>
+                    <li>
+                        \(S\) に属する任意の \(2\) 頂点間は有向辺を辿って移動可能である。
+                    </li>
+                </ul>
+                <br><img src = "./../../images/SCC/SCC.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(G\) の強連結成分は複数種類存在し、それらの集合はいずれも互いに素です。\(G\) の強連結成分分解では、\(G\) の頂点がどの強連結成分に属するかを特定し、また、強連結成分同士の関係をグラフとして構築します。
+                </p>
+                <p>
+                    頂点 \(x\) が属する強連結成分を \(c_x\) とします。有向グラフ \(G\) において、辺 \((u \rightarrow v)\) の端点 \(u,v\) がそれぞれ相異なる強連結成分 \(c_u,c_v\) に属しているなら、それら \(2\) つの強連結成分の関係を辺 \((c_u \rightarrow c_v)\) で表現します。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.003.jpeg" class = "StandardImageStyle">
+                <p>
+                    強連結成分同士の関係によって構築される有効グラフを \(Gs\) とすると、\(Gs\) は<b>多重辺を持つ DAG (平路を持たない有向グラフ)</b> になります。ただし、今回は多重辺を<b>マージして \(1\) つの辺として扱う</b>ことにします。辺に重みがついている場合は重みをどうマージするのかも考慮する必要があります。
+                </p>
+                <p>
+                    \(Gs\) は DAG なので、頂点をトポロジカルソートすることができます。\(Gs\) の頂点、すなわち各強連結成分には頂点番号が割り振られますが、これから紹介する強連結成分分解アルゴリズムでは、それらの番号の割り当てが<b>トポロジカルソートの結果</b>の \(1\) つになります。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.004.jpeg" class = "StandardImageStyle">
+                <br>
+                <h2>
+                    アルゴリズム
+                </h2>
+                <p>
+                    アルゴリズムは \(2\) つのステップからなります。
+                </p>
+                <h3>
+                    ステップ 1
+                </h3>
+                <p>
+                    未到達の頂点が存在しなくなるまで、以下の操作を繰り返します。
+                </p>
+                <ul>
+                    <li>
+                        未到達の頂点のうちいずれかを任意に DFS の始点として選び、到達済みの頂点に入らない枝刈り付きの DFS を行う。
+                    </li>
+                </ul>
+                <br><img src = "./../../images/SCC/SCC.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    ここで、ステップ \(1\) の DFS を通して、これ以上移動不可能であることが判明するタイミングが早い順に、頂点に数値 (\(\mathrm{goback\_ time}\)) を \(0\) から割り当てていきます。
+                </p>
+                <br>
+                <u>
+                    ステップ 1 の様子
+                </u>
+                <p>
+                    頂点 \(x\) からこれ以上移動不可能であることが判明するとは、頂点 \(x\) から出る辺を調べ終わったタイミングのことです。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(\mathrm{goback\_ time}\) が小さいほど、移動不可能であることが判明するタイミングが早いことを表します。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.007.jpeg" class = "StandardImageStyle">
+                <p>
+                    これ以上探索できなくなったら、未到達の頂点から新たに頂点を選び、そこから改めて DFS と \(\mathrm{goback\_ time}\) の割り当てを行います。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.008.jpeg" class = "StandardImageStyle">
+                <p>
+                    この時、ステップ \(1\) においてすでに訪れた頂点はいずれも到達済みとして枝刈りします。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.009.jpeg" class = "StandardImageStyle">
+                <p>
+                    複数の辺が出ている頂点は、それら全てが移動不可能と判明したタイミングで \(\mathrm{goback\_ time}\) に数値を割り当てます。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.010.jpeg" class = "StandardImageStyle">
+                <p>
+                    残りの未到達頂点についても、同様に DFS を行ってください。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.011.jpeg" class = "StandardImageStyle">
+                <p>
+                    始点にする未到達頂点を探す操作は、頂点 \(0\) から到達済み頂点をスキップしながらイテレートしていけば良いです。
+                </p>
+                <br>
+                <h3>
+                    ステップ 2
+                </h3>
+                <p>
+                    このステップでは、\(G\) の辺の始点と終点を入れ替えた辺 (逆辺) で構成されるグラフ \(rG\) を考えます。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.012.jpeg" class = "StandardImageStyle">
+                <p>
+                    未到達の頂点が存在しなくなるまで、以下の操作を繰り返します。
+                </p>
+                <ul>
+                    <li>
+                        未到達の頂点のうち、\(\mathrm{goback\_ time}\) が最大のものを DFS の始点として選び、ステップ \(2\) において到達済みの頂点に入らない枝刈り付きの DFS を、グラフ \(rG\) 上で行う。
+                    </li>
+                </ul>
+                <br>
+                <u>
+                    強連結成分の構築
+                </u>
+                <p>
+                    頂点 \(S\) を始点とする \(rG\) 上の DFS で (ステップ \(2\) において) <b>初めて</b>到達できた頂点は <b>\(S\) と同じ強連結成分に属します</b>。つまり、ステップ \(2\) における DFS を一回行うと、強連結成分を \(1\) つ構築できます。
+                </p>
+                <p>
+                    また、ステップ \(2\) のイテレートにおいて、\(i\) 番目 (0-index) の DFS によって構築される強連結成分には、強連結成分同士の関係を表す有向グラフ \(gs\) における頂点番号として \(i\) を割り当てておきます。
+                </p>
+                <br>
+                <u>
+                    辺の構築
+                </u>
+                <p>
+                    頂点 \(S\) を始点とする DFS の途中で<b>現在実行中の DFS より前 (かつステップ \(2\)) の DFS で到達済み</b>の頂点に到達できた場合、その頂点を \(y\) とすると、強連結成分同士の関係を表す有向グラフ \(Gs\) において、頂点 \(y\) が属する強連結成分 \(c_y\) から、現在構築中の強連結成分 \(c_S\) への辺が存在します。よって、このタイミングで \(Gs\) の有向辺 \((c_y \rightarrow c_S)\) を構築できます。なお、実際の処理ではこの時点で強連結成分 \(c_S\) の番号が判明しています。
+                </p>
+                <p>
+                    またアルゴリズムの手続を考えると、辺の構築を行う時点で、頂点 \(y\) が属する強連結成分 \(c_y\) をすでに特定できていることが保証されています。ステップ \(2\) では逆辺を考えているので、強連結成分の構築がちゃんとできているなら、ここでの辺の構築の正当性は自明です。
+                </p>
+                <br>
+                <u>
+                    ステップ 2 の様子
+                </u>
+                <p>
+                    DFS で初めて到達した頂点で強連結成分を構築します。以下の図は 0-index で \(0\) 番目の DFS の結果なので、強連結成分には番号 \(0\) を割り当て、\(\mathrm{SCC}_0\) とします。
+                </p>
+                <p>
+                    なお、実用上は強連結成分のデータを構造体などで集約して管理しておくと良いでしょう。頂点重みのマージや、属する頂点の集合もこの構造体で管理すると便利です。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.013.jpeg" class = "StandardImageStyle">
+                <p>
+                    このイテレートではステップ \(2\) において到達済みの頂点をスキップし、未到達の頂点のうち \(\mathrm{goback\_ time}\) が最大の頂点を始点として改めて DFS を続けます。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.014.jpeg" class = "StandardImageStyle">
+                <p>
+                    \(i\) 回目の DFS で、すでに構築した強連結成分 \(\mathrm{SCC}_x\) 内の頂点に到達できる場合、強連結成分同士の関係を表す有向グラフ \(Gs\) における辺 \((\mathrm{SCC}_x \rightarrow \mathrm{SCC}_i)\) \((x \leq i)\) を構築します。
+                </p>
+                <br><img src = "./../../images/SCC/SCC.015.jpeg" class = "StandardImageStyle">
+                <p>
+                    このように \(\mathrm{SCC}\) および \(Gs\) を構築すると、\(\mathrm{SCC}\) に割り振られた番号は \(Gs\) におけるトポロジカルソートの結果の \(1\) つになります (トポロジカルソートの結果は一意ではないことに注意) 。
+                </p>
+                <br>                
+                <h2>
+                    強連結成分の構築手続きの正当性
+                </h2>
+                <h3>
+                    一
+                </h3>
+                <p>
+                    ステップ \(2\) の DFS で、始点 \(S\) から頂点 \(x\) に<b>初めて</b>到達した場合、\(S\) と \(x\) が同じ強連結成分に属することを証明します。
+                </p>
+                <p>
+                    ステップ \(2\) の DFS は逆辺によるグラフ \(rG\) 上で行うので、\(S\) から \(x\) に到達可能ということから、元のグラフ \(G\) 上で頂点 \(x\) から頂点 \(S\) へのパスが存在することがわかります。また、ステップ \(2\) の手続きより、頂点 \(S\) の \(\mathrm{goback\_ time}\) に割り当てられた数値は、頂点 \(x\) の \(\mathrm{goback\_ time}\) に割り当てられた数値よりも大きいことがわかります。
+                </p>
+                <p>
+                    ここで、元のグラフ \(G\) 上で頂点 \(S\) から頂点 \(x\) へのパスが存在しない、すなわち \(G\) 上で頂点 \(x\) から頂点 \(S\) 方向に一方通行であると仮定して、背理法による証明を行います。
+                </p>
+                <p>
+                    元のグラフ \(G\) 上に頂点 \(x\) から頂点 \(S\) へのパスが存在することは先述の通りなので、頂点 \(x\) の \(\mathrm{goback\_ time}\) は、<b>仮定が成り立つならば必ず</b>頂点 \(S\) の \(\mathrm{goback\_ time}\) よりも後に数値が割り振られることになり、頂点 \(S\) の \(\mathrm{goback\_ time}\) に割り当てられた数値は、頂点 \(x\) の \(\mathrm{goback\_ time}\) に割り当てられた数値よりも小さくなります。これは事実と異なるので、仮定は成り立たないことがわかります。
+                </p>
+                <p>
+                    よって、元のグラフでは \(S\) から \(x\)、\(x\) から \(S\) の双方向にパスが存在します。これは \(S\) と \(x\) が同じ強連結成分に属する条件を満たします。
+                </p>
+                <h3>
+                    二
+                </h3>
+                <p>
+                    (DFS での到達済みか未到達かは関係なく) グラフ \(rG\) 上で \(S\) からのパスが存在しない頂点 \(x\) について、\(S\) と \(x\) が同じ強連結成分に属さないことを証明します。このとき、元のグラフ \(G\) 上に \(x\) から \(S\) へのパスが存在しないので、\(S\) と \(x\) は強連結成分である条件を満たしません。
+                </p>
+                <h3>
+                    三
+                </h3>
+                <p>
+                    ステップ \(2\) において、ある頂点 \(x\) が、始点 \(S\) からの DFS の開始前の時点で到達済み場合、頂点 \(x\) はそれよりも前に \(S\) でないある始点 \(t\) からの DFS によって初めて到達済みの状態になったことがわかります。
+                </p>
+                <p>
+                    \(t\) から \(x\) に初めて到達しているので、\(t\) と \(x\) は同じ強連結成分に属することがわかります。ここで、ステップ \(2\) の手続きより、頂点  \(S\) は、\(S\) を始点とする DFS よりも<b>前に到達済みになった頂点のいずれからも到達できない</b>ことが保証されているので、\(t\) と \(S\) は同じ強連結成分には含まれません。よって、\(S\) と \(x\) は異なる強連結成分に属します。
+                </p>
+                <h3>
+                    まとめ
+                </h3>
+                <p>
+                    以上 \(3\) つより、ステップ \(2\) における強連結成分の構築の正当性を示すことができました。
+                </p>
+                <br>
+                <h2>
+                    強連結成分への番号割り当てがトポロジカルソート結果になることの証明
+                </h2>
+                <p>
+                    ステップ \(2\) の手続きより、\(\mathrm{SCC}_i\) に入る辺の始点の強連結成分はいずれも番号が \(i\) より小さいことが保証されています。強連結成分の関係を表すグラフは DAG なので、強連結成分 \(\mathrm{SCC}_x\) から \(\mathrm{SCC}_y\) に到達可能ならば \(x \leq y\) となっていることが保証されています。
+                </p>
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre><br><br>/*<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;有向グラフの強連結成分(SCC)のデータと、それらの関係を管理する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;Static&nbsp;な使用を想定しているが、O(V+E)&nbsp;時間でデータの再構築をできるように設計してある。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;それぞれの強連結成分(SCC)には番号が割り振られる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;_SCC&nbsp;構造体に、強連結成分内の頂点や辺のデータを保存する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC&nbsp;の関係をグラフで表現する際、多重辺の情報を保存せず、辺重みのない隣接リストで表現する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;1&nbsp;つの&nbsp;SCC&nbsp;を&nbsp;1&nbsp;つの頂点に対応づけた隣接リストを構築する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC&nbsp;の関係のグラフは&nbsp;DAG&nbsp;になる。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;それぞれの&nbsp;SCC&nbsp;に割り振られる番号は、SCC&nbsp;の関係のグラフにおけるトポロジカルソート順の&nbsp;1&nbsp;つである。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;!!!&nbsp;0&nbsp;から始まり、数値の大小がトポロジカルソートにおける順序を表す&nbsp;!!!<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;!!!&nbsp;0&nbsp;から始まり、数値の大小がトポロジカルソートにおける順序を表す&nbsp;!!!<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;!!!&nbsp;0&nbsp;から始まり、数値の大小がトポロジカルソートにおける順序を表す&nbsp;!!!<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;_SCC&nbsp;構造体について<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;強連結成分のデータをもつ。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;id()&nbsp;:=&nbsp;SCC&nbsp;の番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;size()&nbsp;:=&nbsp;SCC&nbsp;に属する頂点の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;[i]&nbsp;:=&nbsp;SCC&nbsp;に属する頂点のうち、管理されている順(無意味な順序)で&nbsp;i&nbsp;番目の頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC&nbsp;に属する頂点や辺について、それらの重みの集約&nbsp;(Sum,Min,Max)&nbsp;などを管理する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;モノイドなら乗る。カスタマイズ性を上げるために、ブラックボックスにはしていない。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;node_w_sum&nbsp;,&nbsp;node_w_max&nbsp;,&nbsp;node_w_min&nbsp;:=&nbsp;順に頂点重みの&nbsp;総和、最大値、最小値<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;edge_w_sum&nbsp;,&nbsp;edge_w_max&nbsp;,&nbsp;edge_w_min&nbsp;:=&nbsp;順に辺重みの&nbsp;総和、最大値、最小値<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;インターフェース&nbsp;(構築)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;add_edge(u,v,w)&nbsp;:=&nbsp;重み&nbsp;w&nbsp;の有向辺&nbsp;(u→v)&nbsp;を追加<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;set_nodeweight(x,w)&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;の頂点重みを&nbsp;w&nbsp;としてセットする。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;build()&nbsp;:=&nbsp;O(V+E)&nbsp;時間でデータ構築<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;インターフェース&nbsp;(取得)&nbsp;:&nbsp;build()&nbsp;によって構築したデータに対する操作<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;graph_size()&nbsp;:=&nbsp;元のグラフのサイズ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;sccd_size()&nbsp;:=&nbsp;SCC&nbsp;の関係を表すのグラフのサイズ&nbsp;(強連結成分の個数)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC_of_Node(x)&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;が属する強連結成分のデータを、_SCC&nbsp;構造体の&nbsp;const&nbsp;参照で返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC_of_Number(c)&nbsp;:=&nbsp;番号が&nbsp;c&nbsp;の強連結成分のデータを、_SCC&nbsp;構造体の&nbsp;const&nbsp;参照で返す。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;depth(c)&nbsp;:=&nbsp;強連結成分の関係のグラフで、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;!!!&nbsp;に到達可能&nbsp;!!!&nbsp;な&nbsp;SCC&nbsp;のうち、最遠のものまでのパス長<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;level(c)&nbsp;:=&nbsp;強連結成分の関係のグラフで、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;!!!&nbsp;から到達可能&nbsp;!!!&nbsp;な&nbsp;SCC&nbsp;のうち、最遠のものまでのパス長<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;[c]&nbsp;:=&nbsp;SCC&nbsp;の関係のグラフにおいて、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;から辺&nbsp;1&nbsp;本で移動可能な&nbsp;SCC&nbsp;の隣接リスト&nbsp;(const&nbsp;参照)<br>&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;仕様,注意点<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC&nbsp;内部の辺重みの集約をとるので多重辺を許さない。(集約したいモノイドに応じた方法で)あらかじめ多重辺をマージしておく。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;本質とは関係ないですが、ある辺の逆辺と言った時、元の辺の始点と終点を入れ替えただけで、重みなどの他の要素はそのままのものを指す。<br>*/<br>template&lt;typename&nbsp;type_Nodeweight&nbsp;,&nbsp;typename&nbsp;type_Edgeweight&gt;<br>class&nbsp;SCC_decomposition{<br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;static&nbsp;const&nbsp;int&nbsp;UNDEFINED_Symbol&nbsp;=&nbsp;-2;//&nbsp;未定義の頂点&nbsp;(辺が出てない移動先など)<br>&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;static&nbsp;const&nbsp;int&nbsp;UNREACHED_Symbol&nbsp;=&nbsp;-1;//&nbsp;非到達&nbsp;(未チェック)&nbsp;を表すシンボル<br><br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;Edge{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;from,&nbsp;to;&nbsp;//&nbsp;両端の頂点番号&nbsp;(有向)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type_Edgeweight&nbsp;weight;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;id;//&nbsp;辺にも&nbsp;id&nbsp;を割り振る場合がある<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Edge(int&nbsp;f,int&nbsp;t,type_Edgeweight&nbsp;w):from(f),to(t),weight(w){}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;強連結成分を表すクラス<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;_SCC{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この&nbsp;SCC&nbsp;に属する頂点番号たち<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;members;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺重みの集約の初期化済みフラグ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;edgew_f&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この&nbsp;SCC&nbsp;に割り振られた番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;id_;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;built&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;node_w_sum&nbsp;などの集約値は本来抽象化されるべきものを、カスタマイズの見本として特殊化している。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;そのため、カスタマイズ性のためにブラックボックス化しない。<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この&nbsp;SCC&nbsp;に属する頂点重みのマージ&nbsp;(オフライン処理ならモノイドが乗る)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type_Nodeweight&nbsp;node_w_sum&nbsp;,&nbsp;node_w_max&nbsp;,&nbsp;node_w_min;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この&nbsp;SCC&nbsp;に属する辺重みのマージ&nbsp;(オフライン処理ならモノイドが乗る)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type_Edgeweight&nbsp;edge_w_sum&nbsp;,&nbsp;edge_w_max&nbsp;,&nbsp;edge_w_min;<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;の番号を渡す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_SCC(int&nbsp;c_id)&nbsp;:&nbsp;id_(c_id){}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この&nbsp;SCC&nbsp;に属する頂点数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;size()&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this-&gt;members.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;この&nbsp;SCC&nbsp;の番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;id()&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this-&gt;id_;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;に属する頂点として&nbsp;members&nbsp;に保管されている&nbsp;i&nbsp;番目&nbsp;(順序は未定義)&nbsp;の頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;operator[](int&nbsp;i)&nbsp;const&amp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;i&nbsp;&amp;&amp;&nbsp;i&nbsp;&lt;&nbsp;this-&gt;size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;members[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;に頂点&nbsp;x&nbsp;(重みが&nbsp;w)&nbsp;を追加<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add_node(int&nbsp;x&nbsp;,&nbsp;type_Nodeweight&nbsp;w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(built&nbsp;==&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(members.size()&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;集約たちを初期化<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node_w_sum&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node_w_min&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node_w_max&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;集約たちに反映<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node_w_sum&nbsp;=&nbsp;w&nbsp;+&nbsp;node_w_sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node_w_min&nbsp;=&nbsp;min(w&nbsp;,&nbsp;node_w_min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node_w_max&nbsp;=&nbsp;max(w&nbsp;,&nbsp;node_w_max);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members.push_back(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;に辺重みが&nbsp;w&nbsp;の辺を追加&nbsp;(ここでは端点に興味はない)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add_edge(type_Edgeweight&nbsp;w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(built&nbsp;==&nbsp;false);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(edgew_f&nbsp;==&nbsp;false){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;集約たちを初期化<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_w_sum&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_w_min&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_w_max&nbsp;=&nbsp;w;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edgew_f&nbsp;=&nbsp;true;//&nbsp;初期化済みフラグをたてる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;集約たちに反映<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_w_sum&nbsp;=&nbsp;w&nbsp;+&nbsp;edge_w_sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_w_min&nbsp;=&nbsp;min(w&nbsp;,&nbsp;edge_w_min);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_w_max&nbsp;=&nbsp;max(w&nbsp;,&nbsp;edge_w_max);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;の構築を完了し、以降は変更操作を禁止する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;close(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(built&nbsp;==&nbsp;false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;built&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;private:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点数&nbsp;(&nbsp;番号は&nbsp;0&nbsp;~&nbsp;m_v-1&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m_V;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;グラフの隣接リスト<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;Edge&gt;&gt;&nbsp;m_G;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;逆辺の隣接リスト&nbsp;(ただし、逆辺とは始点と終点を入れ替えただけで、重みなどの他の要素はそのままとする)<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;Edge&gt;&gt;&nbsp;m_rG;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;の頂点重み<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;type_Nodeweight&gt;&nbsp;NodeWeight;<br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCC&nbsp;(強連結成分)&nbsp;にも番号を振っておく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;SCC&nbsp;同士の関係のグラフは&nbsp;DAG&nbsp;なので、SCC&nbsp;はトポロジカルソート可能<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-&nbsp;番号が&nbsp;x&nbsp;の&nbsp;SCC&nbsp;は、トポロジカルソートで&nbsp;x&nbsp;番目の&nbsp;SCC&nbsp;とする!!!!!!!!!!<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;が属する強連結成分の番号<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;m_SCC_Number;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;番号が&nbsp;x&nbsp;の&nbsp;SCC<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;_SCC&gt;&nbsp;m_SCC;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;同士で構築されるグラフを、SCC&nbsp;の番号で隣接リストにしたもの。<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;間の辺は多重辺かもですが、個々の辺の情報は保存せず、マージして&nbsp;1&nbsp;つの辺で管理する。<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&gt;&nbsp;m_SCC_G;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;強連結成分の関係のグラフで、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;!!!&nbsp;に到達可能&nbsp;!!!&nbsp;な&nbsp;SCC&nbsp;のうち、最遠のものまでのパス長<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;m_depth;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;強連結成分の関係のグラフで、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;!!!&nbsp;から到達可能&nbsp;!!!&nbsp;な&nbsp;SCC&nbsp;のうち、最遠のものまでのパス長<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;m_level;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;多重辺の場合の制約や条件をつけると、depth&nbsp;や&nbsp;level&nbsp;の辺重み(の集約)&nbsp;version&nbsp;もできる。<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;SCC_decomposition(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;SCC_decomposition(int&nbsp;V_)&nbsp;:&nbsp;m_V(V_){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_G&nbsp;=&nbsp;vector&lt;vector&lt;Edge&gt;&gt;(m_V);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_rG&nbsp;=&nbsp;vector&lt;vector&lt;Edge&gt;&gt;(m_V);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NodeWeight&nbsp;=&nbsp;vector&lt;type_Edgeweight&gt;(m_V,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;の頂点重みを&nbsp;w&nbsp;としてセットする<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;set_nodeweight(int&nbsp;x&nbsp;,&nbsp;type_Nodeweight&nbsp;w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;m_V);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NodeWeight[x]&nbsp;=&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;重み&nbsp;w&nbsp;の有向辺&nbsp;(u→v)&nbsp;を追加<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;add_edge(int&nbsp;u&nbsp;,&nbsp;int&nbsp;v&nbsp;,&nbsp;type_Edgeweight&nbsp;w&nbsp;=&nbsp;type_Edgeweight(1)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;u&nbsp;&amp;&amp;&nbsp;u&nbsp;&lt;&nbsp;m_V&nbsp;&amp;&amp;&nbsp;0&nbsp;&lt;=&nbsp;v&nbsp;&amp;&amp;&nbsp;v&nbsp;&lt;&nbsp;m_V);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_G[u].emplace_back(u,v,w);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_rG[v].emplace_back(v,u,w);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;分解データを構築。O(V+E)&nbsp;時間で何度でも更新可能に設計<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;build(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;(m_V,UNREACHED_Symbol).swap(m_SCC_Number);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;以下は&nbsp;SCC&nbsp;の番号のインクリメントと並行して構築<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC_G.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_depth.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_level.clear();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一度目の&nbsp;DFS&nbsp;を実行<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;DFS&nbsp;で頂点&nbsp;x&nbsp;にすでに到達済みか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;bool&gt;&nbsp;visited(m_V,false);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;index[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;から出る辺のうち、何番目まで調べたか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;index(m_V,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;DFS&nbsp;の道順において、頂点&nbsp;x&nbsp;の&nbsp;1&nbsp;つ前の頂点番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;before(m_V&nbsp;,&nbsp;UNDEFINED_Symbol);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[x]&nbsp;:=&nbsp;頂点&nbsp;x&nbsp;が&nbsp;DFS&nbsp;において、そこから移動不可能になる順番&nbsp;(&nbsp;0&nbsp;から&nbsp;m_V-1&nbsp;でユニーク&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;goback_time(m_V,UNREACHED_Symbol);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;goback_counter&nbsp;=&nbsp;0;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;からスタートする&nbsp;DFS&nbsp;を、未到達の全ての頂点で試す<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;=&nbsp;0&nbsp;;&nbsp;x&nbsp;&lt;&nbsp;m_V&nbsp;;&nbsp;x++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(visited[x])continue;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;nxt&nbsp;=&nbsp;UNDEFINED_Symbol;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(true){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(now&nbsp;==&nbsp;UNDEFINED_Symbol)break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;visited[now]&nbsp;=&nbsp;true;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(index[now]&nbsp;&lt;&nbsp;m_G[now].size()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nxt&nbsp;=&nbsp;m_G[now][index[now]].to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index[now]++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1&nbsp;つ前に戻る辺でなければ進める<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(nxt&nbsp;!=&nbsp;before[now]&nbsp;&amp;&amp;&nbsp;visited[nxt]&nbsp;==&nbsp;0){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before[nxt]&nbsp;=&nbsp;now;&nbsp;//&nbsp;nxt&nbsp;の&nbsp;1&nbsp;つ前は自分<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;=&nbsp;nxt;//&nbsp;移動<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goback_time[now]&nbsp;=&nbsp;goback_counter++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;戻ることが可能なら戻って探索を継続<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(before[now]&nbsp;!=&nbsp;UNDEFINED_Symbol){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;=&nbsp;before[now];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;これ以上探索できないので終了<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[t]&nbsp;:=&nbsp;goback_time&nbsp;が&nbsp;t&nbsp;の頂点番号&nbsp;(一意に定まる)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;bucket(m_V,UNDEFINED_Symbol);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;=&nbsp;0&nbsp;;&nbsp;x&nbsp;&lt;&nbsp;m_V&nbsp;;&nbsp;x++)bucket[goback_time[x]]&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;構築しようとしている強連結成分の番号<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;SCC_number_counter&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC_number_counter&nbsp;の強連結成分を構築する&nbsp;DFS&nbsp;で、すでに構築済みの別の強連結成分につながる辺を見つけたら、<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;その強連結成分から&nbsp;SCC_number_counter&nbsp;への辺がすでに構築されたかを、<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;その強連結成分の番号に&nbsp;SCC_number_counter&nbsp;を乗せてチェックする。カウンターを用いた空間計算量省略テクニック<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;edge_origin_counter(m_V,UNDEFINED_Symbol);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;今度は&nbsp;goback_time&nbsp;が大きい方から頂点を見て、未到達の頂点ならそこを始点として逆辺のグラフ上で&nbsp;DFS&nbsp;する。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;t&nbsp;=&nbsp;m_V&nbsp;-&nbsp;1&nbsp;;&nbsp;t&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;t--){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;bucket[t];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_SCC_Number[x]&nbsp;!=&nbsp;UNREACHED_Symbol)continue;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;このステップで到達できた頂点が、now&nbsp;の属する強連結成分となる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;しかも、構築された順がそのまま&nbsp;SCC&nbsp;間の関係のグラフ&nbsp;(DAG)&nbsp;のトポロジカルソート順の&nbsp;1&nbsp;つとなる<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stack&lt;int&gt;&nbsp;st;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.push(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;depth_&nbsp;=&nbsp;0;//&nbsp;この&nbsp;SCC&nbsp;の&nbsp;level。トポロジカル順に&nbsp;SCC&nbsp;を構築しているので、この時点で計算可能<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC_Number[x]&nbsp;=&nbsp;SCC_number_counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_SCC&nbsp;component(SCC_number_counter);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(!st.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;st.top();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.pop();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(m_SCC_Number[now]&nbsp;==&nbsp;SCC_number_counter);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;component.add_node(now&nbsp;,&nbsp;NodeWeight[now]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Edge&nbsp;e&nbsp;:&nbsp;m_rG[now]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;始点が一度ずつ登場するので、ここで走査する、終端が&nbsp;SCC&nbsp;に含まれる辺は全て&nbsp;SCC&nbsp;に&nbsp;add&nbsp;して&nbsp;OK<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_SCC_Number[x]&nbsp;==&nbsp;UNREACHED_Symbol&nbsp;||&nbsp;m_SCC_Number[e.to]&nbsp;==&nbsp;component.id())component.add_edge(e.weight);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;到達済みならもう調べない<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m_SCC_Number[e.to]&nbsp;!=&nbsp;UNREACHED_Symbol){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;強連結成分を頂点としたグラフの辺を構築<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(&nbsp;m_SCC_Number[e.to]&nbsp;!=&nbsp;component.id()&nbsp;&amp;&amp;&nbsp;edge_origin_counter[m_SCC_Number[e.to]]&nbsp;!=&nbsp;SCC_number_counter){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;すでに構築した異なる強連結成分に伸びており、その強連結成分から現在構築中の強連結成分に辺が張られていなければ辺を張る。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;edge_origin_counter[m_SCC_Number[e.to]]&nbsp;=&nbsp;SCC_number_counter;//&nbsp;カウンターをメモ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC_number_counter&nbsp;をインクリメントしているので、これまでの&nbsp;SCC&nbsp;に関して、m_SCC_G&nbsp;の領域は確保済みである。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC_G[m_SCC_Number[e.to]].push_back(SCC_number_counter);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;辺の構築ついでに&nbsp;depth&nbsp;の計算もしておく<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depth_&nbsp;=&nbsp;max(m_depth[m_SCC_Number[e.to]]+1&nbsp;,&nbsp;depth_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.push(e.to);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC_Number[e.to]&nbsp;=&nbsp;SCC_number_counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;の構築終了<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;component.close();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC_number_counter&nbsp;のインクリメントと&nbsp;m_SCC&nbsp;の末尾追加による&nbsp;index&nbsp;の増加が対応<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC.push_back(component);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_SCC_G.emplace_back();//&nbsp;今作った&nbsp;SCC&nbsp;の分の領域を確保<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_depth.push_back(depth_);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCC_number_counter++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最後に&nbsp;level&nbsp;だけ計算&nbsp;(SCC&nbsp;はトポソ順なので、逆順に&nbsp;DP&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ただし、これまでに構築した内容から、*this&nbsp;の取得インターフェースの一部が有効化されているものとする<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;(this-&gt;sccd_size(),UNREACHED_Symbol).swap(m_level);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(&nbsp;int&nbsp;c&nbsp;=&nbsp;this-&gt;sccd_size()&nbsp;-&nbsp;1&nbsp;;&nbsp;c&nbsp;&gt;=&nbsp;0&nbsp;;&nbsp;c--&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_level[c]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;トポソの逆順なので、SCC&nbsp;の関係のグラフにおいて、辺の先に未定義は存在しない<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(&nbsp;int&nbsp;nx&nbsp;:&nbsp;(*this)[c]&nbsp;)m_level[c]&nbsp;=&nbsp;max(m_level[c]&nbsp;,&nbsp;m_level[nx]+1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;取得インターフェース<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;基本的に&nbsp;SCC&nbsp;に着目したデータを扱う<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;元のグラフのサイズ<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;graph_size(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_V;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;強連結成分の個数&nbsp;(強連結成分の関係をグラフにしたものの頂点数)<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;sccd_size(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_SCC.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;頂点&nbsp;x&nbsp;が属する強連結成分のデータを&nbsp;const&nbsp;参照で取得。頂点のマージなどはここから取得。<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;_SCC&amp;&nbsp;SCC_of_Node(int&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;x&nbsp;&amp;&amp;&nbsp;x&nbsp;&lt;&nbsp;this-&gt;graph_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_SCC[m_SCC_Number[x]];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;番号が&nbsp;c&nbsp;の強連結成分のデータを&nbsp;const&nbsp;参照で取得。頂点のマージなどはここから取得。<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;_SCC&amp;&nbsp;SCC_of_Number(int&nbsp;c){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;c&nbsp;&amp;&amp;&nbsp;c&nbsp;&lt;&nbsp;this-&gt;sccd_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_SCC[c];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;強連結成分の関係のグラフで、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;!!!&nbsp;に到達可能&nbsp;!!!&nbsp;な&nbsp;SCC&nbsp;のうち、最遠のものまでのパス長<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;depth(int&nbsp;c){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;c&nbsp;&amp;&amp;&nbsp;c&nbsp;&lt;&nbsp;this-&gt;sccd_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_depth[c];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;強連結成分の関係のグラフで、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;!!!&nbsp;から到達可能&nbsp;!!!&nbsp;な&nbsp;SCC&nbsp;のうち、最遠のものまでのパス長<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;level(int&nbsp;c){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;c&nbsp;&amp;&amp;&nbsp;c&nbsp;&lt;&nbsp;this-&gt;sccd_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_level[c];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SCC&nbsp;の関係のグラフにおいて、番号が&nbsp;c&nbsp;の&nbsp;SCC&nbsp;から辺&nbsp;1&nbsp;本で移動可能な&nbsp;SCC&nbsp;の隣接リスト&nbsp;(const&nbsp;参照)<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;vector&lt;int&gt;&amp;&nbsp;operator[](int&nbsp;c){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(0&nbsp;&lt;=&nbsp;c&nbsp;&amp;&amp;&nbsp;c&nbsp;&lt;&nbsp;this-&gt;sccd_size());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_SCC_G[c];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;©️&nbsp;(c)&nbsp;okoteiyu&nbsp;2024.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>};<br><br><br><br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

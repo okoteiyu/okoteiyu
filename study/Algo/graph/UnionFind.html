@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    UnionFind とその周り
+                <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <p>
+
+                    いつか書くだろう。
+                </p>
+                
+
+                <br>
+              
+
+                
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <pre><br><br><br><br>//&ensp;ただの&ensp;UnionFind&ensp;(rollback&ensp;付き)<br>template&lt;bool&ensp;_rollback_&ensp;=&ensp;false&gt;<br>class&ensp;UnionFind{<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;private:<br>&ensp;&ensp;&ensp;&ensp;//&ensp;メンバ<br>&ensp;&ensp;&ensp;&ensp;int&ensp;N;//&ensp;要素数&ensp;(0&ensp;~&ensp;N-1)<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;par;//&ensp;[x]&ensp;:=&ensp;UF&ensp;木における頂点&ensp;x&ensp;の親<br>&ensp;&ensp;&ensp;&ensp;stack&lt;pair&lt;int,int&gt;&gt;&ensp;history;//&ensp;{x,y}&ensp;:=&ensp;x&ensp;の親を&ensp;y&ensp;にしたという履歴を新しい順に保存<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;以降の配列は&ensp;UF&ensp;木の根のみがアクセス可能*/<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;size;//&ensp;[x]&ensp;:=&ensp;x&ensp;を根とする&ensp;UF&ensp;木の要素数&ensp;(マージするときに参照する)<br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;UnionFind()&ensp;{}<br>&ensp;&ensp;&ensp;&ensp;UnionFind(ll&ensp;N_){init(N_);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;値が&ensp;init_&ensp;で初期化された&ensp;N&ensp;個のノードを用意<br>&ensp;&ensp;&ensp;&ensp;void&ensp;init(int&ensp;N_){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;N&ensp;=&ensp;N_;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;size&ensp;=&ensp;vector&lt;int&gt;(N,1);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;par&ensp;=&ensp;vector&lt;int&gt;(N);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;0&ensp;;&ensp;i&ensp;&lt;&ensp;N&ensp;;&ensp;i++)par[i]&ensp;=&ensp;i;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点&ensp;x&ensp;が属する&ensp;UF&ensp;木の根。連結成分の代表と読み替えて&ensp;OK。経路圧縮アリ<br>&ensp;&ensp;&ensp;&ensp;int&ensp;root(int&ensp;x){if(par[x]&ensp;==x)return&ensp;x;if(_rollback_&ensp;==&ensp;false)par[x]&ensp;=&ensp;root(par[x]);return&ensp;root(par[x]);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;x&ensp;,&ensp;y&ensp;が同じ&ensp;UF&ensp;木に属するか。同じ連結成分と読み替えて&ensp;OK<br>&ensp;&ensp;&ensp;&ensp;bool&ensp;same(int&ensp;x,&ensp;int&ensp;y){return&ensp;root(y)&ensp;==&ensp;root(x);}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;u&ensp;,&ensp;v&ensp;の属する&ensp;UF&ensp;木をマージ。u,v&ensp;を同じ連結成分として扱うと読み替えて&ensp;OK&ensp;<br>&ensp;&ensp;&ensp;&ensp;bool&ensp;unite(int&ensp;x,&ensp;int&ensp;y){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(same(x,y))return&ensp;false;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;rx&ensp;=&ensp;root(x);int&ensp;ry&ensp;=&ensp;root(y);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(size[rx]&ensp;&lt;&ensp;size[ry])swap(ry,rx);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;par[ry]&ensp;=&ensp;rx;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;size[rx]&ensp;+=&ensp;size[ry];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(_rollback_)history.push({ry,rx});<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;最後に行った&ensp;unite&ensp;を取り消す。&ensp;_rollback_&ensp;=&ensp;true&ensp;を指定してある必要あり<br>&ensp;&ensp;&ensp;&ensp;//&ensp;同じ連結成分に属する&ensp;u,v&ensp;の&ensp;unite(u,v)&ensp;は履歴に計上されていないので、スルーしてさらに前の&ensp;unite&ensp;を&ensp;rollback&ensp;する。<br>&ensp;&ensp;&ensp;&ensp;void&ensp;rollback(){&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(_rollback_);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(history.empty())return;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;pair&lt;int,int&gt;&ensp;last&ensp;=&ensp;history.top();history.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;size[last.second]&ensp;-=&ensp;size[last.first];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;par[last.first]&ensp;=&ensp;last.first;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;x&ensp;と同じ&ensp;UF&ensp;木に属する要素を&ensp;O(N)&ensp;で計算。おそい。<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;member(int&ensp;x){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;res;for(int&ensp;y&ensp;=&ensp;0&ensp;;&ensp;y&ensp;&lt;&ensp;N&ensp;;&ensp;y++)if(root(x)&ensp;==&ensp;root(y))res.push_back(y);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;//&ensp;x&ensp;と&ensp;same&ensp;なノードの個数&ensp;(連結成分サイズ)<br>&ensp;&ensp;&ensp;&ensp;int&ensp;Size(int&ensp;x){return&ensp;size[root(x)];}<br>};<br><br><br>void&ensp;normalUFtest(){<br>&ensp;&ensp;&ensp;&ensp;ll&ensp;N&ensp;=&ensp;10000;<br><br>&ensp;&ensp;&ensp;&ensp;UnionFind&lt;false&gt;&ensp;T(N);<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vll&gt;&ensp;G(N);<br>&ensp;&ensp;&ensp;&ensp;ll&ensp;cnt&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;ll&ensp;x&ensp;,&ensp;y&ensp;,&ensp;u&ensp;,&ensp;v;<br>&ensp;&ensp;&ensp;&ensp;const&ensp;ll&ensp;Bdr&ensp;=&ensp;3000;<br>&ensp;&ensp;&ensp;&ensp;while(T.Size(0)&ensp;&lt;&ensp;N){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cnt++;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;t&ensp;=&ensp;rand()%6;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;1&ensp;:&ensp;same<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;2&ensp;:&ensp;member<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;他&ensp;:&ensp;unite&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(t&ensp;==&ensp;1){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;u&ensp;=&ensp;rand()%N;v&ensp;=&ensp;rand()%N;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;stack&lt;ll&gt;&ensp;st;vll&ensp;memo(N,false);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.push(u);memo[u]&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(!st.empty()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;st.top();st.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;nx&ensp;:&ensp;G[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(memo[nx])continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.push(nx);memo[nx]&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(T.same(u,v)&ensp;==&ensp;memo[v]);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else&ensp;if(t&ensp;==&ensp;2){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;u&ensp;=&ensp;rand()%N;vll&ensp;p;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;stack&lt;ll&gt;&ensp;st;vll&ensp;memo(N,false);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.push(u);memo[u]&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(!st.empty()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;st.top();st.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p.push_back(now);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;nx&ensp;:&ensp;G[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(memo[nx])continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;st.push(nx);memo[nx]&ensp;=&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sort(ALL(p));<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;auto&ensp;q&ensp;=&ensp;T.member(u);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(p.size()&ensp;==&ensp;q.size());<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;j&ensp;=&ensp;0&ensp;;&ensp;j&ensp;&lt;&ensp;q.size()&ensp;;&ensp;j++)assert(p[j]&ensp;==&ensp;q[j]);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;u&ensp;=&ensp;rand()%N;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;v&ensp;=&ensp;rand()%N;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(T.unite(u,v)){G[u].push_back(v);G[v].push_back(u);}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(cnt%Bdr&ensp;==&ensp;0)cerr&ensp;&lt;&lt;&ensp;&quot;&ensp;OK&ensp;:&ensp;count&ensp;&quot;&ensp;&lt;&lt;&ensp;cnt/Bdr&ensp;&lt;&lt;&ensp;&quot;&ensp;/&ensp;0_size&ensp;=&ensp;&quot;&ensp;&lt;&lt;&ensp;T.Size(0)&ensp;&lt;&lt;&ensp;endl;<br>&ensp;&ensp;&ensp;&ensp;}<br>}<br><br><br><br></pre>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

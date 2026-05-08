@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    EDPC - Wを解こう <br></h2>
+
+
+            </section>
+            
+
+            <section class = "Explanation">
+                <!--
+                
+                <div class = "TitleLine"><h2>タイトルとか</h2></div> 
+                <div class = "Box">
+                    <u>問題 (EDPC-W)</u>
+                    <p>
+                        M 個の区間が与えられるので、あなたは'0' と '1' のみからなる長さ N の 文字列に対して、以下のようにスコアを計算します。
+                        <ul>
+                            <li>
+                                \(i\) 番目の区間を \([ li , ri ]\) としたとき、文字列の \(li\) 文字目から \(ri\) 文字目までに '1' が存在するならばスコアに \(a_i\) 加算する。
+                            </li>
+                        </ul>
+                    </p>
+                <br>
+                </div>
+
+                -->
+                <div class = "TitleLine"><h2>インライン DP</h2></div> 
+                <div class = "Box">
+                    <u>問題 (EDPC-W)</u>
+                    <p> 
+                        \(M\) 個の区間が与えられるので、あなたは 0 と 1 のみからなる長さ \(N\) の 文字列に対して、以下のようにスコアを計算します。
+                        <ul>
+                            <li>
+                                \(i\) 番目の区間を \([ li , ri ]\) としたとき、文字列の \(li\) 文字目から \(ri\) 文字目までに 1 が存在するならばスコアに \(a_i\) 加算する。
+                            </li>
+                        </ul>
+                        文字列を自由に選べるとき、スコアの最大値を答えよ。
+                        <br><u>制約</u>
+                        <ul>
+                            <li>\(1 \leq N,M \leq 200000\)</li>
+                            <li>\(1 \leq li,ri \leq N\)</li>
+                            <li>\(-{10}^9 \leq a_i \leq {10}^9\)</li>
+                        </ul>
+                    </p>
+                    <u>解法</u>
+                    <p>
+                        以下の DP テーブルを考えます。
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,j) :=\) 長さ \(i\) の  文字列で、最後に 1 が現れる位置が \(j\) である文字列に対して、<b>右端が \(i\) 以下の区間</b>のスコアの和の最大値
+                            </li>
+                            <li>
+                                \(\mathrm{DP}(i,i) = \mathrm{max}_x(\mathrm{DP}(i-1,x))+ \sum{(右端が &nbsp; i &nbsp; の区間のスコア)}\)
+                            </li>
+                            <li>
+                                \(\mathrm{DP}(i,j) = \mathrm{DP}(i-1,j) + \sum{(右端が &nbsp; i &nbsp; で、左端が &nbsp; j &nbsp; 以下の区間のスコア)}\)
+                            </li>
+                        </ul>
+                        この DP テーブルは \(O(N^3)\) 時間で計算可能です。 
+                    </p>
+                    <p>
+                        ここから計算量を落としていきましょう。\(M\) 個の区間を、右端が小さい順にソートして 1 つづつ見ながら DP テーブルを計算します。
+                    </p>
+                    <p>
+                        区間 \([L,i] \) を見ている場合を考えます。  
+                    </p>
+                    <p>
+                        まず、DP テーブルの一つ目の添字は明示的に持つ必要はないので DP テーブルをコピーして使うことにしましょう。このコピーも明示的に行うものではなく、以降 DP テーブルの 1 つ目の添字は省略して表記します。
+                    </p>
+                    <p>
+                        区間 \([L,i] \) を見ているということは、右端が \(i\) 未満の DP の計算は既に完了しており、現在は右端がちょうど \(i\) の計算を行なっています。  
+                    </p>
+                    <p>
+                        \(\mathrm{DP}(i)\) = 「最後に 1 が登場する位置が \(i\) の場合の最大スコア」 の計算は区間 max ができれば良いので、DP テーブルをセグ木で扱い、max をとって \([L,i] \) のスコアを足します。
+                    </p>
+                    <p>
+                        「最後に 1 が登場する位置が \(i\) 未満の場合の最大スコア」の計算は、最後に 1 が現れる場所が \(L\) 以降である必要性から、\(L\) 以上 \(i\) 未満の \(x\) に対して \(\mathrm{DP}(x)\) に区間 \([L,i]\) のスコアを一律に加算することで全ての \(j&lt;i\) に対して \(\mathrm{DP}(j)\) を計算できています。
+                    </p>
+                    <p>
+                        二次元の DP テーブルを一次元に落とし、二次元のテーブルを縦(または横) 向きに走査していくような DP を <b>インライン DP</b> と言います。
+                    </p>
+                </div>
+                
+
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>inline DP + α</h2></div> 
+                <div class = "Box">
+                    <u>問題 (ABC353-G)</u>
+                    <p>
+                        \(1\) 移動するのに \(C\) 円かかる数直線上にいるとします。各 \( 1 \leq i \leq M\) に対して時刻 \(i\) に座標 \(T_i\) にいると \(P_i\) 円得られるとき、差し引き収益は最大でいくらになりますか。ただし、座標の移動に時間はかからないものとします。
+                    </p>
+                    <u>制約</u>
+                    <ul>
+                        <li>\(1 \leq M \leq 200000\)</li>
+                        <li>\(1 \leq T_i \leq 200000\)</li>
+                        <li>\(1 \leq P_i \leq {10}^{13}\)</li>
+                        <li>\(1 \leq C \leq {10}^9\)</li>
+                    </ul>
+                    <p>
+                        以下の DP テーブルを考えます。
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,x) := \) 時刻 \(i\) に座標 \(x\) にいる際の最大収益
+                            </li>
+                        </ul>
+                        これもインライン化して 1 つ目の添字を省略して考えます。時刻が早い順にイベントを調べていきます。
+                    </p>
+                    <p>
+                        時刻 \(i\) の DP テーブルを考えると、時刻 \(i\) の時点で \(T_i\) 以外の座標に移動する意味はないので、\(\mathrm{DP}(T_i)  \) のみ新たに計算して、それ以外の地点は時刻 \(i-1\) の結果を引き継げば OK です。
+                    </p>
+                    <p>
+                        時刻 \(i-1\) に地点 \(x\) におり、時刻 \(i\) に地点 \(T_i\) に移動するという移動ルートのうち、収益が最大のものを選ぶという遷移により、\(\mathrm{DP}(T_i) = P_i + \mathrm{max}_x(\mathrm{DP}(x) - C\cdot |T_i-x| ) \) となります。
+                    </p>
+                    <p>
+                        \( \mathrm{max}_x(\mathrm{DP}(x) - C\cdot |T_i-x| ) \) の部分、つまり \(T_i\) から離れるだけコストが \(C\) かかるということを、公差が \(C\) の等差数列を区間に加算する操作で表現できます。  
+                        <ol>
+                            <li>\(0 \leq x &lt; T_i\) である区間に対して、初項 \(-C \cdot T_i\) , 公差 \(C\) の等差数列を加算する。</li>
+                            <li>\(T_i &lt; x \) である区間に対して、初項 \(0\) , 公差 \(-C\) の等差数列を加算する。</li>
+                        </ol>
+                        以上の操作を行った DP テーブルにおける max  + \(P_i\) が新たな \(\mathrm{DP}(T_i)\) です。\(\mathrm{DP}(T_i)\) を計算した後は、上記の 2 つの操作を取り消します。これは符号が逆の等差数列を加算すれば良いです。
+                    </p>
+                    <p>
+                        ところで、区間等差数列加算/区間 max をサポートするデータ構造は難しいです。そこで、<b>区間等差数列加算は線分追加</b>に言い換えるというテンプレを考えます。
+                    </p>
+                    <p>
+                        Li-Chao Tree を使い、地点を x 座標、収益を y 座標に対応づけます。
+                        すると地点 \(T_i\) から次の地点への移動のコストを織り込んだコストを二次元座標上の線分で表現することができます。
+                    </p>
+                    <p>
+                        地点 \(T_i\) の収益 (\(F\) とする) を計算したとき、DP テーブルに \(F\) を書き込む代わりに、Li-Chao Tree が表す二次元座標系に 
+                        「\(x = T_i\) における y 座標が \(F\) , \(x = T_i\) から 1 離れるごとに \(C\) 減少する直線」を左右の方向合わせて 2 本追加します。離れるごとに \(C\) 減少というのが、 次の地点への移動コストを表現しています。
+                    </p>
+                    <p>
+                        すると現時刻に地点 \(t\) にいる場合の収益を、「\( x = t\) をカバーする線分の \(x = t\) における y 座標の最大値」と表現でき (これは Li-Chao Tree で計算できます)、いわゆる配る DP のようなアルゴリズムで、インライン DP することができました。
+                    </p>
+                    <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n&nbsp;,&nbsp;c&nbsp;,&nbsp;m;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;n&nbsp;&gt;&gt;&nbsp;c&nbsp;&gt;&gt;&nbsp;m;<br>&nbsp;&nbsp;&nbsp;&nbsp;LiChaoTree&lt;ll,ll&gt;&nbsp;dp(0,n+2,NINF,false);<br>&nbsp;&nbsp;&nbsp;&nbsp;dp.add_segment(1,n+2,-c,c);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,m){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;t&nbsp;,&nbsp;p;cin&nbsp;&gt;&gt;&nbsp;t&nbsp;&gt;&gt;&nbsp;p;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;mx&nbsp;=&nbsp;dp.f(t);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp.write_segment(t&nbsp;,&nbsp;p&nbsp;+&nbsp;mx&nbsp;,&nbsp;0,&nbsp;(p&nbsp;+&nbsp;mx)&nbsp;-&nbsp;c*t);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp.write_segment(t&nbsp;,&nbsp;p&nbsp;+&nbsp;mx,&nbsp;n+1&nbsp;,&nbsp;(p&nbsp;+&nbsp;mx)&nbsp;-&nbsp;c*(n+1&nbsp;-&nbsp;t));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;ans&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n)ans&nbsp;=&nbsp;max(dp.f(i+1),ans);<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;ans&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                </div>
+
+                
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

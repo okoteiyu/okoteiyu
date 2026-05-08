@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../static/css/common_pc.css">
+    <link rel="stylesheet"  href="./static/css/index.css">
+    <link rel="stylesheet"  href="./static/css/filter.css">
+    <link rel="stylesheet"  href="./static/css/people.css">
+    <link rel="stylesheet"  href="./static/css/posts.css">
+    <link rel="stylesheet"  href="./static/css/banner.css">
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>    
+    
+    
+    <head>
+        <title>てゆ掲示板</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </head>
+
+    <body>
+
+        <div class = "page_all" id = "page_all_id">
+            <!-- ポップアップ要素(シングルトンである) -->
+            <!-- 投稿の内容が表示される -->
+            <div class = "popup_window_outer" id = "unique_popup_window_outer" onclick="close_popup()">
+                <iframe class = "popup_framewindow" id="unique_popup_framewindow"></iframe>
+            </div>
+            
+
+            <!-- ヘッダー -->
+            
+            <div id = "header_dummy"></div>
+            <div id = "header">
+                <div class = "header_logo">てゆ掲示板</div>
+                <div class = "header_item" onclick="location.href='./../index.html'">Home</div>
+                <div class = "header_item" onclick="location.href='./../study/index.html'">Study</div>
+                <div class = "header_item" onclick="location.href='./index.html'">No Param</div>
+                <div class = "header_dummy_item"></div>
+
+
+
+                <div class = "debug_mode_button">
+                    <span class = "toggleButtonField" onclick = "switch_debug_mode(event)"
+                        id = "debug_mode_button_id" data-toggle-state = "0">
+                        <div class = "toggleButton"></div>
+                    </span>
+                    <span class = "toggleButtonTitle">DEBUG</span>
+                </div>
+
+            </div>
+
+
+            <div id = "container">
+                <div id = "first_container">
+                    <!-- 優先表示 -->
+                    <div class = "headline">優先表示ポスト</div>
+                    <div id = "priority_post_container">
+                        <div class = "horizon_list">
+                            <div class = "horizon_list_scroll_wrapper"><!-- 一覧 -->
+                                <!-- ポストはここに表示される -->
+                                <div class = "horizon_list_line" id = "PriorityPostContainerID"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- フィルタ設定 -->
+                    <div class = "headline" style = "--bg-color:rgb(178, 163, 179);">フィルタ設定</div> 
+                    <div class = "filter_field">
+                        <!-- 項目-->
+                        <div class = "filter_item">
+                            <label>From</label>
+                            <input type = "date" id = "filter_date_from_id">
+                        </div>
+
+                        <div class = "filter_item">
+                            <label>To</label>
+                            <input type = "date" id = "filter_date_to_id">
+                        </div>
+
+                        <div class = "filter_item">
+                            <label>カテゴリ</label>
+                            <select id = "filter_category_id"></select>
+                        </div>
+                        <div class="filter_item">
+                            <label>キーワード (OR 検索)</label>
+                            <input type = "text" id = "filter_keyword_id" placeholder = "空白区切りで入力">
+                        </div>
+                        <button class = "execute_button" onclick = "TimeLineAPI.execute_filter()">実行</button>
+
+                        <!-- 説明 -->
+                        <div class = "info_button">
+                            <div class = "tooltip">
+                                <p>
+                                    検索キーワードは空白区切りで分割され、それらのいずれかのキーワードを含むポストが表示されます。
+                                </p>
+                                <p>
+                                    <code>From</code>、<code>To</code> の入力は、年、月、日のいずれかを空白にすることでフィルタ設定から外すことができます。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id = "second_container">
+                    <!-- 投稿のタイトルが表示されるフィールド -->
+                    <div class = "headline" style = "--bg-color:rgb(76, 135, 106);">ポスト一覧</div>
+                    <div id = "filter_state_list_id"></div>
+                    <div id = "PostContainerID"></div>
+                </div>
+                
+
+                <div id = "third_container">
+                    <!-- 投稿者リスト -->
+                    <div class = "headline" style = "--bg-color:rgb(87, 135, 204);">投稿者一覧</div>
+                    <div id = "person_list"></div>
+
+                    <!-- バナー -->
+                    <div class = "banner_container">
+                        <div class = "banner_item">
+                            <img src = "./static/image/banner.png">
+                        </div>
+
+                        <div class = "banner_item">
+                            <img src = "./static/image/banner_intro.jpeg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                
+            
+            <!-- フッター -->  
+            <div id = "footer">
+                <div id = "copyright">
+                    Copyright (c) ©️ 2026 okoteiyu All Rights Reserved
+                </div>
+                <div id = "contact">
+                    contact : <a href = "https://x.com/okoteiyu" target="_blank">my tiwtter (okoteiyu)</a>
+                </div>
+            </div>
+
+
+            <!-- 投稿データを格納するフィールド(見えない) -->
+            <div id = "post_data_pool" style="display:none;">
+                <div class = "post_data" data-post-category = "" 
+                data-post-link = "" data-post-time = "2000/01/06 00:00:00" 
+                data-post-id = "U0000" data-post-priority = "0" data-post-thumbnail = ""
+                data-post-title = "おこていゆ誕生"></div>
+
+                <div class = "post_data" data-post-category = "技術/運営" 
+                data-post-link = "./articles/tech/introduction.html" data-post-time = "2026/05/08 01:36:00" 
+                data-post-id = "T0000" data-post-priority = "1" data-post-thumbnail = ""
+                data-post-title = "てゆ掲示板について"></div>
+            </div>
+
+
+
+            <!-- 投稿者データを格納するフィールド(見えない) -->
+            <div id = "person_data_pool" style="display:none;">
+                <!-- 投稿者アイコンは、board/static/image 以下のもののみ許可。ポップアップページのパラメータにするため。 -->
+                <div class = "person_data" data-user-name = "顔面惑星" data-post-category = "日常"
+                    data-icon-link = "./static/image/face_planet.jpg">顔面惑星はいつも上から見てるよ(🍥⩌ ︿ ⩌🍥)
+                </div>
+                <div class = "person_data" data-user-name = "おこていゆ" data-post-category = "技術/運営"
+                    data-icon-link = "./static/image/oko_icon.jpg">おこていゆと申します。<br>主に web サイト運営に関することや技術コラムを呟きます。
+                </div>
+                <div class = "person_data" data-user-name = "モアイのていおー" data-post-category = "ポエム"
+                    data-icon-link = "./static/image/moai_icon.png">感情がありません。
+                </div>
+            </div>
+        </div>
+  
+
+        
+    </body>
+</html>
+
+<script src="./../static/js/common_constructor.js"></script>
+<script src="./../static/js/time.js"></script>
+<script src="./static/js/TimeLineAPI.js"></script>
+<script src="./static/js/index_constructor.js"></script>

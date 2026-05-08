@@ -1,0 +1,213 @@
+input[type="button"] {
+	-webkit-appearance: none;
+	border-radius: 0;
+}
+
+:root{
+    --transparent-color: rgba(0,0,0,0);
+
+    /* 画面端やアイコン同士の間隔 */
+    --maxwidth-Inner : 920px;
+    --side-margin-icons:16px;
+    --top-margin-icons: 5px;
+
+    /* アイコンサイズ */
+    --Link-Icon-Size:65px;
+    --Link-Icon-border-radius:6px;
+
+
+    /* github へのリンクアイコンに関して*/
+    --GitHub-Icon-Link : url("./../image/GithubIcon.jpeg");
+
+    /* Twitter へのリンクアイコンに関して*/
+    --Twitter-Icon-Link : url("./../image/MyIcon.jpeg");
+
+    /* index ページへのリンクアイコンに関して*/
+    --Home-Icon-Link : url("./../image/HomeIcon.jpeg");
+    
+    /* 概要の枠の色 */
+    --Highlight-frame-color : #A6B5A5;
+
+    --CopyRightField-top : 7px;
+    --MainContents-padding-top : 7px;
+
+    /* z-index の const */
+    --page-icons-z-index : 123;
+    --copyrightfield-z-index : 0;
+
+    
+
+    --bg-color : #D7D3DD;
+    --article-bg-color : #FFFFFF;
+}
+
+
+
+body {
+	margin: 0px;
+	padding: 0px;
+	color: rgb(0, 0, 0);	
+	
+	font-size: 15px;	
+	line-height: 2;		
+	background-color: var(--bg-color);
+	-webkit-text-size-adjust: none;
+}
+
+/* index ページへリンクするアイコン */
+ToHomeLinkIcon{
+    opacity: 63%;
+    border: 1px solid black;
+    border-radius: var(--Link-Icon-border-radius);
+    position: fixed;
+    z-index: var(--page-icons-z-index);
+    top:var(--top-margin-icons);
+    right: var(--side-margin-icons);
+    width: var(--Link-Icon-Size);
+    aspect-ratio: 1/1;
+    content: var(--Home-Icon-Link);
+}
+
+
+/* github へリンクするアイコン */
+ToGitHubLinkIcon{
+    opacity: 63%;
+    background-color: white;/* ライセンスの関係で色を変更してはいけない */
+    border: 1px solid black;
+    border-radius: var(--Link-Icon-border-radius);
+    position: fixed;
+    z-index: var(--page-icons-z-index);
+    top:var(--top-margin-icons);
+    right: calc(var(--side-margin-icons) + var(--Link-Icon-Size) + var(--side-margin-icons));
+    width: var(--Link-Icon-Size);
+    aspect-ratio: 1/1;
+    content: var(--GitHub-Icon-Link);
+}
+
+
+
+
+/* Twitter へリンクするアイコン */
+ToTwitterLinkIcon{
+    opacity: 63%;
+    border: 1px solid black;
+    border-radius: 100%;
+    position: fixed;
+    z-index: var(--page-icons-z-index);
+    top:var(--top-margin-icons);
+    right: calc(var(--side-margin-icons) + var(--Link-Icon-Size) + var(--side-margin-icons) + var(--Link-Icon-Size) + var(--side-margin-icons));
+    width: var(--Link-Icon-Size);
+    aspect-ratio: 1/1;
+    content: var(--Twitter-Icon-Link);
+}
+
+
+
+.CopyRightField{
+    position: relative;
+    text-align: center;
+    margin:0 auto;
+    top: var(--CopyRightField-top);
+    width: 80%;
+    z-index: var(--copyrightfield-z-index);
+}
+
+/*メインの記述部分 , <div>で指定 */
+.Inner{
+	position: relative;	
+	width: 96%;
+    max-width: var(--maxwidth-Inner);
+	margin:0 auto;
+    padding-top: var(--MainContents-padding-top);
+	padding-bottom: 30px;
+}
+
+
+/*トップやタイトル*/
+.Introduction{
+	position: relative;
+	background: var(--article-bg-color);
+	color: black;
+	padding: 10px;		
+	box-sizing: border-box;
+    border: 4px solid;
+    border-radius: 20px;
+	border-color: black;
+	text-align: center;
+}
+
+
+
+/*
+	記事など、文章を書く用
+*/
+.Explanation{
+    border-radius: 20px;
+	position: relative;
+	background: var(--article-bg-color);
+	color: black;
+	padding-top: 5%;
+	padding-bottom: 5%;
+	padding-left: 3%;
+	padding-right: 3%;
+}
+
+
+/* 記事の先頭で、概要を書くボックス */
+.Highlight{
+    border-left: 10px var(--Highlight-frame-color) solid;
+    border-right: 10px var(--Highlight-frame-color) solid;
+    border-top: 2px var(--Highlight-frame-color) solid;
+    border-bottom: 2px var(--Highlight-frame-color) solid;
+    box-sizing: border-box;
+    padding:10px;
+    width:100%;
+    height:fit-content;
+    color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+
+/*--------------------------------------------------------------------------------------*/
+/*-----------------------------------[詳細解説]------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
+
+/* 詳細解説の開閉ボタン */
+.detail_openclose_button{
+	color: white;
+	background-color: rgba(255, 0, 0, 0);
+	font-size: 15px;
+	width: 100%;
+    box-sizing: border-box;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: dotted 3px gray;
+	
+}
+
+.detail_openclose_button:hover{
+	color: black;
+	background-color: rgb(187, 184, 184);
+}
+
+/* コードや解説を表示する欄 */
+.SampleCodeField{
+	margin-top:5%;
+	margin-bottom:5%;
+    position: relative;
+    width: 100%;
+	padding-top: 30px;
+	padding-left: 12px;
+	padding-right: 12px;
+	padding-bottom: 30px;
+	background-color: rgba(54, 64, 72, 0.769);
+	color:white;
+	box-sizing: border-box;
+    border: solid 5px white; 
+}
+
+
+

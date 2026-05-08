@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>FFT</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    高速フーリエ変換(FFT)<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    離散フーリエ変換
+                </h2>
+                <p>
+                    長さ \(N\) の数列 \(A\) から以下の数列 \(F_{A}\) への変換を離散フーリエ変換と言います。
+                    <ul>
+                        <li>
+                            \(F_{A}[x] = \sum_{0\leq p &lt; N} (A[p]\cdot e^{\frac{-2\pi i}{N}\cdot px})\)
+                        </li>
+                    </ul>
+                    ここで \({\omega_N} := e^{\frac{-2\pi i}{N}}\) として、今後は離散フーリエ変換を以下で表記します。
+                    <ul>
+                        <li>
+                            \(F_{A}[x] = \sum_{0\leq p &lt; N} (A[p]\cdot {\omega}^{px}_N)\)
+                        </li>
+                    </ul>
+                </p>
+                <p>
+                    この変換をナイーブに実装すると \(O(N)\) 時間かかってしまうので、高速化を検討してみましょう。
+                </p>
+                <p>
+                    その前に \(A\) のサイズを二冪のサイズに整形し、\(N = 2^{\log_2{N}+0.999...}\) とします。余分に確保した領域は \(0\) で初期化しておけば良いです。
+                </p>
+                <p>
+                    離散フーリエ変換の右辺を行列の積で表します。特に、\(A\) にかける係数の行列を \(M_N\) とします。例えば \(N = 8\) の場合の \(M_N \cdot A \) は以下のようになります。
+                    <br>
+                    <br>
+                    \(
+                        \begin{pmatrix} 
+                            F_A[0] \\ F_A[1] \\ F_A[2] \\ F_A[3] \\ F_A[4] \\ F_A[5] \\ F_A[6] \\ F_A[7] 
+                        \end{pmatrix}
+                        =
+                        \begin{pmatrix} 
+                            {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  & 
+                            {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8} \\ 
+
+                            {\omega}^{0}_{8}  &  {\omega}^{1}_{8} &  {\omega}^{2}_{8}  &  {\omega}^{3}_{8}  & 
+                            {\omega}^{4}_{8}  &  {\omega}^{5}_{8}  &  {\omega}^{6}_{8}  &  {\omega}^{7}_{8} \\ 
+
+                            {\omega}^{0}_{8}  &  {\omega}^{2}_{8}  &  {\omega}^{4}_{8}  &  {\omega}^{6}_{8}  & 
+                            {\omega}^{8}_{8}  &  {\omega}^{10}_{8} &  {\omega}^{12}_{8} &  {\omega}^{14}_{8}\\ 
+                            
+                            {\omega}^{0}_{8}  &  {\omega}^{3}_{8} &  {\omega}^{6}_{8} &  {\omega}^{9}_{8} & 
+                            {\omega}^{12}_{8} &  {\omega}^{15}_{8} &  {\omega}^{18}_{8} &  {\omega}^{21}_{8} \\ 
+                            
+                            {\omega}^{0}_{8}  &  {\omega}^{4}_{8} &  {\omega}^{8}_{8} &  {\omega}^{12}_{8} & 
+                            {\omega}^{16}_{8} &  {\omega}^{20}_{8} &  {\omega}^{24}_{8} &  {\omega}^{28}_{8}\\ 
+
+                            {\omega}^{0}_{8}  &  {\omega}^{5}_{8} &  {\omega}^{10}_{8} &  {\omega}^{15}_{8} & 
+                            {\omega}^{20}_{8} &  {\omega}^{25}_{8} &  {\omega}^{30}_{8} &  {\omega}^{35}_{8}\\ 
+                            
+                            {\omega}^{0}_{8}  &  {\omega}^{6}_{8} &  {\omega}^{12}_{8} &  {\omega}^{18}_{8} & 
+                            {\omega}^{24}_{8} &  {\omega}^{30}_{8} &  {\omega}^{36}_{8} &  {\omega}^{42}_{8}\\ 
+                            
+                            {\omega}^{0}_{8}  &  {\omega}^{7}_{8} &  {\omega}^{14}_{8} &  {\omega}^{21}_{8}  & 
+                            {\omega}^{28}_{8} &  {\omega}^{35}_{8} &  {\omega}^{42}_{8} &  {\omega}^{49}_{8}
+                            
+                        \end{pmatrix}
+                        \cdot
+                        \begin{pmatrix} 
+                            A[0] \\ A[1] \\ A[2] \\ A[3] \\ A[4] \\ A[5] \\ A[6] \\ A[7] 
+                        \end{pmatrix}
+                    \)
+                    <br>
+                    <br>
+                    以降、\(N = 8\) の例をベースに解説していきます。
+                </p>
+                <h2>
+                    高速フーリエ変換 (FFT) の天才的な式変形
+                </h2>
+                <p>
+                    \(A\) の要素のうち、偶数番目の要素を前半に、奇数番目の要素を後半に移動し、これを新たに \(A\) とします。計算結果 \(F_A\) を保持するために係数の行列 \(M_8\) の奇数番目の列を前半、偶数番目の列を後半に移動し、これを新たに \(M_8\) とします。  
+                    <br>
+                    <br>
+                    \(
+                    \begin{pmatrix} 
+                        F_A[0] \\ F_A[1] \\ F_A[2] \\ F_A[3] \\ F_A[4] \\ F_A[5] \\ F_A[6] \\ F_A[7] 
+                    \end{pmatrix}
+                    =
+                    \begin{pmatrix} 
+                        {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  & 
+                        {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8}  &  {\omega}^{0}_{8} \\ 
+
+                        {\omega}^{0}_{8}  &  {\omega}^{2}_{8}  &  {\omega}^{4}_{8}  &  {\omega}^{6}_{8}  & 
+                        {\omega}^{1}_{8} &  {\omega}^{3}_{8}  &  {\omega}^{5}_{8}  &  {\omega}^{7}_{8} \\ 
+
+                        {\omega}^{0}_{8}  &  {\omega}^{4}_{8}  &  {\omega}^{8}_{8}  &  {\omega}^{12}_{8} & 
+                        {\omega}^{2}_{8}  &  {\omega}^{6}_{8} &  {\omega}^{10}_{8} &  {\omega}^{14}_{8}\\ 
+                        
+                        {\omega}^{0}_{8}  &  {\omega}^{6}_{8} &  {\omega}^{12}_{8} &  {\omega}^{18}_{8} & 
+                        {\omega}^{3}_{8} &  {\omega}^{9}_{8} &  {\omega}^{15}_{8} &  {\omega}^{21}_{8} \\ 
+                        
+                        {\omega}^{0}_{8}  &  {\omega}^{8}_{8} &  {\omega}^{16}_{8} &  {\omega}^{24}_{8} & 
+                        {\omega}^{4}_{8} &  {\omega}^{12}_{8} &  {\omega}^{20}_{8} &  {\omega}^{28}_{8}\\ 
+                        
+                        {\omega}^{0}_{8}  &  {\omega}^{10}_{8} &  {\omega}^{20}_{8} &  {\omega}^{30}_{8} & 
+                        {\omega}^{5}_{8} &  {\omega}^{15}_{8} &  {\omega}^{25}_{8} &  {\omega}^{35}_{8}\\ 
+                        
+                        {\omega}^{0}_{8}  &  {\omega}^{12}_{8} &  {\omega}^{24}_{8} &  {\omega}^{36}_{8} & 
+                        {\omega}^{6}_{8} &  {\omega}^{18}_{8} &  {\omega}^{30}_{8} &  {\omega}^{42}_{8}\\ 
+                        
+                        {\omega}^{0}_{8}  &  {\omega}^{14}_{8} &  {\omega}^{28}_{8} &  {\omega}^{42}_{8} & 
+                        {\omega}^{7}_{8} &  {\omega}^{21}_{8}  &  {\omega}^{35}_{8} &  {\omega}^{49}_{8}
+                        
+                    \end{pmatrix}
+                    \cdot
+                    \begin{pmatrix} 
+                    A[0] \\ A[2] \\ A[4] \\ A[6] \\ A[1] \\ A[3] \\ A[5] \\ A[7] 
+                    \end{pmatrix}
+                \)
+                <br>
+                <br>
+                計算結果はそのままで、右辺の行列の中身を整理することができました。ここで、\({\omega_k} = {\omega}^2_{2k}\) であることと、\( {\omega}^{0}_{k} = {\omega}^{k}_{k} = e^{-2\pi i} = e^{2\pi i} = 1 \) であることに注目し、上記の行列を \({\omega}_{4} = {\omega}^2_{8}\) で括ることにします。
+                
+                <br>
+                <br>
+
+                \(
+                    \begin{pmatrix} 
+                        {\omega}^{0}_{4}  &  {\omega}^{0}_{4}  &  {\omega}^{0}_{4}  &  {\omega}^{0}_{4}  & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{0}_{8} ) &  ({\omega}^{0}_{4}\cdot {\omega}^{0}_{8} )  &  ({\omega}^{0}_{4}\cdot {\omega}^{0}_{8} )  &  ({\omega}^{0}_{4}\cdot {\omega}^{0}_{8} ) \\ 
+                    
+                        {\omega}^{0}_{4}  & {\omega}^{1}_{4}  &  {\omega}^{2}_{4}  &  {\omega}^{3}_{4}  & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{1}_{8} ) &  ({\omega}^{1}_{4}\cdot {\omega}^{1}_{8} )  &  ({\omega}^{2}_{4}\cdot {\omega}^{1}_{8} )  &  ({\omega}^{3}_{4}\cdot {\omega}^{1}_{8} ) \\ 
+                    
+                        {\omega}^{0}_{4}  &  {\omega}^{2}_{4}  &  {\omega}^{4}_{4}  &  {\omega}^{6}_{4} & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{0}_{8} ) &  ({\omega}^{2}_{4}\cdot {\omega}^{2}_{8} )  &  ({\omega}^{4}_{4}\cdot {\omega}^{0}_{8} )  &  ({\omega}^{6}_{4}\cdot {\omega}^{2}_{8} ) \\ 
+                        
+                        {\omega}^{0}_{4}  &  {\omega}^{3}_{4} &  {\omega}^{6}_{4} &  {\omega}^{9}_{4} & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{3}_{8} ) &  ({\omega}^{3}_{4}\cdot {\omega}^{3}_{8} ) &  ({\omega}^{6}_{4}\cdot {\omega}^{3}_{8} ) &  ({\omega}^{9}_{4}\cdot {\omega}^{3}_{8} ) \\ 
+                        
+                        {\omega}^{0}_{4}  &  {\omega}^{0}_{4}  &  {\omega}^{0}_{4}  &  {\omega}^{0}_{4}  & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{4}_{8} ) &  ({\omega}^{0}_{4}\cdot {\omega}^{4}_{8} )  &  ({\omega}^{0}_{4}\cdot {\omega}^{4}_{8} )  &  ({\omega}^{0}_{4}\cdot {\omega}^{4}_{8} ) \\ 
+                        
+                        {\omega}^{0}_{4}  &  {\omega}^{1}_{4}  &  {\omega}^{2}_{4} &  {\omega}^{3}_{4} & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{5}_{8} ) &  ({\omega}^{1}_{4}\cdot {\omega}^{5}_{8} ) &  ({\omega}^{2}_{4}\cdot {\omega}^{5}_{8})  &  ({\omega}^{3}_{4}\cdot {\omega}^{5}_{8}) \\ 
+                        
+                        {\omega}^{0}_{4}  &  {\omega}^{2}_{4}  &  {\omega}^{4}_{4}  &  {\omega}^{6}_{4} & 
+                        ({\omega}^{0}_{6}\cdot {\omega}^{2}_{8} ) &  ({\omega}^{2}_{4}\cdot {\omega}^{6}_{8} )  &  ({\omega}^{4}_{4}\cdot {\omega}^{6}_{8} )  &  ({\omega}^{6}_{4}\cdot {\omega}^{6}_{8} ) \\ 
+                        
+                        {\omega}^{0}_{4}  &  {\omega}^{3}_{4} &  {\omega}^{6}_{4} &  {\omega}^{9}_{4} & 
+                        ({\omega}^{0}_{4}\cdot {\omega}^{7}_{8} ) &  ({\omega}^{3}_{4}\cdot {\omega}^{7}_{8} )  &  ({\omega}^{6}_{4}\cdot {\omega}^{7}_{8}) &  ({\omega}^{9}_{4}\cdot {\omega}^{7}_{8})
+                        
+                    \end{pmatrix}
+                \)               
+                <br>
+                <br>
+                \({\omega}_{4} = {\omega}^2_{8}\) で括ると \(M_8\) は以上のようになります。ただしただ括っただけではなく、意図して少し変な括り方をしました。気になるなら、\({\omega}^{k}_{k} = 1 \) であることを踏まえて展開すると、元の行列に一致させることが可能であることを確認できます。
+                </p>
+                <p>
+                    特に \(\omega_4\) に注目すると、行列全体が以下の行列が登場する \(4\) つのブロックに分割されていることを確認できます。
+                    <br>
+                    <br>
+
+                    \(
+                        \begin{pmatrix}
+                            {\omega}^{0}_{4} & {\omega}^{0}_{4} & {\omega}^{0}_{4} & {\omega}^{0}_{4} \\
+                            {\omega}^{0}_{4} & {\omega}^{1}_{4} & {\omega}^{2}_{4} & {\omega}^{3}_{4} \\
+                            {\omega}^{0}_{4} & {\omega}^{2}_{4} & {\omega}^{4}_{4} & {\omega}^{6}_{4} \\
+                            {\omega}^{0}_{4} & {\omega}^{3}_{4} & {\omega}^{6}_{4} & {\omega}^{9}_{4} \\
+                        \end{pmatrix}
+                    \)
+
+                    <br>
+                    <br>
+                    これは \(N = 4\) の場合の離散フーリエ変換の係数の行列 \(M_4\) です。ここで、\(M_8\) から \(M_4\) を取り出して分解してみましょう。\(M_8\) の左半分は単に \(M_4\) が縦に二つ並んでおり、右半分は \(M_4\) の各成分に \({\omega}_{8}\) が規則的にくっついています。この規則から、\(M_8 \cdot A\) を以下のように分解することができます。
+                    <br>
+                    <br>
+                    \(
+                        \begin{pmatrix}
+                        1 & 0 & 0 & 0 & {\omega}^{0}_{8} & 0 & 0 & 0 \\
+                        0 & 1 & 0 & 0 & 0 & {\omega}^{1}_{8} & 0 & 0 \\
+                        0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{2}_{8} & 0 \\
+                        0 & 0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{3}_{8} \\
+                        1 & 0 & 0 & 0 & {\omega}^{4}_{8} & 0 & 0 & 0 \\
+                        0 & 1 & 0 & 0 & 0 & {\omega}^{5}_{8} & 0 & 0 \\
+                        0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{6}_{8} & 0 \\
+                        0 & 0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{7}_{8} \\
+                        \end{pmatrix}
+                        \cdot 
+                        \begin{pmatrix}
+                        {\omega}^{0}_{4} & {\omega}^{0}_{4} & {\omega}^{0}_{4} & {\omega}^{0}_{4} & 0 & 0 & 0 & 0 \\
+                        {\omega}^{0}_{4} & {\omega}^{1}_{4} & {\omega}^{2}_{4} & {\omega}^{3}_{4} & 0 & 0 & 0 & 0 \\
+                        {\omega}^{0}_{4} & {\omega}^{2}_{4} & {\omega}^{4}_{4} & {\omega}^{6}_{4} & 0 & 0 & 0 & 0 \\
+                        {\omega}^{0}_{4} & {\omega}^{3}_{4} & {\omega}^{6}_{4} & {\omega}^{9}_{4} & 0 & 0 & 0 & 0 \\
+                        0 & 0 & 0 & 0 & {\omega}^{0}_{4} & {\omega}^{0}_{4} & {\omega}^{0}_{4} & {\omega}^{0}_{4} \\
+                        0 & 0 & 0 & 0 & {\omega}^{0}_{4} & {\omega}^{1}_{4} & {\omega}^{2}_{4} & {\omega}^{3}_{4} \\
+                        0 & 0 & 0 & 0 & {\omega}^{0}_{4} & {\omega}^{2}_{4} & {\omega}^{4}_{4} & {\omega}^{6}_{4} \\
+                        0 & 0 & 0 & 0 & {\omega}^{0}_{4} & {\omega}^{3}_{4} & {\omega}^{6}_{4} & {\omega}^{9}_{4} \\
+                        \end{pmatrix}
+                        \cdot
+                        \begin{pmatrix} 
+                        A[0] \\ A[2] \\ A[4] \\ A[6] \\ A[1] \\ A[3] \\ A[5] \\ A[7] 
+                        \end{pmatrix}
+                    \)
+                    <br>
+                    <br>
+                    さて、右 \(2\) つの行列の積から計算しましょう。これはサイズが \(\frac{N}{2} = 4\)  の FFT を \(2\) 回行うことで計算できます。  
+                </p>
+                <p>
+                    列 \(A[0],A[2],A[4],A[6]\) の FFT の結果を \(f_A[0],f_A[1],f_A[2],f_A[3]\) とし, 列 \(A[1],A[3],A[5],A[7]\) の FFT の結果を \(f_A[4],f_A[5],f_A[6],f_A[7]\) とします。すると \( M_N\cdot A\) は以下に変形できます。
+                    <br>
+                    <br>
+                    \(
+                        \begin{pmatrix} 
+                            F_A[0] \\ F_A[1] \\ F_A[2] \\ F_A[3] \\ F_A[4] \\ F_A[5] \\ F_A[6] \\ F_A[7] 
+                        \end{pmatrix}
+                        =
+                        \begin{pmatrix}
+                        1 & 0 & 0 & 0 & {\omega}^{0}_{8} & 0 & 0 & 0 \\
+                        0 & 1 & 0 & 0 & 0 & {\omega}^{1}_{8} & 0 & 0 \\
+                        0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{2}_{8} & 0 \\
+                        0 & 0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{3}_{8} \\
+                        1 & 0 & 0 & 0 & {\omega}^{4}_{8} & 0 & 0 & 0 \\
+                        0 & 1 & 0 & 0 & 0 & {\omega}^{5}_{8} & 0 & 0 \\
+                        0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{6}_{8} & 0 \\
+                        0 & 0 & 0 & 1 & 0 & 0 & 0 & {\omega}^{7}_{8} \\
+                        \end{pmatrix}
+                        \cdot
+                        \begin{pmatrix} 
+                        f_A[0] \\ f_A[1] \\ f_A[2] \\ f_A[3] \\ f_A[4] \\ f_A[5] \\ f_A[6] \\ f_A[7] 
+                        \end{pmatrix}
+                    \)
+                    <br>
+                    <br>
+                    \(N \times N\) 行列の掛け算が発生しますが、中身がスカスカなので愚直に積を取る必要はありません。\(F_A[x]\) は以下の式で計算できます。
+                    <ul>
+                        <li>
+                            \(F_A[x] = f_A[x \% \frac{N}{2}] + f_A[( x \% \frac{N}{2} )+ \frac{N}{2}]\cdot {\omega}^{x}_{N}\)
+                        </li>
+                        <li>
+                            \(x\%y\) は \(x\) を \(y\) で割ったあまり
+                        </li>
+                    </ul>
+                    この計算は \(O(N)\) 時間でできるので、あとの計算量解析はサイズ \(\frac{N}{2}\) の FFT を計算する部分 (\(f_A\) の計算) に依存します。サイズ \(N\) の FFT の計算量を \(T(N)\) とすると、\(T(N) = O(N) + T(\frac{N}{2})\) です。再帰の深さが \(O(\log{N})\) なので、\(T(N) = O(N)\cdot O(log{N}) = O(N\log{N})\) です。よって FFT は \(O(N\log{N})\) 時間で処理できます。
+                </p>
+                <h2>
+                    おさらい
+                </h2>
+                <p>
+                    <ul>
+                        <li>
+                            長さ \(N\) の列 \(A\) を FFT するために列の長さを二冪に整形し、新たにできた領域を \(0\) で埋める。これを新たに \(A\) とし、その長さを \(N\) とする。
+                        </li>
+                        <li>
+                            フーリエ変換を行列の積 \(M_N\cdot A\) の形で表現する。
+                        </li>
+                        <li>
+                            \(A\) のインデックスが偶数のものを \(A\) の前半に、奇数のものを後半に移動し、行列の積の結果が変わらないように行列の列も移動しておく。
+                        </li>
+                        <li>
+                            行列を \(\omega_{\frac{N}{2}}\) で括り、\(M_N\) から \(M_{\frac{N}{2}}\) を抽出して分解する。
+                        </li>
+                        <li>
+                            右二つの行列の積は、\(A\) の前半と後半それぞれにサイズ \(\frac{N}{2}\) の FFT を行ったものを結合したものであり、それを \(f_A\) とする。
+                        </li>
+                        <li>
+                            残った行列は中身がスカスカなので、\(F_A \) の計算は以下の式で \(O(N)\) 時間で行える。
+                            <ul>
+                                <li>
+                                    \(F_A[x] = f_A[x \% \frac{N}{2}] + f_A[( x \% \frac{N}{2} )+ \frac{N}{2}]\cdot {\omega}^{x}_{N}\)
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <h2>
+                    逆変換
+                </h2>
+                <p>
+                    \(\omega\) の指数部分の符号を逆にして、全く同じ計算を行います。その後、すべての要素を \(N\) で割ったものが、逆変換の結果になります。
+                </p>
+                <h2>
+                    畳み込み (Convolution)
+                </h2>
+                <p>
+                    \(2\) つの列 \(A,B\) に対して以下の長さ \(|A| + |B| - 1\) の列 \(C\) を計算することを、<b>添字の和の畳み込みと言います。</b>
+                    <ul>
+                        <li>
+                            \(C_t := \sum_{i+j = t}(A_i \cdot B_j)\)
+                        </li>
+                        <li>
+                            \(A,B\) のインデックス範囲外の部分は \(0\) としておく。
+                        </li>
+                    </ul>
+                    結論から言うと、\(A,B\) それぞれのサイズを \(|A|+|B|-1\) にリサイズ (新たな領域は \(0\) とする) して、それを離散フーリエ変換したものをそれぞれ \(F_A,F_B\) とします。 \(F_C[t] := F_A[t]\cdot F_B[t]\) なる列 \(F_C\) を離散フーリエ逆変換すると、\(A,B\) の畳み込み \(C\) が得られます(不思議ですね〜)。
+                </p>
+            </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                     
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

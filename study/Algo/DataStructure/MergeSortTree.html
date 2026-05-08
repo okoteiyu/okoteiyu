@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    Merge Sort Tree  <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                
+                
+                <pre>
+                    <br>長さ N の数列に対して、以下のクエリを Q 回処理してください
+                    <br>ただし、数列の要素の初期値は ∞ とします。
+                    <br>・1 i x : i 番目の要素を x に変更する
+                    <br>・2 l r x : l 番目から r 番目までの要素で、x 以下のものの個数を出力してください
+                    <br> N,Q ≦ 200000
+                </pre>
+                <p>
+                    セグメント木の各セグメント(ノード)に、<b>対応する区間内の要素を入れた Set </b>を持たせます。以下は、列 : \(4,2,1,2\) に対してセグメント木を構築した場合です。
+                </p>
+                <br><img src = "./../../images/staticSegTree.jpeg"  class = "StandardImageStyle">
+                <p>
+                    セグメントツリーは高さが logN で、ある層の頂点が持つ数列の長さの和は N なので、空間計算量は(NlogN)です。
+                </p>
+                <p>
+                    Set は、以下の操作に対応している必要があります。
+                </p>
+                <ul>
+                    <li>要素が常に昇順に並んでいる</li>
+                    <li>ランダムアクセス</li>
+                    <li>挿入/削除</li>
+                    <li>要素の検索 (lower_bound & upper_bound) </li>
+                </ul>
+                <p>
+                    要素を更新する際は、元々の値 (oldval) を削除し、新しい値 (x) を挿入するということを自身以上の上層のセグメントに対して行います。
+                </p>
+                <p>
+                    クエリあたりの計算量が \(O(\log^2{N} )\) なので以下の工夫で定数倍を軽くします。
+                </p>
+                <ul>
+                    <li>
+                        列の各要素は、<b>代入が行われるまで空要素として扱う</b>。
+                    </li>
+                    <li>
+                        空要素は区間取得でカウントされない。
+                    </li>
+                    <li>
+                        初期状態の要素を更新するときは上層セグメントに対して挿入だけ行う。
+                    </li>
+                </ul>
+                <p>
+                    初期化時点ではセグ木の各セグメントの Set のサイズが \(0\) なので、無駄な計算が抑えられます。特に、サイズ \(N\) の列に対してセグ木を構築するとき、列のサイズが \(N\) 以上の \(2\) の冪乗になるまで単位元で埋めることになるため、無駄な領域のデータを持たないという点でシナジーがあります。
+                </p>
+                <p>
+                    Merge Sort Tree は、列のある区間内の要素を Set で管理します。Set が区間和を持つなら、列のある区間内の値のうち、\(x\) 以上 \(y\) 未満の値の総和なども実現できます。
+                </p>                
+                <p>
+                    値の更新がない場合は、Set の代わりに配列をソートしておくだけで、同じようなことができます。こっちの方が高速で良いです。
+                </p>
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+
+
+
+
+
+
+
+                        <center><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+                        
+
+                        <center><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;">
+                        <center><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

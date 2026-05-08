@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    典型練習問題まとめ<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <!--
+                <div class = "Highlight">
+                    <h3>
+                        タイトル
+                    </h3>
+                    <p>
+                        問題文
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            解説
+                        </p>
+                        コード
+                    </details>
+                </div>
+                -->
+
+
+                <div class = "Highlight">
+                    <h3>
+                        決めうち二分探索(典型 90 - 1)
+                    </h3>
+                    <p>
+                        長さが \(L\) の羊羹に、\(N\) 個の切れ目がある。\(i\) 番目の切れ目の位置は、羊羹の左端から \(A_i\) の地点である。ちょうど \(K\) 個に切り分けるとき、最も短いものの長さを最大化せよ。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            最大化は二分探索です。
+                        </p>
+                        <ul>
+                            <li>
+                                \(F(x) :=\) 最も短い切れ端の長さが \(x\) 以上になるように切り分けることが可能か
+                            </li>
+                        </ul>
+                        <p>
+                            上記の判定関数は単調性があり、\(x\) は <b>[OK / NG]</b> の 2 つの領域に二分されます。実際、\(x = 0\) の場合必ず OK ( 羊羹の長さは正なので )、\(x\) が大きくなってくると条件を満たすのが難しくなり、一度 NG になってからはずっと NG となります。
+                        </p>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n&nbsp;,&nbsp;l&nbsp;,&nbsp;k;cin&nbsp;&gt;&gt;&nbsp;n&nbsp;&gt;&gt;&nbsp;l&nbsp;&gt;&gt;&nbsp;k;<br>&nbsp;&nbsp;&nbsp;&nbsp;vll&nbsp;a(n);CIN(a);<br>&nbsp;&nbsp;&nbsp;&nbsp;a.insert(a.begin(),0);<br>&nbsp;&nbsp;&nbsp;&nbsp;a.push_back(l);<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;rig&nbsp;=&nbsp;INF;//&nbsp;ng&nbsp;領域<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;lef&nbsp;=&nbsp;0;&nbsp;//&nbsp;ok&nbsp;領域<br>&nbsp;&nbsp;&nbsp;&nbsp;while(rig-lef&gt;1){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;mid&nbsp;=&nbsp;lef&nbsp;+&nbsp;(rig-lef)/2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;cnt&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;sum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;now&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR(i,1,a.size()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sum&nbsp;&lt;&nbsp;mid){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum&nbsp;+=&nbsp;a[i]&nbsp;-&nbsp;a[i-1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sum&nbsp;&gt;=&nbsp;mid){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum=0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cnt++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(sum&nbsp;&lt;&nbsp;mid)cnt--;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(cnt&nbsp;&lt;&nbsp;k)rig&nbsp;=&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;lef&nbsp;=&nbsp;mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;lef&nbsp;&lt;&lt;&nbsp;endl;<br><br></pre>
+                    </details>
+                </div>
+
+                <br>
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        括弧列(典型 90 - 2)
+                    </h3>
+                    <p>
+                        <code>(</code> と <code>)</code> からなる長さ \(N\) の括弧列で、括弧が閉じているものを全て列挙してください。
+                    </p>
+                    <ul>
+                        <li>
+                            \(N \leq 20\)
+                        </li>
+                    </ul>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            まず\(N\) が小さいので、長さ \(N\) の括弧列を全列挙します。\(N\) 文字それぞれが <code>(</code> と <code>)</code> のどちらの状態かをビット前探索することで、長さ \(N\) の括弧列を全部列挙できます。
+                        </p>
+                        <p>
+                            このカッコ列が閉じているための必要十分条件は、全ての接頭辞に対して、<code>(</code> の個数が <code>)</code> の個数以上であることです。これを <code>for</code> 文で前から確かめます。
+                        </p>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;n;cin&nbsp;&gt;&gt;&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;string&gt;&nbsp;ans;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;S&nbsp;=&nbsp;0&nbsp;;&nbsp;S&nbsp;&lt;&nbsp;(1&lt;&lt;n)&nbsp;;&nbsp;S++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;S&nbsp;のビットが&nbsp;0&nbsp;→&nbsp;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;S&nbsp;のビットが&nbsp;1&nbsp;→&nbsp;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;ok&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;left_bracket_cnt&nbsp;=&nbsp;0;//&nbsp;(&nbsp;がどれだけ余裕があるか<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;s&nbsp;=&nbsp;&quot;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;b&nbsp;=&nbsp;0&nbsp;;b&nbsp;&lt;&nbsp;n&nbsp;;&nbsp;b++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(S&amp;(1&lt;&lt;b)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left_bracket_cnt--;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s&nbsp;+=&nbsp;&apos;)&apos;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left_bracket_cnt++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s&nbsp;+=&nbsp;&apos;(&apos;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(left_bracket_cnt&nbsp;&lt;&nbsp;0)ok&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(left_bracket_cnt&nbsp;!=&nbsp;0)ok&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(ok)ans.push_back(s);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;sort(ALL(ans));<br>&nbsp;&nbsp;&nbsp;&nbsp;for(string&nbsp;s:ans)cout&nbsp;&lt;&lt;&nbsp;s&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                    </details>
+                </div>
+                
+                
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>木の直径(典型 90 - 3)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>木が与えられるので、2 つの頂点間の距離の最大値 (+1) を求めてください。
+                        <br>・頂点数 ≦ 200000
+                    </pre>      
+                    <br>木の 2 頂点距離 (辺の本数) の最大値は、2 回 DFS(BFS) を行うことで計算することができます。
+                    <ul>    
+                        <li>適当な根 r から DFS を行い、r から全ての頂点への最短距離を求める(1 回目)</li>
+                        <li>r から最も遠い頂点を x として、次は x を根として全ての頂点への最短距離を求める(2 回目)</li>
+                        <li>x から最も遠い頂点への距離が答えである。</li>
+                    </ul>
+                    <br>こうして求めた値を、<b>木の直径</b>と言います。
+                    <br>DFS/BFS については、<a href = "./../graph/bfs_and_dfs.html">こちらの記事</a>で書いているので参考にしてください。
+                    <br>stack を使う実装によって、DFS の到達順に頂点を列挙することができます。
+                    <br>
+                    <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;n;cin&nbsp;&gt;&gt;&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&nbsp;&gt;&nbsp;g(n+1);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n-1){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;u&nbsp;,&nbsp;v;cin&nbsp;&gt;&gt;&nbsp;u&nbsp;&gt;&gt;&nbsp;v;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g[u].push_back(v);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g[v].push_back(u);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;distfrom1(n+1,1e9);<br>&nbsp;&nbsp;&nbsp;&nbsp;distfrom1[1]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;stack&lt;int&gt;&nbsp;st;<br>&nbsp;&nbsp;&nbsp;&nbsp;st.push(1);//&nbsp;適当な根からの距離を計算する<br>&nbsp;&nbsp;&nbsp;&nbsp;while(!st.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;st.top();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.pop();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;nx&nbsp;:&nbsp;g[now]&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;親方向を見ないように<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(distfrom1[nx]&nbsp;&gt;&nbsp;distfrom1[now]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;distfrom1[nx]&nbsp;=&nbsp;distfrom1[now]+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.push(nx);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;distfromX(n+1,1e9);<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;X;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;mx&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;FOR(x,1,n+1){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(mx&nbsp;&lt;&nbsp;distfrom1[x]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mx&nbsp;=&nbsp;distfrom1[x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;ans&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;distfromX[X]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;st.push(X);<br>&nbsp;&nbsp;&nbsp;&nbsp;while(!st.empty()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;now&nbsp;=&nbsp;st.top();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.pop();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;nx&nbsp;:&nbsp;g[now]&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;親方向を見ないように<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(distfromX[nx]&nbsp;&gt;&nbsp;distfromX[now]){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;distfromX[nx]&nbsp;=&nbsp;distfromX[now]+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;最遠の点が答え<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans&nbsp;=&nbsp;max(ans&nbsp;,&nbsp;distfromX[nx]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.push(nx);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;ans+1&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                    <br>
+
+                </div>
+
+                <br>
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>入出力の高速化(典型 90 - 4)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>H×W 行列の i 行 j 列 : (i , j) に A_i_j が書かれています。
+                        <br>各格子 (i , j) について、同じ行または同じ列にある要素をの総和を B_i_j とします。
+                        <br>B 求めて出力してください。
+                        <br>・H , W ≦ 2000
+                    </pre>      
+                    <br>各格子について \(B_{i,j}\) を愚直に計算すると \(O((H+W)HW)\) で間に合いません。
+                    <br>ということで、あらかじめ以下の値を前計算しておくことで高速化を図ります。
+                    <ul>    
+                        <li>\(\mathrm{mergeY}_j\) := j 列目の要素 (左から j 列目の縦一列) の和</li>
+                        <li>\(\mathrm{mergeX}_i\) := i 行目の要素 (上から i 行目の横一列) の和</li>
+                    </ul>
+                    <br>すると、\(B_{i,j} = \mathrm{mergeX}_i + \mathrm{mergeY}_j - A_{i,j}\) と計算できます。  
+                    <br>\(A_{i,j}\) が重複して加算された分を引くのを忘れないようにしてください。
+                    <br>
+                    <br>最後に \(B\) の各値を出力するのですが、H×W が最大 4000000 になってしまい、cout などを使うと出力のオーバーヘッドによって TLE してしまいます。
+                    <br>よって、printf などのより高速な出力を使用する必要があります。
+                    <br>
+                    <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;h&nbsp;,&nbsp;w&nbsp;;cin&nbsp;&gt;&gt;&nbsp;h&nbsp;&gt;&gt;&nbsp;w;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;int&gt;&nbsp;&gt;&nbsp;a(h,vector&lt;int&gt;(w));<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,h){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(j,w)cin&nbsp;&gt;&gt;&nbsp;a[i][j];<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;mergeY(w,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(x,w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;sum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(y,h)sum&nbsp;+=&nbsp;a[y][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mergeY[x]&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;mergeX(h,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(y,h){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;sum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(x,w)sum&nbsp;+=&nbsp;a[y][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mergeX[y]&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,h){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(j,w){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[i][j]&nbsp;=&nbsp;mergeY[j]&nbsp;+&nbsp;mergeX[i]&nbsp;-&nbsp;a[i][j];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;%d&nbsp;&quot;&nbsp;,&nbsp;a[i][j]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;\n&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                    <br>
+                </div>
+                <br>
+                <br>
+                <br>
+
+
+                <div class = "TitleLine"><h2>ダブリング (典型 90 - 5)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br> K 種類のリテラル 1 ≦ C_1 , C_2 , ... , C_k ≦ 9を使って N 桁の整数を作るとき、
+                        <br> B で割り切れる整数は何種類作れるか (mod 1000000007)
+                        <br>・N ≦ 1e18
+                        <br>・K ≦ 9 
+                        <br>・B ≦ 1000
+                    </pre>      
+                    <br>\(\mathrm{dp'}_{i,x}\) := <b>下から</b> \(i\) 桁を \(B\) で割ったあまりが \(x\) である場合の数
+                    <br> のようにすると DP することができますが、\(B\) が 1000 ぐらいあるので行列累乗しても間に合いません。
+                    <br>
+                    <br>そこで下から \(i\) 桁ではなく、
+                    <br>\(\mathrm{dp}_{i,x}\) := 下から \(2^i\) 桁を \(B\) で割ったあまりが \(x\) である場合の数
+                    <br>にすることで、ダブリングすることができます。
+                    <ul>    
+                        <li>下から \(2^{i+1}\) 桁までの答えを、下から \(2^i\) 桁を \(B\) で割った余りと、
+                            <br>&nbsp;&nbsp; \(2^i+1\) 桁から \(2^{i+1}\) 桁を \(B\) で割った余りから計算する
+                        </li>
+                        <li>下から \(2^i+1\) 桁から \(2^{i+1}\) 桁を \(B\) で割った余りは、
+                            <br>&nbsp;&nbsp;下から \(2^i\) 桁を \(B\) で割った余りに \(10^{2^i}\) をかけたものの余りです
+                        </li>
+                    </ul>
+                    <br>これで、下から \(2^i\) 桁を \(B\) で割った余りが \(x\) になる場合の数を計算できました。
+                    <br>求めたいのは、下から \(N\) 桁を \(B\) で割った余りが 0 の場合の数なので、ここから工夫をします。
+                    <br>
+                    <br>\(N\) にダブリング結果を適用するときは、\(N\) の立っているビットに注目します。
+                    <br>\(N\) の下のビットから調べていき、\(2^i\) のビットが立っている場合は、\(\mathrm{dp}_i\) を採用することを考えます。
+                    <br>
+                    <br>すると、
+                    <br>\(\mathrm{Ndp}_{i,x}\) := \(N\) の下から \(i\) ビットまで見て作った長さの整数のうち、\(B\) で割った余りが \(x\) である場合の数
+                    <br>を計算することになり、答えは以下のようになります。
+                    <br>
+                    <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;mint&nbsp;=&nbsp;mint1e9_7;<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;k&nbsp;,&nbsp;b&nbsp;,&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;n&nbsp;&gt;&gt;&nbsp;b&nbsp;&gt;&gt;&nbsp;k;<br>&nbsp;&nbsp;&nbsp;&nbsp;vll&nbsp;c(k);CIN(c);<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;mint&gt;&nbsp;&gt;&nbsp;dp(63,vector&lt;mint&gt;(b,0));<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dp[i][x]&nbsp;:=&nbsp;(下から)先頭から&nbsp;2^i&nbsp;桁&nbsp;mod&nbsp;B&nbsp;が、x&nbsp;であるような場合の数<br>&nbsp;&nbsp;&nbsp;&nbsp;dp[0][0]&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;:&nbsp;c)dp[0][x%b]&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,62){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;ten&nbsp;=&nbsp;modpow(10%b,(1ll&lt;&lt;i)&nbsp;,&nbsp;b);//&nbsp;計算が重いので前処理<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(x,b){//&nbsp;先頭&nbsp;2^i&nbsp;桁を&nbsp;B&nbsp;で割ったあまりが&nbsp;y<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(y,b){//&nbsp;その後ろ&nbsp;2^i&nbsp;桁を&nbsp;B&nbsp;で割ったあまりが&nbsp;y<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i+1][(x*ten+&nbsp;y)%b]&nbsp;+=&nbsp;dp[i][x]*dp[i][y];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;の前に&nbsp;2^i&nbsp;桁あるので、その分&nbsp;10^(2^i)&nbsp;をかける<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&nbsp;dp2(63&nbsp;,&nbsp;vector&lt;mint&gt;(b&nbsp;,&nbsp;0));<br>&nbsp;&nbsp;&nbsp;&nbsp;dp2[0][0]&nbsp;=&nbsp;1;//&nbsp;[i][x]&nbsp;:=&nbsp;n&nbsp;の(下から)&nbsp;i&nbsp;ビット目まで調べて、B&nbsp;で割った値が&nbsp;x&nbsp;になるような場合の数<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;now&nbsp;=&nbsp;0;//&nbsp;n&nbsp;の立っているビットのうち、すでに見たビットのみで&nbsp;10&nbsp;進数にしたもの<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;bit&nbsp;=&nbsp;0&nbsp;;&nbsp;bit&nbsp;&lt;&nbsp;62&nbsp;;&nbsp;bit++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((1ll&lt;&lt;bit)&amp;n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;ten&nbsp;=&nbsp;modpow(10,now,b)&nbsp;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(y,b){//&nbsp;先頭&nbsp;now&nbsp;桁を&nbsp;B&nbsp;で割ったあまりが&nbsp;x<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(x,b){//&nbsp;その後ろ&nbsp;2^bit&nbsp;桁を&nbsp;B&nbsp;で割ったあまり<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp2[bit+1][(x*ten+&nbsp;y)%b]&nbsp;+=&nbsp;dp2[bit][y]*dp[bit][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;の方は、その前に&nbsp;now&nbsp;桁あるので、その分&nbsp;10^now&nbsp;をかける<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;now&nbsp;+=&nbsp;(1ll&lt;&lt;bit);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;bit&nbsp;が立っていない箇所も、次のビットの遷移のために、前のビットの結果を受け継ぐ(便宜上)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(x,b)dp2[bit+1][x]&nbsp;+=&nbsp;dp2[bit][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;dp2[62][0]&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                    <br>
+
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>辞書順問題典型(典型 90 - 6)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>文字列 S の長さ K の(連続とは限らない)部分列のうち、辞書順最小のものを出力してください。
+                    </pre>      
+                    <br>辞書順最小は前から貪欲に決めていくのが定石です。
+                    <br>つまり、答えとなる文字列 : \(\mathrm{ans}\) の \(i\) 文字目として <code>a</code> を使えるのに、あえて <code>b</code> を使う必要はありません。
+                    <br>\(i\) 文字目で決まった文字列の大小関係が、\(i+1\) 文字目以降で逆転することはないからです。  
+                    <br>
+                    <br>今回の問題では長さ \(K\) の部分列を求めるので、\(\mathrm{ans}\) の \(i\) 文字目に \(S\) のどの文字でも使って良いわけではありません。
+                    <br>例えば、\(\mathrm{ans}\) の先頭の文字に \(S\) の末尾を採用してしまうと、\(\mathrm{ans}\) の 2 文字目以降を作れなくなってしまいます。  
+                    <br>
+                    <br>結論から言うと、\(\mathrm{ans}\) の長さが \(K\) であるという制約を実現するために
+                    <br>\(\mathrm{ans}_i\) (\(i\) は 0-index) に採用して良いのは、
+                    <ul>
+                        <li>\(L\) := \(\mathrm{ans}_{i-1}\) に採用した文字の \(S\) 上での \(\mathrm{index} + 1\) (ただし \(i\)=0 の時は \(L\)=0)</li>
+                        <li>\(R\) := \(|S| - |\mathrm{ans}| + i\)</li>
+                    </ul>
+                    としたときに、\(S\) の \(L\) 文字目から \(R\) 文字目までの文字です。(\(L,R\) も 0-index)  
+                    <br>
+                    <br>\(\mathrm{ans}_i\) として採用する価値があるのは、先述の理由より、選択肢のうち最小の文字のみです。
+                    <br>
+                    <ul>
+                        <li>\(\mathrm{ans}_i\) には \(S\) の \(L\) 文字目から \(R\) 文字目までの文字で最小の文字 : \(\mathrm{mc}\) を採用</li>
+                        <li>\(\mathrm{ans}_{i+1}\) に採用できる文字の候補を増やすために、
+                            <br>&nbsp;&nbsp;\(S\) の \(L\) 文字目から \(R\) 文字目までで<b>最も左の</b> \(\mathrm{mc}\) を採用する。</li> 
+                    </ul>
+                    これはセグメントツリーのようなデータ構造によって \(\mathrm{ans}_i\) に採用する値を取得することができますが、
+                    <br>\(S\) のアルファベットサイズが小さい(26)ので、\(\mathrm{ans}_i\) に採用する文字を全部確かめる実装をしてみます。 
+                    <br>
+                    <code>a</code> ~ <code>z</code> の各文字について \(S\) の何文字目に現れるかを \(\mathrm{set}\) などで昇順に保管しておきます。
+                    <br>\(\mathrm{ans}_i\) に採用する文字を以下の手順で調べます。
+                    <ul>    
+                        
+                        <li>\(\mathrm{ans}_i\) に採用する文字を <code>a</code> ~ <code>z</code> の順に調べる</li>
+                        <li>今調べている文字を \(c\) とし、
+                            <br>set に存在する index のうち \(L\) 未満は破棄する(set の先頭から見る)
+                            <br>残った要素に \(R\) 以下が存在するなら \(c\) を採用する(\(\mathrm{set}\) の先頭を見る)
+                            <br>&nbsp;&nbsp;(採用した場合、\(c\) 以降は \(\mathrm{ans}_i\) になり得ません。)</li>
+                    </ul>
+                    <br>以下、解答コードです。
+                    <br>
+                    <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;n&nbsp;,&nbsp;k;cin&nbsp;&gt;&gt;&nbsp;n&nbsp;&gt;&gt;k;<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;s;cin&nbsp;&gt;&gt;&nbsp;s;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;l&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;r&nbsp;=&nbsp;(n-k+1);<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;半開区間&nbsp;[l,r)&nbsp;に次に選べる文字の候補がある<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[c]&nbsp;:=&nbsp;文字&nbsp;c&nbsp;(0~25&nbsp;に変換)&nbsp;が現れる&nbsp;S&nbsp;の++使用可能な&nbsp;index&nbsp;++を昇順に管理<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;MyMultiSet&lt;int&gt;&nbsp;&gt;&nbsp;Candidates(26);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n)Candidates[s[i]-&apos;a&apos;].insert(i);<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;答えの文字列<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;ans&nbsp;=&nbsp;&quot;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,k){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ans&nbsp;の&nbsp;i&nbsp;文字目を何にするかを決める<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(c,26){//&nbsp;i&nbsp;文字目の候補を小さい文字から調べて、使用可能なら採用(それが最適)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Candidates[c].size()&nbsp;==&nbsp;0)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;c&nbsp;が現れる使用可能な候補のうち、最左のものが使用可能&nbsp;(r&nbsp;未満)&nbsp;なら<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;それを採用するのが最適&nbsp;(次の文字を選べる範囲を広げたいから)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Candidates[c].get(0).Key&nbsp;&lt;&nbsp;r){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans.push_back(c+&apos;a&apos;);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l&nbsp;=&nbsp;Candidates[c].get(0).Key+1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Candidates[c].Delete(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;l&nbsp;が変わったので、これまでの候補のうち&nbsp;l&nbsp;よりも左にあるものを削除する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(c,26){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(Candidates[c].size()&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;Candidates[c].get(0).Key&nbsp;&lt;l)Candidates[c].Delete(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;ans&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                    <br>
+                </div>
+
+
+                <br>
+                <br>
+                <div class = "TitleLine"><h2>偏角ソート(典型 90 - 9)</h2></div>
+                <div class = "Box">
+                    <pre>
+                        <br>N 個の座標が与えられるので、それらから 3 点 A , B , C を選ぶとき、
+                        <br>ABC のなす角の最大値を求めてください。
+                        <br>・ N ≦ 2000
+                    </pre>      
+                    真ん中の点 B を固定して、残りを偏角ソートします。
+                    <br>その後、各点について、B を中心に 180° 反対側の方角に最も角度が近い点を lower_bound などで調べます。  
+                    <br>AngleSorter は平衡二分木に点を乗せ、偏角でソートしたものです。
+                    <br>
+                    <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n;cin&nbsp;&gt;&gt;&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;Point&gt;&nbsp;P(n);<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;x&nbsp;,&nbsp;y;cin&nbsp;&gt;&gt;&nbsp;x&nbsp;&gt;&gt;&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P[i]&nbsp;=&nbsp;Point(x,y);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;res&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;REP(i,n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DynamicAngleSorter&lt;ll&gt;&nbsp;S(P[i].real()&nbsp;,&nbsp;P[i].imag());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(j,n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i!=j)S.add_point(P[j].real()&nbsp;,&nbsp;P[j].imag()&nbsp;,&nbsp;j);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REP(j,n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(j&nbsp;==&nbsp;i)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;P[i]&nbsp;に対して&nbsp;P[j]&nbsp;と対称な点と角度が近い点を求める<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;it&nbsp;=&nbsp;S.lower_bound(S.Center.x&nbsp;-&nbsp;(P[j].real()&nbsp;-&nbsp;S.Center.x)&nbsp;,&nbsp;S.Center.y&nbsp;-&nbsp;(P[j].imag()&nbsp;-&nbsp;S.Center.y));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;k&nbsp;:&nbsp;{&nbsp;(it-1+S.size())%int(S.size())&nbsp;,&nbsp;it&nbsp;}){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(k&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;k&nbsp;&gt;=&nbsp;S.size())continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Point&nbsp;Q(S[k].x,S[k].y);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(S.get(k).id&nbsp;==&nbsp;j)continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;th&nbsp;=&nbsp;get_angle(Q,P[i],P[j]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(th&nbsp;&lt;&nbsp;0)th&nbsp;+=2*PI;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;=&nbsp;max(res&nbsp;,&nbsp;th*180.0/PI);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout.precision(20);<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;res&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br><br></pre>
+                </div>
+
+
+                </div>
+
+
+                
+            </section>
+                
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

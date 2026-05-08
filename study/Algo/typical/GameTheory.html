@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>ゲーム理論</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    ゲーム理論典型<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    目次
+                </h2>
+                <ol>
+                    <li>
+                        Nim
+                    </li>
+                    <li>
+                        Grundy の定理
+                    </li>
+                </ol>
+                <br>
+                <h2>
+                    Nim 
+                </h2>
+                <p>
+                    以下のゲームを Nim と言います。
+                </p>
+                <div class = "Highlight">
+                    <h3>
+                        Nim の概要
+                    </h3>
+                    <p>
+                        コインの山が \(N\) 個あり、各山のコインの枚数は \(i\) 番目の山が \(a_i\) 枚です。A 君と B 君がお互いに以下の行動を交互に行います。
+                    </p>
+                    <ul>
+                        <li>
+                            \(1\) 枚以上コインが残っている山を \(1\) つ選び、そこからコインを \(1\) 枚以上取り除く。
+                        </li>
+                    </ul>
+                    <p>
+                        操作を繰り返し、最後のコインを取ったプレイヤーが勝者となります。A 君が先手で行動し、お互いが最適行動をとる時、どちらが勝ちますか。
+                    </p>
+                </div>
+                <p>
+                    結論から言うと、このゲームは勝者がどちらかを必ず判定することができるタイプのゲームです。そして、このゲームの結果は、<u>コインの山の高さの総 XOR (bitwize XOR) が \(0\) かどうかで判別できる</u>のです。
+                </p>
+                <p>
+                    まずは山の個数が 1 つしか無い場合、必ず A 君(先手)が勝利します。なぜなら、A 君はコインを全部取れば良いのですから。このとき、山の高さの XOR は \(0\) ではありません。コインの山の個数が \(2\) つ以上の場合も同じで、XOR の値が \(0\) でなければ、A 君(先手)の勝利になります。
+                </p>
+                <!--証明に関する部分-->
+                <div class = "Box">
+                    <details>
+                        <summary>証明 (タップで開閉)</summary>
+                        <p>
+                            まず、プレイヤーの勝利条件は、プレイヤーの操作後にコインの枚数が全体で \(0\) 枚になることです。コイン枚数の全体の総和が \(0\) のとき、当然全体の Xor も \(0\) です。ここで、以下の事実に注目します。
+                        </p>
+                        <ol>
+                            <li>
+                                山ごとのコイン枚数の総 Xor が \(0\) のとき、どの山からどんな枚数取り除いても、操作後にコインの山の総 Xor を \(0\) にすることはできない。
+                            </li>
+                            <li>
+                                山ごとのコイン枚数の総 Xor が \(0\) でないならば、適切な山から適切な枚数のコインを取り除くことで操作後のコインの山の総 Xor を \(0\) にできる。
+                            </li>
+                        </ol>
+                        <p>
+                            \(1\) つ目の事実の証明は簡単です。一つの山からコインを何枚か取ってきたとき、その山のコイン枚数の bit は必ずどこかが変化するので、その桁を \(p\) 桁目とすると、コイン枚数の \(p\) 桁目が \(1\) の山の個数の偶奇が変わるため、総 Xor を \(0\) のままキープすることは不可能です。
+                        </p>
+                        <p>
+                            \(2\) つ目の事実は、総 XOR のビットの最高位の \(1\) に注目して証明します。全てのコイン枚数の XOR の、最高位の \(1\) が \(p\) 桁目に登場するとします。このとき、コイン枚数の \(p\) 桁目が \(1\) である山が存在します。この山のビットは <code>1---...</code> と表記することができます。ここで、この山から適切な枚数のコインを取り除くことで、\(p\) 桁目より下のビットを任意のビットパターン <code>0???...</code> にすることができます。適切な枚数を引くことでこのビットパターンを残りの山の XOR と合わせることができ、全体の XOR を \(0\) にすることができます。
+                        </p>
+                        <p>
+                            このように、事実 1 と事実 2 は成り立ちます。ここで、Nimの解法に戻ってみましょう。最初の状態のコインの山の総 Xor が \(0\) でない場合、先述の \(2\) つの事実を用いて以下の必勝パターンを得られます。
+                        </p>
+                        <ul>
+                            <li>
+                                自分のターンに適切に行動することで、コイン枚数の総 XOR を必ず \(0\) にする。
+                            </li>
+                            <li>
+                                相手は、必ず総 XOR が \(0\) でない状態で自分のターンに返す。
+                            </li>
+                        </ul>
+                        <p>
+                            これらを繰り返すと、先手はいつかすべての山のコインの枚数が \(0\) の状態にできます。なお、最初の状態の総 Xor が \(0\) の時、総 Xor が \(0\ 以外の状態で後手に渡すので、後手が必勝になります。
+                        </p>
+                    </details>
+                </div>
+                <br>
+                <h2>
+                    Grundy の定理
+                </h2>
+                <p>
+                    先ほどの Nim はただのコイン取りゲームでしたが、<u>Grundy の定理</u> を用いてより一般的なゲームを Nim の必勝法に帰着させることができます。ここで考えるのは、ゲームそのものに<u>状態</u>が存在するものです。先手と後手の操作の結果ゲームの状態が遷移し、ゲームの状態を終了状態することができたプレイヤーが勝利するゲームを考えます。
+                </p>
+                <p>
+                    ここでは、ゲームの状態を有向グラフの頂点と対応づけて考えることで、このゲームをグラフの問題として考えます。このようにしたグラフの各頂点に対して、<u>Grundy 数</u> を以下で定義します。
+                </p>
+                <ul>
+                    <li>
+                        \(\mathrm{Grundy}(x) := \) 頂点 \(x\) から到達できる頂点集合を \(S\) としたとき、整数の集合 \(\{\mathrm{Grundy}(y) | y \in S \}\) の Mex
+                    </li>
+                </ul>
+                <div class = "Box">
+                    <details>
+                        <summary>Mex とは (タップで開閉)</summary>
+                        非負整数からなる集合 \(A\) に対して、\(A\) の Mex (minimum excluded value) とは、\(A\) に現れない最小の非負整数と定義されます。ただし、空集合の Mex は \(0\) です。
+                    </details>
+                </div>
+                <p>
+                    Grundy 数は上記の式によって簡単に計算することができます。再帰関数 & DP で計算しても良いですが、<u>Grundy 数は無閉路有向グラフにしか定義できない</u>ので、トポロジカルソートの逆順に非再帰に計算していくこともできます。
+                </p>
+                <br><img src ="./../../images/GameTheory/GameTheory.001.jpeg"  class = "StandardImageStyle"> 
+                <p>
+                    ここで Grundy 数の式について説明しましたが、Grundy 数はどんな意味を持つのでしょうか。実は、ある状態(頂点)の Grundy 数は、<u>Nim における山のコインの枚数と同じ</u>なのです。このゲームの最適な行動では、各頂点の Grundy 数から遷移を決定します。
+                </p>
+                <div class = "Highlight">
+                    <h3>
+                        Grundy 数が \(X\) \(\rightarrow\) コインが \(X\) 枚の山から交互にコインを取るゲーム 
+                    </h3>
+                    <p>
+                        Grundy 数の定義より、Grundy 数が \(X\) であるような状態からは、必ず Grundy 数が \(X\) 未満であるような状態に遷移できます。この点においては、コインが \(X\) 枚の山から \(1\) 枚以上コインを取る操作と同じです。Nim との差異は、Grundy 数が \(X\) の状態から、Grundy 数が \(X\) より大きい状態にも遷移可能な点です。
+                    </p>
+                    <p>
+                        しかし、直感的に考えて、Grundy 数が \(X\) の状態から、Grundy 数が \(X\) よりも大きい状態への移動を行なっても嬉しくないことがわかるかと思います。Grundy 数に注目して遷移を決定する前提では、このような遷移の結果、相手の選択肢が自分よりも多くなることになります。よってこのような遷移を考える必要はなく、Nim の操作と全く同じものに対応すると考えることができます。
+                    </p>
+                </div>
+                <p>
+                    上記のことを考えると、例えば先述のグラフで頂点 \(8\) から状態遷移を行うゲームでは、\(\mathrm{grundy}(8)\) の値を見て結果を判別することができます。
+                </p>
+                <br><img src ="./../../images/GameTheory/GameTheory.002.jpeg"  class = "StandardImageStyle"> 
+                <p>
+                    また、複数の状態が対象であり、\(1\) 操作ごとにどれか \(1\) つの状態が変化するゲームにおいては、それらの状態の Grundy 数の総 XOR をみて結果を判別することができます。ここも Nim と同様です。
+                </p>
+                <br><img src ="./../../images/GameTheory/GameTheory.003.jpeg"  class = "StandardImageStyle"> 
+                <p>
+                    例えば上記のゲームは先手が負けます。
+                </p>
+            </section>
+            
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+

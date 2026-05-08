@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>数学</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    剰余環の計算 <br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h2>
+                    はじめに
+                </h2>
+                <p>
+                    この記事では \(\mathrm{mod}\space m\) の<b>剰余環</b>という構造 (modint クラス) について書きます。つまりこの記事では整数 \(m\) で割った余りを扱います。
+                </p>
+                <br>
+                <h3>
+                    準備 1 : フェルマーの小定理
+                </h3>
+                <p>
+                    素数 \(m\) と \(m\) の倍数ではない整数 \(a\) に対して、以下が成り立ちます。
+                    <ul>
+                        <li>
+                            \(a^{m-1} = 1 \mod{m}\)
+                        </li>
+                    </ul>
+                    このとき、数列 \(a^0,a^1,a^2,a^3,\dots\) は \(m-1\) 要素ごとに同じパターンを繰り返します。すなわち、\(a\) の冪乗が \(m-1\) の周期で同じ値をとることを意味しています。<b>ただし、最短周期とは限らないことに注意してください!!!</b>
+                </p>
+                <br>
+                <h2>
+                    初級編
+                </h2>
+                <h3>
+                    modpow
+                </h3>
+                <p>
+                    整数 \(a,b\) に対して \(a^b \mod{m}\) の計算を行う modpow 関数を書きます。\(b = \sum x_i\) のようにいくつかの整数 \(x_1,x_2,...\) の和で分割したとき、以下が成り立つことに注目して計算量を減らします。
+                    <ul>
+                        <li>
+                            \(a^b = \Pi a^{x_i}\)
+                        </li>
+                    </ul>
+                    \(a^{x_i}\) の計算を高速に行うことができるような \(x_1,x_2 ,...\) のインスタンスがどんなものかを考えます。結論から言うと、\(x_1,x_2,...\) は \(2\) の冪乗の形の整数を採用します。\(b\) を二進数表示にすると、二冪の整数の和で \(b\) を作ることができるとわかります。
+                </p>
+                <p>
+                    \(b = \sum x_i\) は \(O(\log{b})\) 個の整数の和であり、\(x_i \leq 2^{\log{b}}\) です。\(x_i\) は \(2\) の冪乗なので、\(a^b\) を求めるためには \(a^1,a^2,a^4,...,a^{2^{\log{b}}} \) の値がわかればよく、\(i\) が小さい順に \(a^{2^i} = a^{2^{i-1}} \cdot a^{2^{i-1}} \) のように計算していくことができます。
+                </p>
+                <br>
+                <h3>
+                    modinv
+                </h3>
+                <p>
+                    \(\mathrm{mod}\space m\) における \(A\) の逆数 \(A^{-1}\) の計算を行う modinv 関数を書きます。フェルマーの小定理より、\(m\) が整数の場合に \(A^{m-1} = 1 \mod m \) であることを利用します。この式の両辺に \(A^{-1}\) をかけることで \(A^{-1} = A^{m-2} \mod m \) が得られます。
+                </p>
+                <p>
+                    なお \(m\) が素数でない場合は modint の逆数は未定義としておきます。
+                </p>
+                <br>
+                <h3>
+                    modcomb
+                </h3>
+                <p>
+                    \(n \mathrm{C} r = \frac{n!}{r!(n-r)!} = \frac{n\mathrm{P}r}{r\mathrm{P}r}\) を計算します。\(r\) が小さければそのまま \(O(r+\log{m})\) 時間で計算すれば良いです。(TODO : 階乗を高速化するテクニック)
+                </p>
+                <p>
+                    あり得る \(n\) の上限 \(N\) がわかっているなら、\(N\) 以下の整数 \(a\) に対して \(a! , (a!)^{-1}\) を管理するテーブルを持っておくことで \(n \mathrm{C} r = (n!\cdot (r!)^{-1})\cdot ((n-r)!)^{-1} \) をクエリあたり \(O(1)\) 時間で計算できます。
+                </p>
+                <br>
+                <h3>
+                    FastPowerSum
+                </h3>
+                <p>
+                    整数 \(n,k\) に対して、\(n\) 以下の自然数の \(k\) 乗和 \(\sum_{1 \leq x \leq n}{x^k}\) を (ある程度) 高速に求めます。(ちなみに、過去に名古屋大学の入試数学にこれから述べる式変形を要求する問題が出ました。)
+                </p>
+                <p>
+                    突飛ですが、以下が成り立ちます。
+                    <ul><li>
+                        \((x+1)^K = \sum_{0 \leq i \leq K}{_K\mathrm{C}_i \cdot x^i} \)
+                    </li></ul>
+                    これを、こうです。
+                    <ul><li>
+                        \(\sum_{1\leq x \leq n}{(x+1)^K} = \sum_{0 \leq i \leq K}{(_K\mathrm{C}_i\sum_{1\leq x \leq n}{x^i})} \)
+                    </li></ul>
+                    右辺の \(1\) つ目の \(\sum\) から、\(i = K-1,i=K\) の \(2\) つの項を取り出すと、右辺は以下のようになります。
+                    <ul><li>
+                        \(\sum_{0 \leq i \leq K-2}{(_K\mathrm{C}_i\sum_{1\leq x \leq n}{x^i})} +  K \cdot \sum_{1\leq x \leq n}{x^{K-1}} + \sum_{1\leq x \leq n}{x^K}\)
+                    </li></ul>
+                    左辺の \(\sum\) の中身を展開すると、\(\sum_{1\leq x \leq n}{(x+1)^K} = (N+1)^K - 1 + \sum_{1\leq x \leq n}{x^K}\) となります。両辺から \(\sum_{1\leq x \leq n}{x^K} \) を引くことで、以下の式が得られます。
+                    <ul><li>
+                        \( (N+1)^K - 1 = \sum_{0 \leq i \leq K-2}{(_K\mathrm{C}_i\sum_{1\leq x \leq n}{x^i})} +  K \cdot \sum_{1\leq x \leq n}{x^{K-1}} \) 
+                    </li></ul>
+                    これを式変形して、以下が得られます。
+                    <ul>
+                        <li>
+                            \( \sum_{1\leq x \leq n}{x^{K-1}} = 
+                            \frac{(N+1)^K - 1 - \sum_{0 \leq i \leq K-2}{(_K\mathrm{C}_i\sum_{1\leq x \leq n}{x^i})}}
+                            {K}\)  
+                        </li>
+                    </ul>
+                    \(K\) に \(k+1\) を代入することで、\( \sum_{1\leq x \leq n}{x^{k}} = \frac{(N+1)^{k+1} - 1 - \sum_{0 \leq i \leq k-1}{(_{k+1}\mathrm{C}_i\sum_{1\leq x \leq n}{x^i})}}{k+1}\) が計算できました。
+                </p>
+                <p>
+                    右辺の \(2\) つめの \(\sum_{1\leq x \leq n}{x^i}\) の結果は、再帰的に冪乗和の関数を呼び出すことで計算ができます。冪乗和の計算結果をメモ化しておくことで、\(\sum_{1\leq x \leq n}{x^k}\) の値を先の modcom などと組み合わせて \(O(k^2)\) 時間で計算できます。
+                </p>
+                <br>
+                <h2>
+                    中級編
+                </h2>
+                <h3>
+                    modpow その 2
+                </h3>
+                <p>
+                    \(\mathrm{mod}\space{m}\) の世界で \(a^k (a \neq 0) \) の値を計算する場面を考えてみましょう。\(\mathrm{mod}\space{m}\) の世界で考えるので、\(a = a\%m\) として良いです。さて、\(k\) はどうでしょう。\(k = k\%m\) として良いでしょうか、余裕でダメです(即答)。
+                </p>
+                <p>
+                    \(m\) が素数の場合、フェルマーの小定理より以下が成り立ちます。
+                    <ul><li>
+                         \(a^{m-1} = 1\) 
+                    </li></ul>
+                    つまり、\(m\) が素数なら\(a^0,a^1,a^2,a^3,\dots\) は \(m-1\) 回ごとに同じ値を繰り返すので、\(k = k\%{(m-1)}\) として良いです。
+                </p>
+                <p>
+                    ここで、\(m\) が素数でない場合には以下が成り立ちます。
+                    <ul><li>
+                        \(m\) と \(a\) が互いに素 \(\rightarrow\) \(a^{\varphi(m)} = 1\) 
+                    </li></ul>
+                    \(\varphi(m)\) は \(1\) 以上 \(m\) 以下の整数のうち、\(m\) と互いに素なものの個数です。こればメビウスの反転公式などを使って計算できます。周期が \(\varphi(m)\) なので、\(k = k\%{\varphi(m)} \) として良いです。
+                </p>
+                <br>
+                <h3>
+                    modlog
+                </h3>
+                <p>
+                    \(\log_{a}{b} \mod{m}\) を計算します。これは、\(a^k = b \mod{m}\) なる<b>整数</b> \(k\) を求めることと同義で、そのようなもののうち最小のものを求めることにします。この問題を離散対数問題と呼びます。
+                </p>
+                <p>
+                    離散対数問題を解くアルゴリズムとして Baby Step Giant Step というアルゴリズムがあります。これを簡単に紹介します。
+                    <ol>
+                        <li>
+                            \(a\) の冪乗の周期は \(m\) 未満なので、\(k\) の候補は \(0\) から \(m-1\) として良いです。
+                        </li>
+                        <li>
+                            \(0\) から \(m-1\) を全探索はできないので、平方分割によって計算量を削減します。具体的には、計算したい答えを整数 \(p,q\) を用いて \(p \lfloor \sqrt{m} \rfloor + q\) の形で表し、\(p\) と \(q\) の組み合わせを効率的に探索します。
+                        </li>
+                        <li>
+                            長さ \(\lfloor \sqrt{m} \rfloor\) の配列 \(B = ba^{0} ,ba^{-1} ,ba^{-2} , \dots ,ba^{-(\lfloor \sqrt{m} \rfloor-1)} \) を用意する。
+                        </li>
+                        <li>
+                            各 \(0 \leq p \leq \frac{m}{\lfloor \sqrt{m} \rfloor} \) に対して以下を計算し、その結果の最小値を答える。ただし、以下の操作で解の候補が 1 つも得られなければ解はない。
+                            <ul>
+                                <li>
+                                    配列 \(B\) に \(a^{p\lfloor \sqrt{m} \rfloor}\) と一致するものが存在するなら、それを \(ba^{-q}\) とする。
+                                </li>
+                                <li>
+                                    上記を満たす最小の \(q\) に対して、\(p\lfloor \sqrt{m} \rfloor + q\) を返す。(\(a^{p\lfloor \sqrt{m} \rfloor} = ba^{-q}\) の両辺を \(a^{-q}\) で割ると \(a^{p\lfloor \sqrt{m} \rfloor + q} = b \) となり、\(p\lfloor \sqrt{m} \rfloor + q\) が \(k\) の候補の一つであることがわかる。)
+                                </li>
+                            </ul>
+                        </li>
+                        \(p\lfloor \sqrt{m} \rfloor + q\) が \(0\) 以上 \(m\) 未満を網羅できるように \(p,q\) を探索&設定しているので、このステップで解の候補を網羅できている。(\(m\) 以上を見ることもあるが、最小が選ばれるので問題ない)。
+                    </ol>
+                    このアルゴリズムの計算量は \(O(\sqrt{m})\) です。
+                </p>
+                <br>
+                <h3>
+                    徐算の高速化 (barrett のアルゴリズム)
+                </h3>
+                <p>
+                    一般に徐算の計算は遅いのですが、mod をとる値 \(m\) がコンパイル時に具体的に定まっている定数の場合、C++ のコンパイラの最適化によって計算時間を速くできます。それに対して mod をとる値が入力などで実行時に決まる場合、コンパイラによる最適化を期待できないので、自前で定数枚高速化の工夫を行う必要があります。
+                </p>
+                <p>
+                    <b>barrett のアルゴリズム</b>は \(v\mod{m}\) が \(v - \lfloor\frac{v}{m}\rfloor\times m\) であることを利用し、\(v\mod{m}\) を \(m\) による徐算をを使わない形に変形します。
+                </p>
+                <p>
+                    ここでパラメータ \(b\) を用いて新たに定数 \(p = \lfloor\frac{2^{b}}{m}\rfloor\) を定義します。すると、徐算の部分を \(\lfloor\frac{v}{m}\rfloor = \lfloor\frac{v}{2^{b}}\times\frac{2^{b}}{m}\rfloor \risingdotseq \lfloor\frac{vp}{2^{b}}\rfloor\) と変換することができます。この変換の結果、\(v\mod v\) を \(v\times p\) の乗算と、定数 \(2^{b}\) による徐算に変換することができました。
+                </p>
+                <p>
+                    特に、ワードサイズが \(L\) の CPU では、\(L\) ビットのシフトを高速に実行可能なので、\(b \leq L\) ならば定数 \(2^{b}\) による徐算すなわち \(b\) ビットシフトをコンパイラによる最適化をせずとも高速に実行可能であることが言えます。
+                </p>
+                <p>
+                    ここで問題になるのが \(\frac{v}{2^{b}}\times\frac{2^{b}}{m}\) と \(\frac{v}{2^{b}}\times\lfloor\frac{2^{b}}{m}\rfloor\) の誤差の部分ですが、\(b\) を大きくすることで、誤差の影響を床関数の丸めで同じ値になる範囲まで小さくすることができます。ただし、\(v\) は \(m^2\) 程度になることを考えると、分母の \(vp\) は \(m\times2^{b}\) 程度になり、計算に必要なビット数とのトレードオフです。
+                </p>
+
+
+
+                
+            </section>
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+
+
+
+
+
+                        
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

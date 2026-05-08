@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    ポテンシャルダイクストラ<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>要編集記事です</h3>
+                <p>
+                    ダイクストラ法は負辺があるグラフに適用することは出来ません。なぜなら、一度確定したと思った最短経路長が、負の辺を経由する別の経路によって更新されてしまう可能性があり、計算量が大きくなってしまうからです。
+                </p>
+                <p>
+                    対して、ベルマンフォード法であれば<b>単一始点最短経路問題</b>を \(O(N×M)\) 時間で解くことができます。
+                </p>
+                <p>
+                    さて、実は負辺があるようなグラフであっても、正しい<b>ポテンシャル</b>を導入できればこの単一始点最短経路問題を \(O(NlogN)\) 時間で解くことができます。
+                </p>
+                <p>
+                    ここで、頂点 \(s\) を始点とし、\(s\) から頂点 \(i\) までの最短経路長を \(d_i\) とします。
+                </p>
+                <p>
+                    単一始点最短経路問題を解きたいグラフ G に頂点 u と 頂点 v を結ぶ辺が存在する時、その辺の重みを dist(u,v) とすると全ての辺 (u-v) について\(d_u + dist(u,v) \geq  d_v\) が成り立ち、単一始点最短経路問題はこの制約の中で\( d_i \)を<b>最大化</b>するという線形計画問題として捉えられます。
+                </p>
+                <p>
+                    最大化と書きましたが、\(d_i\) について、任意の u に対して \(d_u + dist(u,i) \geq  d_i\) が成り立っているので、\(d_i\) を最大化するということは、ボトルネックとなる \(d_u + dist(u,i) \) (最小値) を選ぶということなので、最短経路問題との結びつきが見えました。
+                </p>
+                <p>
+                    始点までの最短経路長は\( d_s = 0 \) とします
+                </p>
+                <p>
+                    \(d_u + dist(u,i) \geq  d_i\) の等号が成り立つとき、頂点 v までの最短経路に辺 u-v が含まれるということになります。
+                </p>
+                <p>
+                    唐突ですが、ここで各頂点にポテンシャルというものを定めることにし、頂点 i の持つポテンシャルを\( p_i \)とします。
+                </p>
+                <p>
+                    \(d_i = x_i + p_i\) と置くと、各辺に対して成り立つ不等式\(d_u + dist(u,v) \geq  d_v\) は、\(x_u + p_u  + dist(u,v) \geq  x_v + p_v\)となります。これを少し式変形すると、\(x_u + dist(u,v) + p_u - p_v \geq  x_v\) となるので、<b>元のグラフ G の辺の重みを </b>\(dist(u,v)\) <b>から</b> \(dist(u,v) + p_u - p_v \)<b>に置き換えたグラフ H </b>でダイクストラ法を行って単一始点最短経路問題を解くとで\( x_i \)を計算できます。ただし、dist(u,v) + p_i - p_j が負の値にならないように、適切に\(p_i\)の値を頂点 i に割り振る必要があります(後述)。
+                </p>
+                <p>
+                    \(x_i\) がわかれば、\(d_i = x_i+p_i\) なので \(d_i\) を計算できるのですが、\(x_i\) も元のグラフ G と同じ辺構成(辺の重みのみ異なる)のグラフでの最短経路長なので、\(元のグラフ G での s までの最短経路長 = 0 = x_s\) のはずです。
+                </p>
+                <p>
+                    しかし、\(d_i = x_i + p_i \) より、\(d_s = x_s + p_s = 0 + p_s = 0\) となるので \(p_i = 0 \)となってしまいます。
+                </p>
+                <p>
+                    そこで、\(d_i\)を元のグラフ G の最短経路長として扱うのではなくて、\(x_i , p_i \)を計算した上で、\(d_i - p_s = x_i + p_i - p_s \)を元のグラフでの最短経路長として扱うと \(s までの最短経路長 = d_s - p_s = p_s - p_s = 0\)となるので、始点までの最短経路長が 0 であるという制約を満たします。
+                </p>
+                <p>
+                    また、\(d_u + dist(u,v) \geq  d_v\) の両辺から \(p_s\) を引くと、\(d_u - p_s + dist(u,v) \geq  d_v - p_s\) となるので、\(d_i - p_s\) が単一始点最短系問題のもう一つの制約を満たしていることが分かります。
+                </p>
+                <p>
+                    最後に、\(x_i\) を求めるために 元のグラフ G の辺の重みを \(dist(u,v)\) から \(dist(u,v) + p_u - p_v \)に置き換えたグラフ H での単一始点最短経路問題を解きたいので、これを O(NlogN) で解くために各辺について\(dist(u,v) + p_u - p_v \) が負にならないように、各頂点 i に適切なポテンシャル\( p_i \)を割り当てる必要があります。
+                </p>
+                <p>
+                    ここで辺の重みが負にならないとは、グラフ H の任意の辺に対して、\(dist(u,v) + p_u - p_v \geq  0 \)が成り立つということなので、これを式変形すると\(p_u + dist(u,v) \geq  p_v \)となります。
+                </p>
+                <p>
+                    \( p_u + dist(u,v) \geq  p_v \)とは、元のグラフ G での単一始点最短経路問題の制約なので、\(p_i\) は G の好きな地点を始点にする単一始点最短経路問題の回になります。dist(u,v) が負になることもあるので、\(p_i\) はベルマンフォード法によって O(N×M)で求めることができます。
+                </p>
+                <p>
+                    これによって\( p_i \)が求まり、この\( p_i \)を使うことで負辺がある場合の単一始点最短経路問題を O(NlogN) で解ける様になりました。つまり、ポテンシャルダイクストラとは、O(N×M) かけて前計算しておくことで、負辺のある場合の単一始点最短経路問題を O(MlogN) で解ける様になるということです。
+
+                </p>
+
+                
+
+                
+            </section>
+                
+
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

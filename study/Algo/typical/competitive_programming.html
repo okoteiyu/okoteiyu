@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    競プロヘッダーなど<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    ヘッダーなど
+                </h3>
+                <p>
+                    必要最低限を用意する。ヘッダーやマクロが多すぎてもそれはそれで問題です。
+                </p>
+                <pre><br>/*&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright&nbsp;&copy;&nbsp;(c)&nbsp;okoteiyu&nbsp;2025.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Released&nbsp;under&nbsp;the&nbsp;MIT&nbsp;license(https://opensource.org/licenses/mit-license.php)&nbsp;<br>*/<br>//------------------------------------------<br>//&nbsp;include<br>//------------------------------------------<br>#include&nbsp;&lt;vector&gt;<br>#include&nbsp;&lt;list&gt;<br>#include&nbsp;&lt;map&gt;<br>#include&nbsp;&lt;set&gt;<br>#include&nbsp;&lt;unordered_set&gt;<br>#include&nbsp;&lt;unordered_map&gt;<br>#include&nbsp;&lt;deque&gt;<br>#include&nbsp;&lt;stack&gt;<br>#include&nbsp;&lt;bitset&gt;<br>#include&nbsp;&lt;algorithm&gt;<br>#include&nbsp;&lt;functional&gt;<br>#include&nbsp;&lt;numeric&gt;<br>#include&nbsp;&lt;utility&gt;<br>#include&nbsp;&lt;sstream&gt;<br>#include&nbsp;&lt;iostream&gt;<br>#include&nbsp;&lt;type_traits&gt;<br>#include&nbsp;&lt;iomanip&gt;<br>#include&nbsp;&lt;cstdio&gt;<br>#include&nbsp;&lt;cmath&gt;<br>#include&nbsp;&lt;cstdlib&gt;<br>#include&nbsp;&lt;cctype&gt;<br>#include&nbsp;&lt;string&gt;<br>#include&nbsp;&lt;cstring&gt;<br>#include&nbsp;&lt;ctime&gt;<br>#include&nbsp;&lt;queue&gt;<br>#include&nbsp;&lt;complex&gt;<br>#include&nbsp;&lt;cassert&gt;<br>#include&nbsp;&lt;chrono&gt;<br>using&nbsp;namespace&nbsp;std;<br><br>#define&nbsp;debug(x)&nbsp;cerr&nbsp;&lt;&lt;&nbsp;#x&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;=&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;(x)&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;(in&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;__LINE__&nbsp;&lt;&lt;&nbsp;&quot;)&quot;&nbsp;&nbsp;&lt;&lt;&nbsp;endl;<br><br><br>//&nbsp;2&nbsp;次元のテーブルを出力&nbsp;(T&nbsp;:&nbsp;&lt;&lt;&nbsp;オペレータを持つ型)。セル幅と行数と幅を指定。(セル幅は&nbsp;3&nbsp;以上、行幅はセル幅&nbsp;*&nbsp;2&nbsp;+&nbsp;3&nbsp;以上)<br>template&lt;class&nbsp;T&gt;&nbsp;void&nbsp;DebugTable(vector&lt;vector&lt;T&gt;&gt;&nbsp;A&nbsp;,&nbsp;const&nbsp;int&nbsp;cellwidth&nbsp;=&nbsp;7&nbsp;,&nbsp;const&nbsp;int&nbsp;linewidth&nbsp;=&nbsp;89&nbsp;,&nbsp;const&nbsp;int&nbsp;line_num_lim&nbsp;=&nbsp;100){<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;toString&nbsp;=&nbsp;[&amp;](T&nbsp;x){ostringstream&nbsp;sout;sout.precision(cellwidth+1);sout&lt;&lt;x;return&nbsp;sout.str();};while(A.size()&nbsp;&gt;&nbsp;line_num_lim)A.pop_back();A.insert(A.begin(),vector&lt;T&gt;(0));<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;(linewidth+1,0).swap(A[0]);for(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;A[0].size()&nbsp;;&nbsp;i++)A[0][i]&nbsp;=&nbsp;i;//&nbsp;index&nbsp;ををメモするところを追加<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;char&gt;&gt;&nbsp;buffer((A.size())*2+1,vector&lt;char&gt;(linewidth,&apos;&nbsp;&apos;));<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;buffer.size()&nbsp;;&nbsp;i++)if(i%2==0)for(int&nbsp;j&nbsp;=&nbsp;0;&nbsp;j&nbsp;&lt;&nbsp;linewidth&nbsp;;&nbsp;j++)buffer[i][j]&nbsp;=&nbsp;(&apos;-&apos;);//&nbsp;初期化値<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;buffer.size()&nbsp;;&nbsp;i++)buffer[i][0]&nbsp;=&nbsp;&apos;|&apos;;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;buffer.size()&nbsp;;&nbsp;i++)buffer[i].back()&nbsp;=&nbsp;&apos;|&apos;;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;A.size()&nbsp;;&nbsp;i++){for(int&nbsp;j&nbsp;=&nbsp;0&nbsp;;&nbsp;j&nbsp;&lt;=&nbsp;linewidth&nbsp;;&nbsp;j++)<br>&nbsp;&nbsp;&nbsp;&nbsp;{long&nbsp;long&nbsp;lef&nbsp;=&nbsp;(cellwidth+1)*(j+1)&nbsp;+&nbsp;1;if(lef&nbsp;&gt;=&nbsp;linewidth)break;buffer[i*2+1][lef-1]&nbsp;=&nbsp;&apos;|&apos;;}}<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;A.size()&nbsp;;&nbsp;i++){for(int&nbsp;j&nbsp;=&nbsp;0&nbsp;;&nbsp;j&nbsp;&lt;&nbsp;A[i].size()&nbsp;;&nbsp;j++){<br>&nbsp;&nbsp;&nbsp;&nbsp;T&nbsp;x&nbsp;=&nbsp;A[i][j];string&nbsp;tmp&nbsp;=&nbsp;toString(x);long&nbsp;long&nbsp;lef&nbsp;=&nbsp;(cellwidth+1)*(j+1)&nbsp;+&nbsp;1;if(lef+tmp.size()&nbsp;&gt;=&nbsp;linewidth)break;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(tmp.size()&nbsp;&gt;&nbsp;cellwidth){while(tmp.size()&nbsp;&gt;&nbsp;cellwidth)tmp.pop_back();tmp.back()&nbsp;=&nbsp;&apos;~&apos;;}for(int&nbsp;k&nbsp;=&nbsp;0&nbsp;;&nbsp;k&nbsp;&lt;&nbsp;tmp.size()&nbsp;;&nbsp;k++)buffer[i*2+1][lef&nbsp;+&nbsp;k]&nbsp;=&nbsp;tmp[k];}}<br>&nbsp;&nbsp;&nbsp;&nbsp;buffer[1][(cellwidth)/2]&nbsp;=&nbsp;&apos;i&apos;;buffer[1][(cellwidth)/2+1&nbsp;]&nbsp;=&nbsp;&apos;,&apos;;buffer[1][(cellwidth)/2+2&nbsp;]&nbsp;=&nbsp;&apos;j&apos;;<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;1&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;A.size()&nbsp;;&nbsp;i++){T&nbsp;x&nbsp;=&nbsp;i-1;string&nbsp;tmp&nbsp;=&nbsp;toString(x);long&nbsp;long&nbsp;lef&nbsp;=&nbsp;1;if(lef+tmp.size()&nbsp;&gt;=&nbsp;linewidth)break;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(tmp.size()&nbsp;&gt;&nbsp;cellwidth){while(tmp.size()&nbsp;&gt;&nbsp;cellwidth)tmp.pop_back();tmp.back()&nbsp;=&nbsp;&apos;~&apos;;}<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;k&nbsp;=&nbsp;0&nbsp;;&nbsp;k&nbsp;&lt;&nbsp;tmp.size()&nbsp;;&nbsp;k++)buffer[i*2+1][lef&nbsp;+&nbsp;k]&nbsp;=&nbsp;tmp[k];}cerr&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;DEBUG&nbsp;TABLE&nbsp;:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;cerr&nbsp;&lt;&lt;&nbsp;&quot;(セル幅&nbsp;-&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;&nbsp;cellwidth&nbsp;&lt;&lt;&nbsp;&quot;)&nbsp;,&nbsp;(行幅&nbsp;-&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;linewidth&nbsp;&lt;&lt;&nbsp;&quot;)&nbsp;,&nbsp;(行数&nbsp;-&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;line_num_lim&nbsp;&lt;&lt;&nbsp;&quot;)&quot;&nbsp;&lt;&lt;&nbsp;endl;for(auto&amp;&nbsp;r&nbsp;:&nbsp;buffer){for(char&amp;&nbsp;c&nbsp;:&nbsp;r)cerr&nbsp;&lt;&lt;&nbsp;char(c);cerr&nbsp;&lt;&lt;&nbsp;endl;}return;<br>}<br>template&lt;class&nbsp;T&gt;&nbsp;void&nbsp;DebugArray(vector&lt;T&gt;&nbsp;A){vector&lt;vector&lt;T&gt;&gt;&nbsp;Table&nbsp;=&nbsp;{A};DebugTable(Table);}</pre>
+                
+
+                
+            </section>
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

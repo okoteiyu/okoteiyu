@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    自主ゼミ資料 (簡潔データ構造 \(4\) 章 \(7\) 節) <br></h2>
+            </section>
+            <section class = "Explanation">
+                <h2>
+                    テーマ
+                </h2>
+                <p>
+                    はじめ、二次元座標系上に \(N\) 個の点 \(P_1,P_2,\dots,P_N\) があります。
+                </p>
+                <br><img src = "./../../images/BitVector_4_7/BitVector_4_7.001.jpeg" class = "StandardImageStyle">
+                <div class = "Box">
+                    二次元矩形 \([x1,y1) \times [x2,y2)\) が与えられた時、\([x1,x2) \times [y1,y2)\) に含まれる点の個数を求めよ。
+                </div>
+                <p>
+                    上記の処理を、\(O(\log{N})\) 時間で行います。
+                </p>
+                <br>
+                <h3>
+                    前準備 : 座標圧縮 1 (重複なし)
+                </h3>
+                <p>
+                    整数列 \(A = A_1,A_2,\dots,A_N\) に対して、\(A\) の値が添字として用いられる配列を定義するためには、配列の長さが \(\mathrm{max}(A) - \mathrm{min}(A)\) より大きい必要があります。そこで、\(A\) を以下の整数列に整形します。これを俗に座標圧縮と言います。
+                </p>
+                <ul>
+                    <li>
+                        \({A\prime}_{i} := A_i\) が、\(A\) に属する整数の<b>種類</b>のうち、小さいものから何番目か
+                    </li>
+                </ul>
+                <p>
+                    例えば、\(A = \{8,5,3,3,1,3,5,-1,12,0\}\) に対して座標圧縮を行うと、\(A\prime = \{5,4,3,3,2,3,4,0,6,1\}\) が得られます。このとき \(0 \leq {A\prime}_i &lt; |A|\) が成り立ちます。一般に、圧縮前と圧縮後での値のやりとりのために、以下の \(2\) 種類の処理を実現したいです。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{raw}(x) := x\) の圧縮前の値 ( \(x\) が \(A\prime\) に登場しないなら未定義) \((0 \leq x)\)
+                    </li>
+                    <li>
+                        \(\mathrm{compress}(x) := A\) の要素のうち、\(x\) 未満の個数。特に、\(\mathrm{compress}(A_i) = {A\prime}_i\) である。
+                    </li>
+                </ol>
+                <p>
+                    またこのとき、\(A\) の要素 (値) のうち半開区間 \([l,r)\) に属するものは、\(A\prime\) において半開区間 \([\mathrm{compress}(l),\mathrm{compress}(r))\) に属します。
+                </p>
+                <p>
+                    これを、\(A\) に \(x\) が含まれるなら \(B[x] = 1\)、含まれないなら \(B[x] = 0\) である簡潔ビットベクトルを用いて実現します。ただし、\(A\) から負の値を除外するためにあらかじめ定数を足しておくなどの工夫を行ってください。このとき、先述の \(2\) 種類の処理は以下の通り処理可能です。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{raw}(x) := B.\mathrm{select}_{1}(x)\) 
+                    </li>
+                    <li>
+                        \(\mathrm{compress}(x) := B.\mathrm{rank}_{1}(x)\)
+                    </li>
+                </ol>
+                <p>
+                    これは \(\beta(|A|,\mathrm{max}(A) + O(\mathrm{max}(A)))\) ビットで表現可能です。
+                </p>
+                <br>
+                <h3>
+                    前準備 : 座標圧縮 2 (重複あり)
+                </h3>
+                <p>
+                    先述の座標圧縮の亜種として、整数列 \(A\) に対して、以下の座標圧縮を定義します。
+                </p>
+                <ul>
+                    \({A\prime}_{i} := A_i\) が、\(A\) に属する整数のうち、小さいものから何番目か。
+                </ul>
+                <p>
+                    これは先述のものに対して、\(A\) の要素の重複したものを圧縮しないという特徴があります。例えば、\(A = \{8,5,3,3,1,3,5,-1,12,0\}\) に対して座標圧縮を行うと、\(A\prime = \{7,6,3,3,2,3,6,0,8,1\}\) が得られます。
+                </p>
+                <p>
+                    この場合の座標圧縮においても、\(\mathrm{raw}(x)\) と \(\mathrm{compress}(x)\) の定義は同様です。また同様に、\(A\) の要素 (値) のうち半開区間 \([l,r)\) に属するものは、\(A\prime\) において半開区間 \([\mathrm{compress}(l),\mathrm{compress}(r))\) に属します。
+                </p>
+                <p>
+                    \(x = 0,1,2,\dots,\mathrm{max}(A)\) の順に左から以下を連結して得られる簡潔ビットベクトル \(B2\) を用いて座標圧縮を表現します。
+                </p>
+                <ul>
+                    <li>
+                        \(A\) に含まれる \(x\) の個数個の <code>1</code> と、\(1\) つの <code>0</code>
+                    </li>
+                </ul>
+                <p>
+                    またこのとき、以下のように計算可能です。ただし、\(B2.\mathrm{select}_0(-1) = 0\) とします。
+                </p>
+                <ol>
+                    <li>
+                        \(\mathrm{raw}(x) := B.\mathrm{select}_{1}(x) - x\)
+                    </li>
+                    <li>
+                        \(\mathrm{compress}(x) := B.\mathrm{select}_{0}(x-1)-x+1\)
+                    </li>
+                </ol>
+                <br>
+                <h3>
+                    本題
+                </h3>
+                <p>
+                    はじめに、\(N\) 個の重み付きの点 \(P_1,P_2,\dots,P_N\) を以下のとおり、\(x\) 座標と \(y\) 座標をそれぞれ<b>独立に</b>座標圧縮します。このとき、\(x\) 座標には<b>重複あり</b>の座標圧縮 2 を行い、\(y\) 座標には<b>重複なし</b>の座標圧縮 1 を行います。
+                </p>
+                <br><img src = "./../../images/BitVector_4_7/BitVector_4_7.002.jpeg" class = "StandardImageStyle">
+                <p>
+                    次に、\(N\) 個の点について、\((x,y)\) 座標の辞書順に点をソートします。こうして得た点にに対して、左のものから順に、その点の \(y\) 座標から順にウェーブレット木に格納していきます。ここで、ウェーブレット木の各ノードは、根からそのノードまでのビットパターンに一致する \(y\) 座標のうち、最大値と最小値を持ちます。これはウェーブレット木の構築後に、木 DP の要領で計算可能です。
+                </p>
+                <br><img src = "./../../images/BitVector_4_7/BitVector_4_7.003.jpeg" class = "StandardImageStyle">
+                <p>
+                    なお、理解しやすいように図ではウェーブレット木の各ノードが、自身のビットに対応する点の \(y\) 座標を全て保持しているようにしていますが、実装の際はこれを保持しません。あくまで順番と \(y\) 座標の対応関係を図示しているだけです。
+                </p>
+                <p>
+                    ここから \([x1,x2) \times [y1,y2)\) に含まれる点の個数を答えるアルゴリズムを説明します。まず、各座標の点は圧縮されているため、\([x1,x2) \times [y1,y2)\) を座標圧縮後の矩形に変換する必要があります。ここで、\(x\) 座標に関する \(\mathrm{comp}\) を \(\mathrm{comp}_x\)、\(y\) 座標に関しては \(\mathrm{comp}_y\) とします。
+                </p>
+                <p>
+                    このとき、\([x1,x2) \times [y1,y2)\) は座標圧縮後の座標系では \([\mathrm{comp}_x(x1),\mathrm{comp}_x(x2)) \times [\mathrm{comp}_y(y1),\mathrm{comp}_y(y2))\) に変換されます。
+                </p>
+                <p>
+                    構築したウェーブレット木の最上段に格納されている \(y\) 座標の格納順は、\(x\) 座標の圧縮後の座標の順序でもあるので、\([\mathrm{comp}_x(x1),\mathrm{comp}_x(x2)) \times [\mathrm{comp}_y(y1),\mathrm{comp}_y(y2))\) の探索は、ウェーブレット木の最上段の区間 \([\mathrm{comp}_x(x1),\mathrm{comp}_x(x2))\) からスタートします。
+                </p>
+                <br><img src = "./../../images/BitVector_4_7/BitVector_4_7.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    上の図は矩形 \([3,8)\times [4,9)\) に対するクエリの処理の様子です。ここで、探索を行う際は以下に注意して枝刈りを行うことで、探索範囲を狭めることができます。
+                </p>
+                <ul>
+                    <li>
+                        \(y \in [\mathrm{comp}_y(y1),\mathrm{comp}_y(y2))\) である点が一つも含まれない場合 (ノードに格納された最大値や最小値から判断可能)
+                    </li>
+                    <li>
+                        そのノードに格納されている \(y\) 座標が全て \(y\in [\mathrm{comp}_y(y1),\mathrm{comp}_y(y2))\) の場合。今見ているウェーブレット木の区間に記録されているものは全てカウントして枝刈り
+                    </li>
+                </ul>
+                <p>
+                    例えば、最上段に格納されている \(y\) 座標の最小値 \(\mathrm{min_y}\) は \(0\) であり、\(\mathrm{comp}_y(y1) = 2\) より小さい、すなわち矩形に収まらない \(y\) 座標が含まれていることがわかり、そのような \(y\) 座標を排除するため、左右のノードに降りて探索を継続する必要があります。
+                </p>
+                <br><img src = "./../../images/BitVector_4_7/BitVector_4_7.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    このとき、ウェーブレット木上の区間を狭める必要がありますが、この処理は、どのビットの方向に降りたかという情報と、区間端の両側の \(1\) (または \(0\)) の個数の情報があればシミュレート可能です (WM と同様)。
+                </p>
+                <p>
+                    また、以下のノードは枝刈り対象です。以下のノードでは、格納された \(y\) 座標全てがクエリの矩形に含まれることがわかるため、現在探索中のウェーブレット木上の区間内の要素は全てカウントして良いとわかります (今回は答えに \(+1\) して探索を打ち切る)。
+                </p>
+                <br><img src = "./../../images/BitVector_4_7/BitVector_4_7.006.jpeg" class = "StandardImageStyle">
+                <p>
+                    また、矩形に含まれる点を列挙するクエリの場合は探索を打ち切ることはできず、その点の座標を復元するために葉まで探索を続行しなければならない点に注意が必要です。この場合、列挙する点の分だけ葉を探索することになるので、計算時間は \(O(列挙する点の個数)\log{(列挙する点の個数)}\) 時間です。
+                </p>
+                <h3>
+                    計算量
+                </h3>
+                <p>
+                    一層下がるごとに、ビットの 0/1 によってウェーブレット木に格納されている値としてあり得るものの範囲が \(2\) 分割されることを考えると、探索するノードの個数は、区間 \([0,n)\) のセグメント木で区間 \([\mathrm{comp}_y(y1),\mathrm{comp}_y(y2))\) を取得する場合と同じ。ただし、点列挙であれば先述の通りです。また、含まれる点の個数の計算は、別の方法で回答可能で、これも \(O(\log{N})\) 時間であることが簡単に証明できます (\(\mathrm{RangeSmallerQuery}\))。
+                </p>
+                <br>
+                <h3>
+                    ビット数
+                </h3>
+                <p>
+                    冒頭で紹介した座標圧縮で \(\beta(n, \mathrm{max}(y 座標)) + \beta(n, n + \mathrm{max}(x 座標)) + O(n)\) ビット必要なことに加え、\(n\) 要素のウェーブレット木の各ノードに、最小値,最大値を乗せた分のビットが必要です (すみません、本を返却してしまって詳細が不明です)。
+                </p>
+                <br>
+                <h3>
+                    課題
+                </h3>
+                <p>
+                    Library Checker でウェーブレット木で通ると書かれていた Rectangle Sum を通せない。
+                </p>
+            </section>
+                
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 

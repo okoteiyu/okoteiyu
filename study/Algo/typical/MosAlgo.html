@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>Mo's Algorithm</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    Mo's Algorithm<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                <h3>
+                    Mo's Algorithm の使い道
+                </h3>
+                <p>
+                    以下の抽象的な問題を解きます。
+                </p>
+                <p>
+                    長さ \(N\) の列 \(A\) と、\(Q\) 個の半開区間の組 \([L_1,R_1),[L_2,R_2),\)\([L_3,R_3),\dots ,[L_Q,R_Q)\) がある。各 \(1 \leq i\leq Q\) に対して、列 \(A\) の半開区間 \([L_i,R_i)\) の何らかの集約 \(\mathrm{Prod}\) を計算せよ。
+                </p>
+                <h3>
+                    説明
+                </h3>
+                <p>
+                    \(\mathrm{Prod}\) が小さいデータ型として結合できる構造 (総和や最小値など) ならセグ木に乗せるだけなのですが、種類数などの集約には登場した要素をメモする配列が必要なのでセグ木に乗りません。
+                </p>
+                <h3>
+                    アルゴリズムと具体例
+                </h3>
+                <p>
+                    シンプルに理解いただくため、今回は \(\mathrm{Prod}\) は要素の総和とします (本来はもっとややこしいデータであることが多い)。
+                </p>
+                <p>
+                    例えば、以下の列における総和のクエリに答えることにします。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.001.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    例えば、\([L_i,R_i) = [3,9)\) の場合、\(\mathrm{Prod} = 29\) です。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.002.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    さて、次は \([L_i,R_i) = [2,7)\) の場合を考えることとします。ここで、今計算した区間 \([3,9)\) の<b>両端を伸ばしたり縮めたり</b>して \([3,9)\) から \([2,7)\) に遷移させます。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.003.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    このとき、一気に遷移させるのではなく、<b>両端を \(1\) つずつ伸縮させて</b>次の区間に遷移させます。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.004.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    また、区間を \(1\) だけ伸縮したとき、<b>要素が 追加/削除 された後の \(\mathrm{Prod}\) の値を高速に求めることができる</b>必要があります。例えば Mo's Algorithm を適用できる集約として以下の例があります。
+                </p>
+                <ul>
+                    <li>
+                        <u>\(\mathrm{Prod}\) が総和の場合</u> : 
+                        <p>
+                            追加/削除した要素を足し引きするだけなので \(O(1)\) 時間で \(\mathrm{Prod}\) を計算できる。
+                        </p>
+                    </li>
+                    <li>
+                        <u>\(\mathrm{Prod}\) が種類数の場合</u> : 
+                        <p>
+                            各要素が何回登場したかを配列で管理しておき、\(1\) 回以上登場する要素数を種類数としてカウントしておく。要素の 追加/削除 後はその要素の登場回数を変更して、\(1\) 回以上登場する要素数が変わったら種類数カウントを変更する。
+                        </p>
+                        <p>
+                            列の要素を座標圧縮すると、登場回数の配列サイズが \(O(N)\) で、集約の更新時間が \(O(1)\) 時間です。配列のサイズは集約の更新に影響ないので、区間の伸縮を \(O(1)\) 時間で行うことができます。
+                        </p>
+                    </li>
+                </ul>
+                <p>
+                    Mo's Algorithm では、与えられた全ての区間に対して、区間の伸縮を行なって集約を計算します。
+                </p>
+                <p>
+                    ある区間から別の区間の遷移には、区間の両端を \(O(N)\) だけ伸縮する必要があるので、愚直にこれを行うと計算量が \(O(NQ)\) になります。そこで、パラメータ \(B\) を決めて、区間を見る順番を \((\lfloor\frac{L_i}{B}\rfloor,R_i)\) の辞書順でソートして並べ替えます。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.005.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    つまるところ、列 \(A\) を幅が \(B\) のブロック \(O(\frac{N}{B})\) 個に分割しています。このとき、各 \(L_i\) はいずれかのブロックに属します。
+                </p>
+                <p>
+                    伸縮による区間の遷移の計算量を、区間の左端/右端について独立に分けて見てみましょう。以下は左端にのみ注目した場合を表した図です。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.006.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    まずブロックの幅が  \(B\) なので、左端が同じブロック内にある区間同士の場合、左端は区間の遷移 \(1\) 回あたり \(O(B)\) だけ移動します。これは上の図の青色で描かれた矢印に相当します。
+                </p>
+                <p>
+                    また、左端が異なるブロック間を移動する場合は、プログラム全体を通して見ると左 ( index が 0 ) から右方向への一方通行なので、合計で \(O(N)\) しか移動しないことがわかります。
+                </p>
+                <p>
+                    これらのことから、左端の移動距離は \(Q\) 個の区間全体で \(O(QB)\) です。
+                </p>
+                <p>
+                    次は右端の移動について注目します。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.007.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    区間のソートは \((\lfloor\frac{L_i}{B}\rfloor,R_i)\) の辞書順なので、<b>左端が</b>同じブロックに属している区間の右端は全て右方向に一方通行なので、これらの右端の移動距離は合計で \(O(N)\) です。これは上の図のオレンジの矢印に相当します。ブロックの個数が \(O(\frac{N}{B})\) 個なので、左端が同じブロックに所属する区間の右端の移動距離は全体で \(O(\frac{N^2}{B})\) です。
+                </p>
+                <p>
+                    また、それ以外の移動は \(1\) 回あたり \(O(N)\) だけ移動しますが、そのような移動はブロックをまたぐ場合の \(O(\frac{N}{B})\) 回しか行われないため、ここも合計で \(O(\frac{N^2}{B})\) しか移動しません。
+                </p>
+                <p>
+                    よって、両端の移動距離はプログラム全体で \(O(QB + \frac{N^2}{B})\) です。さて、この \(QB + \frac{N^2}{B}\) が小さくなるパラメータ \(B\) を決めたいのですが、これは相加相乗平均の式 \(QB + \frac{N^2}{B} \geq 2 \sqrt{(QB)\times (\frac{N^2}{B})}\) から、\(QB = \frac{N^2}{B}\) の場合、つまり \(B = \frac{N}{\sqrt{Q}}\) です。またこのとき、両端の移動距離は \(O(N\sqrt{Q})\) となります。
+                </p>
+                <u>
+                    定数倍高速化
+                </u>
+                <p>
+                    区間のソートを \((\lfloor\frac{L_i}{B}\rfloor,R_i)\) の辞書順で行うのではなく、\((\lfloor\frac{L_i}{B}\rfloor,R_i\times (-1)^{\lfloor\frac{L_i}{B}\rfloor})\) の辞書順で行うことで、区間の右端がブロックを跨いで移動する場合の距離を減らすことが期待できます。
+                </p>
+                <img src = "./../../images/MosAlgo/MosAlgo.008.jpeg" class = "StandardImageStyle"><br>
+                <u>
+                    注意
+                </u>
+                <p>
+                    本記事では \(A\) 上を \(1\) 移動することを、距離 \(1\) の移動と捉えています。こうすることで、伸縮の回数を \(A\) 上の移動距離として表現できて書きやすいためです。
+                </p>
+            </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+
+
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

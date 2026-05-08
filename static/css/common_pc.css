@@ -1,0 +1,396 @@
+
+input[type="button"] {
+	-webkit-appearance: none;
+	border-radius: 0;
+}
+
+/*
+    変数
+*/
+:root {
+    --transparent-color: rgba(0,0,0,0);    
+    --code-baclground-color : rgb(242, 242, 255) ;
+
+    /* スライド */
+    --slide-title-bg-color:#7DA3A1;
+    --slide-toolbar-bg-color:#F2F3F4;
+    --slide-button-color:#7DA3A1;
+}
+  
+
+
+/*基本-------------------------------------------------------------------------------------------*/
+
+
+
+/*画像クラス : img タグに適用 (直前に <br> がある必要がある)*/
+.StandardImageStyle{
+    width : 100% ; 
+}
+
+
+/*
+    以下みたいな感じにするブロック
+    | 文章1
+    | | 
+    | | 文章2
+*/
+.FlowBlock{
+    margin-left:30px;
+    border-left: 1px black solid;
+    box-sizing: border-box;
+    padding-left: 10px;
+}
+
+
+
+/*コードなどのプレビュー(背景の色が灰色)-------------------------------------------------------------------------------------------*/
+/*コードなどのプレビュー(背景の色が灰色)-------------------------------------------------------------------------------------------*/
+/*コードなどのプレビュー(背景の色が灰色)-------------------------------------------------------------------------------------------*/
+/*コードなどのプレビュー(背景の色が灰色)-------------------------------------------------------------------------------------------*/
+pre{
+    border-radius: 4px;
+    box-sizing: border-box;
+    border: 1px dashed gray;
+
+	color : black;
+	font-size: 13px;
+    line-height: 16px; /*これぐらいがちょうどいい*/
+	padding: 10px;
+	overflow-x: scroll;
+    background-color: var(--code-baclground-color);
+}
+
+/* code タグ */
+code{
+    border-radius: 4px;
+    box-sizing: border-box;
+    border: 1px dashed gray;
+
+    padding: 3px;
+    font-size: 12px; 
+    color : black;
+    overflow-x: scroll;
+    background-color: var(--code-baclground-color);
+}
+
+
+
+
+pre b{
+    /*pre のみに定義*/
+    font-size: 13px;
+	color: rgb(130, 135, 130);
+}
+
+
+
+/*文章をちょっと丸い枠で囲む*/
+/*soft tag -> sftg*/
+sftg{
+    box-sizing: border-box;
+    pointer-events: none;/*クリックの挙動を親要素依存にする*/
+    display: inline-block;/*改行の制御*/
+    color: gray;
+    background-color: white;
+    font-size: 10px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border: solid 1px gray;
+    border-radius: 10px;
+}
+
+
+
+/*
+    箇条書きなどで、タイトル + 説明を書く場合のタイトル部分
+*/
+groupblock{
+    border: 1px solid black;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+
+/*
+	下線付き見出しdivクラス
+*/
+.TitleLine{
+	border-bottom: solid 1px rgb(147, 163, 234);
+	color: rgb(147, 163, 234) ;
+	padding-bottom: 7px;
+}
+
+
+/*------------------------------------------------------------------------------------------*/
+/*---------------------------------{トグルボタン}---------------------------------------------*/
+/*------------------------------------------------------------------------------------------*/
+
+/*
+    トグルボタンの構成は以下。
+    <div class = "toggleButtonField" onclick = "togglebutton(event)" 
+        id = "ボタン識別id" data-toggle-state = "0">>
+        <div class = "toggleButton"></div>
+    </div>
+    <div class = "toggleButtonTitle"> ボタンタイトル </div>
+
+    javascript に togglebutton 関数を定義し、event を検知して、getElementById(e.id) の子要素のアニメーションを実行する。
+    子要素のクリック event は感知しないようにする。
+*/
+
+
+/*トグルボタンに関する処理のラッパ*/
+.toggleButtonField{
+    position: relative;
+    margin-left:10px;
+    margin-right:10px;
+    box-sizing: border-box;
+    border-radius: 7px;
+    float: left;/* Title で解消する*/
+    width:36px;
+    height:20px;
+    border:solid 2px gray;
+    background-color: white;
+}
+.toggleButtonField:hover{
+    border:solid 2px black;
+}
+.toggleButtonField .toggleButton{
+    pointer-events: none;/*クリックの処理は toggleButtonField に任せる*/
+    display:inline-block;
+    position: relative;
+    width:16px;
+    height: 100%;
+    top: 0%;
+    left: 0%;
+    box-sizing: border-box;
+    border-radius: 6px;
+    /*ボタンがオフの状態 (デフォルト) */
+    left: 0%;
+    background-color: white;
+    border: solid 2px gray;
+}
+/*トグルボタンをオンにする*/
+@keyframes toggleButton_ON {
+    0%{/*ボタンがオフの状態*/
+        left: 0%;
+        background-color: white;
+        border: solid 2px gray;
+    }100%{/*ボタンがオンの状態*/
+        left: 50%;
+        background-color: gray;
+        border: solid 2px white;
+    }
+}
+
+/*トグルボタンをオフにする*/
+@keyframes toggleButton_OFF {
+    0%{/*ボタンがオンの状態*/
+        left: 50%;
+        background-color: gray;
+        border: solid 2px white;
+    }100%{/*ボタンがオフの状態*/
+        left: 0%;
+        background-color: white;
+        border: solid 2px gray;
+    }
+}
+
+/*トグルボタンに付加するタイトル*/
+.toggleButtonTitle{
+    float: none;/*Field の float を解消*/ 
+    margin-right: 10px;  
+}
+
+
+
+/*------------------------------------------------------------------------------------------*/
+/*-----------------------------------{スライド}----------------------------------------------*/
+/*------------------------------------------------------------------------------------------*/
+
+/* スライド関連を包む */
+.slide_content_field{
+    border: 1px solid black;
+    box-sizing: border-box;
+    width:100%;
+    height:fit-content;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* 現在のページ番号を管理する見えない div */
+.slide_pagenum_store{
+    display: none;
+}
+
+/* タイトル */
+.slide_title{
+    width:100%;
+    text-align: center;
+    font-size: 16px;
+    background-color: var(--slide-title-bg-color);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+
+/* はじめ、ページはすべて非表示にする */
+.slide_content_field img{
+    display: none;
+    width: 100%;
+}
+
+
+/* content_field のなか */
+.slide_button_field{
+    width: 100%; 
+    display: flex;
+    background-color: var(--slide-toolbar-bg-color);
+}
+.slide_back_button{
+    appearance: none;
+    flex: 1;
+    font-size:16px;
+    background-color: var(--slide-toolbar-bg-color);
+    color: black;
+    font-family: Gill Sans;
+}
+.slide_back_button::after{
+    content : "← back";
+}
+.slide_back_button:hover{
+    background-color: var(--transparent-color);
+}
+
+
+.slide_next_button{
+    appearance: none;
+    flex: 1;
+    font-size:16px;
+    background-color: var(--slide-toolbar-bg-color);
+    color: black;
+    font-family: Gill Sans;
+}
+.slide_next_button::after{
+    content : "next →";
+}
+.slide_next_button:hover{
+    background-color: var(--transparent-color);
+}
+
+
+
+.slide_pagenum_field{
+    flex: 1;
+    font-size:14px;
+    color: black;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+
+/*------------------------------------------------------------------------------------------*/
+/*----------------------------------{記事で使う}----------------------------------------------*/
+/*------------------------------------------------------------------------------------------*/
+
+
+
+/*
+	枠線付きのbox
+*/
+.Box{
+	box-sizing: border-box;
+    border: 1px solid;
+	border-color: black;
+	padding: 3px;	
+	position:relative;
+
+}
+
+
+
+
+/* ===========================================================================================
+## ポップアップページ関連
+いずれも画面を基準とした位置とする
+=========================================================================================== */
+
+.popup_window_outer{
+    position: fixed;
+    visibility: hidden;
+    width: 100%;
+    height: 100%;
+    
+    background-color: rgba(202, 202, 202, 0.415);
+    
+    z-index: 4000;
+    display: grid;
+    place-items: center; 
+}
+
+/* frame のクラス */
+.popup_framewindow{
+    position: absolute;
+    min-width: 320px;
+    
+	
+    width: 90%;
+    height: 92%;
+    
+    opacity: 100%;
+    border-radius: 30px;
+    box-sizing: border-box;
+}
+
+
+
+/* ===========================================================================================
+## 横並びリスト
+=========================================================================================== */
+
+/* 全体 */
+.horizon_list{
+    background-color: rgba(0,0,0,0);
+}
+
+/* タイトル行 */
+.horizon_list_title{
+    font-size: 16px;
+    padding: 6px;
+    height: fit-content;
+}
+
+/* スクロール用の領域 */
+.horizon_list_scroll_wrapper{
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    overflow-x:scroll;
+}
+
+/* 項目を横に並べる(全体の子として overflow させる) */
+.horizon_list_line{
+    display: flex;
+    height: 150px;
+    overflow: visible;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* 項目 */
+.horizon_list_item{
+    flex: 0 0 auto;
+    
+    margin: auto 10px;
+    height: inherit;
+    aspect-ratio: 1/1;
+    box-sizing: border-box;
+    border: 5px #848c98 solid;
+    overflow: hidden;
+    border-radius: 8px;
+    opacity: 0.72;
+}
+
+
+.horizon_list_item:hover{
+    opacity: 1;
+}

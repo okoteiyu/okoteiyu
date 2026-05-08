@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>最大流</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    フローと最適化<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                フローと最適化はとても深い関係にあります。  
+                <br>以下のスライドは、フローで解ける基礎的な最適化の問題の一例です。
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.001.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.002.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.003.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.004.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.005.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.006.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.007.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.008.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.009.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.010.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.011.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.012.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.013.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.014.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.015.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.016.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.017.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.018.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.019.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.020.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.021.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.022.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.023.jpeg" class = "StandardImageStyle">
+                <br><img src = "./../../images/MaxFlow_Matching/MaxFlow_Matching.024.jpeg" class = "StandardImageStyle">
+                <br>          
+                <p>
+                    上のスライドで少し登場した<b>最大流</b>が今後のキモとなる概念です。スライドでは特に深い説明をしませんでしたが、
+                    改めて最大流ないし<b>ネットワークフロー</b>が何者なのかを説明します。
+                </p>
+                <p>
+                    辺重み付き有向 グラフ \(G = (V,E)\) および \(s,t \in V\) があります。以降、辺重みのことを<b>辺の容量</b>と呼びます。
+                    <br>「\(G\) における \(s \rightarrow t\) の流量 \(x\) のフロー」を以下で定義します。  
+                    <ul><li>容量が \(x\) 以上の辺のみからなる \(s \rightarrow t\) パス</li></ul>
+                    また、「\(s \rightarrow t\) にフローを \(x\) 流す」という操作を以下で定義します。  
+                    <ul><li>容量が \(x\) 以上の辺のみからなる \(s \rightarrow t\) パスを \(1\) つ見つけて、パス上の全ての辺の容量を \(x\) 減らす。</li></ul>
+                </p>
+                <p>最大流とは、「\(s \rightarrow t\) にフローを一度に流せるだけ流す」操作を限界まで行った結果流れた流量の合計です。</p>
+                <p>
+                    最大流の計算はスライドで軽く紹介した通り、フローが流れた辺と逆向きに
+                    流れた分の容量をもつ<b>逆辺</b>を追加しながら、\(s \rightarrow t\) にフローを流せなくなるまで流し続けます。  
+                    ここで、流すフローの流量はどのように決めるのでしょうか。  
+                </p>
+                <p>以下のようなグラフでのネットワークフローを考えてみましょう。</p>
+                <br><img src = "./../../images/MaxFlow_MinCut/MaxFlow_MinCut.001.jpeg" class = "StandardImageStyle">
+                <p>流すフローの流量は、ある \(s \rightarrow t\) パスの容量の<b>ボトルネック</b>とすれば良いです。例えば、以下のパスにフローを流す場合の流量を考えます。</p>
+                <br><img src = "./../../images/MaxFlow_MinCut/MaxFlow_MinCut.002.jpeg" class = "StandardImageStyle">
+                <p>このとき、流すフローの流量を容量のボトルネックである \(3\) とすれば、選んだパスに対して過不足なくフローを流すことができます。
+                    逆に、<b>ボトルネックとなる容量を超える流量のフローを流すことはできません。</b></p>
+                <br><img src = "./../../images/MaxFlow_MinCut/MaxFlow_MinCut.003.jpeg" class = "StandardImageStyle">
+                <p>
+                    ここで、少し突飛ではありますが <b>\(s\)-\(t\) カット</b>という概念を紹介します。
+                </p>
+                <p>
+                    <b>\(s\)-\(t\) カット</b>とは、\(G\) の頂点を <b>\(s,t\) が別々になるように</b> \(2\) つの頂点集合に二分することです。
+                    また、\(s\) を含む方を \(A\) , \(t\) を含む方を \(B\) とします。
+                </p>
+                <br><img src = "./../../images/MaxFlow_MinCut/MaxFlow_MinCut.004.jpeg" class = "StandardImageStyle">
+                <p>
+                    このとき、\(A\) に属する頂点から \(B\) に属する頂点へ向かう辺の容量の合計をカット容量と呼びます。  
+                    頂点を \(A,B\) に二分する方法は複数通り存在しますが、そのうちカット容量が最小になるようなカットを<b>最小カット</b>と呼びます。  
+                </p>
+                <br><img src = "./../../images/MaxFlow_MinCut/MaxFlow_MinCut.005.jpeg" class = "StandardImageStyle">
+                <p>
+                    例示したカットのカット容量は \(14\) であり、このグラフにおける最小カットです。
+                </p>
+                <p>
+                    ここで、\(s \rightarrow t\) のフローは必ず \(A \rightarrow B\) の移動を経る必要があるので、
+                    <b>最大流はカット容量以下であると言えます。</b>
+                    <br>フローを流す際の流量が選んだ \(s \rightarrow t\) パス上のボトルネックで抑えられることと同様に、
+                    \(s \rightarrow t\) の最大流は <b>\(s\)-\(t\) の最小カットがボトルネックとなります。</b>
+                </p>
+                <p>
+                    よって、\(s \rightarrow t\) の最大流は \(s\)-\(t\) の最小カット容量と一致します。  
+                </p>
+            </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+
+
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+                        <br>
+                        <p>Dinic 法のライブラリです。\(s \rightarrow t\) の最大流を計算する場面を考えます。</p>
+                        <p>
+                            ford-fulkerson 法では容量が正の適当なパスにフローを流すことを繰り返すことで最大流を得ましたが、Dinic 法では容量が正の最短パスにフローを流すことを繰り返します。
+                        </p>
+                        <p>
+                            基本的な処理を以下に書きます。(頂点集合を \(\mathrm{V}\) , 辺集合を \(\mathrm{E}\) とします)
+                            <ol>
+                                <li>\(s\) からの BFS によって各頂点までの最短経路を求め、特に \(s \rightarrow t\) の最短経路長を \(D\) とする。</li>
+                                <li>
+                                    \(s\) から DFS を行い、\(t\) に到達できればフローを流す処理を繰り返す。ただしこのとき、以下の工夫を取り入れる。  
+                                    <ul>
+                                        <li>BFS で得た最短経路を形成する辺のみに注目すると、DFS を行う対象は DAG である。</li>
+                                        <li>
+                                            今いる頂点 \(x\) から出る辺のうち \(i\) 番目: \(e_{x,i}\) を使って \(t\) に到達できなかったならば、今後 \(e_{x,i}\) を見る必要はない。
+                                        </li>
+                                        <li>
+                                            長さ \(D\) のパスで採用される可能性がない辺を排除し、採用される可能性がある辺だけを見るようにする。各頂点について、何番目の辺まで調べたかをメモしておけば良い。
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    \(2\) の処理で一度でもフローを流せたなら \(1\) の処理に戻り、そうでなければ処理を終了する。
+                                </li>
+                            </ol>
+                        </p>
+                        <p>
+                            フローを流す操作を繰り返す。つまり \(2\) 処理を完了するたびに \(s \rightarrow t\) パスの最短経路長は増加していきます。最短経路長は最大で \(|\mathrm{V}|\) なので、\(1,2\) の処理は \(O(|\mathrm{V}|)\) 回行われます。\(1\) の BFS に \(O(|\mathrm{E}|)\) 時間、\(2\) の処理の DFS に \(O(|\mathrm{V}||\mathrm{E}|)\) 時間かかるので、全体で \(O(|\mathrm{V}|{|\mathrm{E}|}^{2})\) 時間となります。計算量だけ見れば遅く思われますが、実際はかなり高速に動作することがほとんどと言われています。どうしても遅い場合は隣接リストの辺の順番をシャッフルすることも有効らしいです。
+                        </p>
+                        <br>
+                        <pre><br><br><br><br><br><br><br>/*<br>&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;-&ensp;T&ensp;型の&ensp;フロー&ensp;(Dinic&ensp;Algorithm)<br>&ensp;&ensp;&ensp;&ensp;-&ensp;はじめ、全ての頂点対&ensp;(u,v)&ensp;に対して&ensp;u&ensp;→&ensp;v&ensp;の容量は&ensp;0。<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;コンストラクタには頂点数&ensp;V&ensp;を渡す。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;頂点番号は&ensp;0&ensp;以上&ensp;V&ensp;未満<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;辺は&ensp;edge&ensp;クラスで表す<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;メンバは&ensp;{容量,逆辺の&ensp;edge&ensp;クラスへのポインタ}&ensp;のみ<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;別で隣接リスト&ensp;G&ensp;があるので、端点をメンバとして持つ必要性は薄い&ensp;(必要に応じて追加してください)<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;add_edge(u,v,c)&ensp;:=&ensp;有向辺&ensp;u&ensp;→&ensp;v&ensp;の容量を&ensp;+c&ensp;する。(c&ensp;は&ensp;0&ensp;以上)<br>&ensp;&ensp;&ensp;&ensp;-&ensp;path(u,v)&ensp;:=&ensp;容量が正の辺のみを通って&ensp;u→v&ensp;の最短パスを求める。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;/&ensp;最短パス上の&ensp;edge&ensp;のポインタを通った順に並べて返す&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;/&ensp;(&ensp;単体使用の前にも&ensp;bfs(s)&ensp;してある必要がある。)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;/&ensp;t&ensp;に到達できなかった場合は空集合を返す<br>&ensp;&ensp;&ensp;&ensp;-&ensp;Flow(u,v,f)&ensp;:=&ensp;u&ensp;→&ensp;v&ensp;の&ensp;+++1&ensp;本のパス+++&ensp;にフローを&ensp;f&ensp;流す。流せなければ&ensp;false&ensp;を返す<br>&ensp;&ensp;&ensp;&ensp;-&ensp;MaxFlow(u,v)&ensp;:=&ensp;u&ensp;→&ensp;v&ensp;のネットワークにフローを流せるだけ流し、流した流量を返す。<br>&ensp;&ensp;&ensp;&ensp;|<br>&ensp;&ensp;&ensp;&ensp;-&ensp;設計&amp;思想&ensp;:&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;グラフは隣接リスト&ensp;G&ensp;を参照する。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;dfs&ensp;で見る辺を枝刈りするため、各頂点に対して次にみるべき頂点をメモしておく。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;iter[x]&ensp;:=&ensp;dfs&ensp;において頂点&ensp;x&ensp;から、次に参照するべき辺の&ensp;G[x]&ensp;における&ensp;index<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;backward[x]&ensp;:=&ensp;x&ensp;から移動できる辺がなくなったとき、戻るべき頂点<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;多重辺を回避するため&ensp;G&ensp;とは別に辺集合&ensp;E&ensp;を管理する。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|-&ensp;多重辺を許す必要がある場合は&ensp;add_edge&ensp;を編集する。<br>*/<br>template&lt;typename&ensp;T&ensp;=&ensp;long&ensp;long&gt;<br>class&ensp;mxfl{<br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;private&ensp;:&ensp;<br><br>&ensp;&ensp;&ensp;&ensp;struct&ensp;edge{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;u&ensp;→&ensp;v&ensp;の、容量&ensp;cap&ensp;の有向辺<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;u,v;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;T&ensp;cap;//&ensp;容量<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;edge*&ensp;r_edge;//&ensp;逆辺へのポインタ<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;edge(int&ensp;u_&ensp;,&ensp;int&ensp;v_&ensp;,&ensp;T&ensp;cap_):u(u_),v(v_),cap(cap_){}<br>&ensp;&ensp;&ensp;&ensp;};<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;頂点数<br>&ensp;&ensp;&ensp;&ensp;int&ensp;V;<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;特殊シンボル<br>&ensp;&ensp;&ensp;&ensp;const&ensp;int&ensp;UNDEFINED_NODE&ensp;=&ensp;-1;<br>&ensp;&ensp;&ensp;&ensp;const&ensp;int&ensp;UNREACHED&ensp;=&ensp;-1;&ensp;//&ensp;bfs&ensp;で到達不可能を表すシンボル<br>&ensp;&ensp;&ensp;&ensp;const&ensp;T&ensp;ZERO_EPS&ensp;=&ensp;0;//&ensp;容量が&ensp;0&ensp;であることを示す&ensp;(double&ensp;の場合に微小量として活躍)<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;グラフ&ensp;<br>&ensp;&ensp;&ensp;&ensp;vector&lt;unordered_map&lt;int,edge*&gt;&gt;&ensp;E;//&ensp;辺集合&ensp;(&ensp;iter(後述)&ensp;で参照できない&ensp;)<br>&ensp;&ensp;&ensp;&ensp;vector&lt;vector&lt;pair&lt;int,const&ensp;edge*&gt;&gt;&gt;&ensp;G;&ensp;//&ensp;隣接リスト&ensp;(&ensp;iter(後述)&ensp;で参照できる&ensp;)<br>&ensp;&ensp;&ensp;&ensp;//&ensp;[i][j]&ensp;:=&ensp;辺&ensp;i&ensp;→&ensp;j&ensp;に流れた流量&ensp;(逆辺に負の流量を流すので、負になることもある)<br>&ensp;&ensp;&ensp;&ensp;vector&lt;unordered_map&lt;int,T&gt;&gt;&ensp;F;<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;dfs&ensp;を行うときに参照する。<br>&ensp;&ensp;&ensp;&ensp;//&ensp;dfs&ensp;を行うたびに始点から順に上書きされるので、使いまわして&ensp;OK<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;iter;&ensp;//&ensp;[x]&ensp;:=&ensp;頂点&ensp;x&ensp;にいるとき、次にみる辺の&ensp;G[x]&ensp;における&ensp;index<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;backward;//&ensp;[x]&ensp;:=&ensp;x&ensp;から移動できる辺がなくなったとき、戻るべき頂点<br>&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;//&ensp;何度も&ensp;bfs&ensp;するので&ensp;配列を使い回す。<br>&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;&ensp;dist;//&ensp;最後に&ensp;bfs&ensp;をはじめた頂点からの最短経路長<br><br>&ensp;&ensp;&ensp;&ensp;public:<br>&ensp;&ensp;&ensp;&ensp;mxfl(int&ensp;V_)<br>&ensp;&ensp;&ensp;&ensp;:V(V_),E(V_),G(V_),F(V_)<br>&ensp;&ensp;&ensp;&ensp;,dist(V_,UNREACHED),iter(V_,0),backward(V_,UNDEFINED_NODE){}<br>&ensp;&ensp;&ensp;&ensp;~mxfl(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;i&ensp;=&ensp;0&ensp;;&ensp;i&ensp;&lt;&ensp;V&ensp;;&ensp;i++){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(pair&lt;int,edge*&gt;&ensp;e:&ensp;E[i]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;edge&ensp;を&ensp;解放すると&ensp;r_edge&ensp;も解放される<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(i&ensp;&lt;&ensp;e.first)delete&ensp;e.second;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;u&ensp;→&ensp;v&ensp;の容量を&ensp;c&ensp;増やす<br>&ensp;&ensp;&ensp;&ensp;void&ensp;add_edge(int&ensp;u&ensp;,&ensp;int&ensp;v&ensp;,&ensp;T&ensp;c){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(u&ensp;!=&ensp;v);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;多重辺をマージ<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(E[u][v]&ensp;!=&ensp;nullptr&ensp;&amp;&amp;&ensp;E[v][u]&ensp;!=&ensp;nullptr){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E[u][v]-&gt;cap&ensp;+=&ensp;c;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(E[u][v]&ensp;==&ensp;nullptr&ensp;&amp;&amp;&ensp;E[v][u]&ensp;==&ensp;nullptr);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E[u][v]&ensp;=&ensp;new&ensp;edge(u,v,c);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E[v][u]&ensp;=&ensp;new&ensp;edge(v,u,0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E[u][v]-&gt;r_edge&ensp;=&ensp;E[v][u];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E[v][u]-&gt;r_edge&ensp;=&ensp;E[u][v];<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G[u].push_back({v,E[u][v]});<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;G[v].push_back({u,E[v][u]});<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;s&ensp;から&ensp;各ノード&ensp;への最短経路長を計算し、ついでに&ensp;iter&ensp;を初期化する<br>&ensp;&ensp;&ensp;&ensp;void&ensp;bfs(int&ensp;s){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;(V,UNREACHED).swap(dist);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;int&gt;(V,0).swap(iter);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;queue&lt;int&gt;&ensp;q;q.push(s);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dist[s]&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(!q.empty()){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;q.front();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;q.pop();<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(pair&lt;int,const&ensp;edge*&gt;&ensp;e&ensp;:&ensp;G[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(e.second&ensp;==&ensp;nullptr)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(dist[e.first]&ensp;!=&ensp;UNREACHED)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(e.second-&gt;cap&ensp;&lt;=&ensp;ZERO_EPS&ensp;)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dist[e.first]&ensp;=&ensp;dist[now]+1;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;q.push(e.first);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;s&ensp;→&ensp;t&ensp;最短経路上の&ensp;edge&ensp;クラスのポインタを通った順に返す<br>&ensp;&ensp;&ensp;&ensp;//&ensp;単体使用の前にも&ensp;bfs(s)&ensp;してある必要がある。<br>&ensp;&ensp;&ensp;&ensp;//&ensp;t&ensp;に到達できなかった場合は空集合を返す<br>&ensp;&ensp;&ensp;&ensp;vector&lt;edge*&gt;&ensp;path(int&ensp;s&ensp;,&ensp;int&ensp;t){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;assert(s!=t);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;edge*&gt;&ensp;res(0);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;int&ensp;now&ensp;=&ensp;s;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;s&ensp;からの最短路に含まれる辺のみに注目したグラフは&ensp;DAG&ensp;であることを利用している<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(now&ensp;!=&ensp;UNDEFINED_NODE){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(now&ensp;==&ensp;t)break;<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;移動先を見つけるまで&ensp;iter[now]&ensp;をインクリメント<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(;iter[now]&ensp;&lt;&ensp;G[now].size();&ensp;iter[now]++&ensp;){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;pair&lt;int,const&ensp;edge*&gt;&ensp;e&ensp;=&ensp;G[now][iter[now]];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(e.second&ensp;==&ensp;nullptr)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(e.second-&gt;cap&ensp;&lt;=&ensp;ZERO_EPS)continue;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(dist[e.first]&ensp;&lt;=&ensp;dist[now])continue;//&ensp;最短路のみ注目<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;break;//&ensp;見つけたら終了<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;見る辺が見つからなかった場合一つ前に戻る。<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(G[now].size()&ensp;&lt;=&ensp;iter[now]){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;now&ensp;=&ensp;backward[now];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(res.size()&ensp;!=&ensp;0)res.pop_back();//&ensp;直前に使った辺を不採用<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//&ensp;iter[now]&ensp;を使うと&ensp;t&ensp;に到達できないことがわかったので、今後&ensp;iter[now]&ensp;は不採用<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(now&ensp;!=&ensp;UNDEFINED_NODE)iter[now]++;//&ensp;戻った先の見るべき辺を&ensp;1&ensp;つずらす<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}else{<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;pair&lt;int,const&ensp;edge*&gt;&ensp;e&ensp;=&ensp;G[now][iter[now]];<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;backward[e.first]&ensp;=&ensp;now;//&ensp;戻り先を新たに設定<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.push_back(const_cast&lt;edge*&gt;(e.second));//&ensp;使った辺を追加<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;now&ensp;=&ensp;e.first;//&ensp;移動する<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;実際に&ensp;s&ensp;-&ensp;t&ensp;パスに&ensp;f&ensp;流す<br>&ensp;&ensp;&ensp;&ensp;//&ensp;流せないなら流さずに&ensp;false&ensp;を返す<br>&ensp;&ensp;&ensp;&ensp;bool&ensp;Flow(int&ensp;s&ensp;,&ensp;int&ensp;t&ensp;,&ensp;T&ensp;f){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bfs(s);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(dist[t]&ensp;==&ensp;UNREACHED)false;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;edge*&gt;&ensp;p&ensp;=&ensp;path(s,t);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(p.size()==0)return&ensp;false;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;T&ensp;bottle_neck&ensp;=&ensp;p.back()-&gt;cap;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(const&ensp;edge*&ensp;e&ensp;:&ensp;p)bottle_neck&ensp;=&ensp;min(bottle_neck,e-&gt;cap);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(bottle_neck&ensp;&lt;&ensp;f)return&ensp;false;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(edge*&ensp;e&ensp;:&ensp;p){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;F[e-&gt;u][e-&gt;v]&ensp;+=&ensp;f;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;e-&gt;cap&ensp;-=&ensp;f;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;e-&gt;r_edge-&gt;cap&ensp;+=&ensp;f;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;F[e-&gt;v][e-&gt;u]&ensp;-=&ensp;f;//&ensp;逆辺には負の流量が流れたことにする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;true;<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;//&ensp;s&ensp;→&ensp;t&ensp;に流せるだけ流す。流した流量を返す<br>&ensp;&ensp;&ensp;&ensp;T&ensp;MaxFlow(int&ensp;s&ensp;,&ensp;int&ensp;t){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;T&ensp;res&ensp;=&ensp;0;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;edge*&gt;&ensp;p;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while(true){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bfs(s);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if(dist[t]&ensp;==&ensp;UNREACHED)break;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;while((p&ensp;=&ensp;path(s,t)).size()&ensp;!=&ensp;0){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;T&ensp;bottle_neck&ensp;=&ensp;p.back()-&gt;cap;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(const&ensp;edge*&ensp;e&ensp;:&ensp;p)bottle_neck&ensp;=&ensp;min(bottle_neck,e-&gt;cap);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res&ensp;+=&ensp;bottle_neck;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(edge*&ensp;e&ensp;:&ensp;p){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;F[e-&gt;u][e-&gt;v]&ensp;+=&ensp;bottle_neck;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;e-&gt;cap&ensp;-=&ensp;bottle_neck;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;e-&gt;r_edge-&gt;cap&ensp;+=&ensp;bottle_neck;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;F[e-&gt;v][e-&gt;u]&ensp;-=&ensp;bottle_neck;//&ensp;逆辺には負の流量が流れたことにする<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;}<br><br>&ensp;&ensp;&ensp;&ensp;vector&lt;edge&gt;&ensp;edges(){<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;vector&lt;edge&gt;&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for(int&ensp;x&ensp;=&ensp;0&ensp;;&ensp;x&ensp;&lt;&ensp;V&ensp;;&ensp;x++)for(pair&lt;int,T&gt;&ensp;e&ensp;:&ensp;F[x])res.emplace_back(x,e.first,e.second);<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return&ensp;res;<br>&ensp;&ensp;&ensp;&ensp;}<br><br><br>&ensp;&ensp;&ensp;&ensp;/*&ensp;&ensp;&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Copyright&ensp;©️&ensp;(c)&ensp;okoteiyu&ensp;2024.&ensp;<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Released&ensp;under&ensp;the&ensp;MIT&ensp;license(https://opensource.org/licenses/mit-license.php)&ensp;<br>&ensp;&ensp;&ensp;&ensp;*/<br>};<br><br><br><br><br><br></pre>
+
+
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+
+
+                        
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "サンプルコードを表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+            
+
+
+
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

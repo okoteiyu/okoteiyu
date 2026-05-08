@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>DP</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h3>   
+                    DP基礎<br></h3>
+                    
+
+            </section>
+
+            <section class = "Explanation">
+                <h2>
+                    DP とは
+                </h2>
+                <p>
+                    DP に関する普遍的な理解を説明することは難しいので、はじめに DP について簡潔に説明して、その後は典型問題を説明する流れで行こうと思います。
+                </p>
+                <p>
+                    以下の抽象的な要求を考えてみましょう。
+                    <ul>
+                        <li>
+                            初期状態 := 自明に計算可能な状態
+                        </li>
+                        <li>
+                            目的状態 := 初期状態から、いくつかのステップを経て達成 (到達) できる状態
+                        </li>
+                        <li>
+                            「初期状態」と「目的状態」を決めて、初期状態から目的状態を達成する方法に対して何かを調べる。
+                        </li>
+                    </ul>
+                </p>
+                <img src = "./../../images/DP_typical/DP_typical.001.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    目的状態を達成する方法 (矢印の道順) を全て列挙して調べることもできますが、通常、目的状態を達成する方法の数はとてつもなく多いです。よって、上の図のように目的状態を達成する方法を全て列挙することはできません。
+                </p>
+                <p>
+                    実際のところ、多くの問題においては個別の方法 (矢印の道順) には興味がなく、目的状態を達成する方法 (矢印の道順) ごとの「コストや価値」の集約や、方法の種類数などを調べたいことが多いため、目的状態を達成する方法 (矢印の道順) はブラックボックス化することができます。
+                </p>
+                <img src = "./../../images/DP_typical/DP_typical.002.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    例えば、後述するナップサック問題では状態 \((i,x)\) を \(\mathrm{DP}(i,x) := \)「\(i\) 番目までの商品でちょうど \(x\) 円使った状態」と定義し、状態までの移動方法ごとの結果を \(\mathrm{DP}(i,x) \) に集約させることで、それぞれの移動方法をまとめて \(\mathrm{DP}(i,x) \) として表現できます。
+                </p>
+                <p>
+                    このように、個々の移動方法を一つの状態 \((i,x)\) にうまくまとめて扱うためには、状態 \((i,x)\) の集約が状態 \((i,x)\) に繋がる部分的な状態から得られることが必要です。
+                </p>
+                <img src = "./../../images/DP_typical/DP_typical.003.jpeg" class = "StandardImageStyle"><br>
+                <p>
+                    途中段階の状態も同様に、その状態を達成する方法の集約を持ちます。集約のデータサイズは大抵の場合大きくないので、方法全てを列挙する手法より格段に良くなりました。
+                </p>
+                <p>
+                    これらのことから、DP においてはうまく状態を定義して、「初期状態と目的状態を上手く設計して、目的状態を達成する方法を上手く集約すること」が重要であると言えます。これを体系的に説明するのは困難だと思うので、以降は典型的な DP 問題を通して雰囲気を理解してもらおうと思います。
+                </p>
+
+                <!--
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        タイトル
+                    </h3>
+                    <p>
+                        問題文
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            解説
+                        </p>
+                        コード
+                    </details>
+                </div>
+
+                -->
+
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        部分和 DP
+                    </h3>
+                    <p>
+                        長さ \(N\) の数列 \(A\) からいくつかの要素を選ぶとき、選んだ要素の和が \(M\) になるように選ぶことができるかを判定してください。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            状態を \((i,m)\) で表します。初期状態は \((0,0)\)、目的状態は \((N,M)\) です。また、状態 \((i,m)\) は、その状態を達成するための方法の集約として、以下で定める値 \(\mathrm{DP}(i,m) \) を持ちます。
+                        </p>
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,m) := \) 数列 \(A\) の \(i\) 番目までの要素からいくつか選んで、総和を \(m\) にできるか。
+                            </li>
+                        </ul>
+                        <p>
+                            初期状態 \((0,0)\) は何も選ばずに総和を \(0\) にできるかという問題を表すので、\(\mathrm{DP}(0,0) = True\) です。初期状態はこのように初めから定義可能なものである必要があります。若干非自明な定義であっても、DP の計算において整合性が取れれば OK です。
+                        </p>
+                        <p>
+                            \(i\) 番目の要素までを使って \(x\) にできるかどうかは、\(A_i\) を「使う」/「使わない」 という 2 つの場合に帰着できます。よって、\(\mathrm{DP}(i,m)\) は前段階である、\(\mathrm{DP}(i-1,m-A_i)\) と \(\mathrm{DP}(i-1,m)\) から計算できます。
+                            <ul>
+                                <li>
+                                    \(\mathrm{DP}(i,m) = \mathrm{DP}(i-1,m) \lor \mathrm{DP}(i-1,m-A_i)\)
+                                </li>
+                            </ul>
+                            なお、\(\mathrm{DP}\) の遷移などの立式に関して、数式であっても一度日本語の定義に戻して考えると見通しが付きやすいです。
+                        </p>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;N,M;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;N&nbsp;&gt;&gt;&nbsp;M&nbsp;;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;A(N);<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&amp;&nbsp;x&nbsp;:&nbsp;A)cin&nbsp;&gt;&gt;&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;vector&lt;bool&gt;&gt;&nbsp;DP(N+1,vector&lt;bool&gt;(M+1,false));<br>&nbsp;&nbsp;&nbsp;&nbsp;DP[0][0]&nbsp;=&nbsp;true;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;1&nbsp;;&nbsp;i&nbsp;&lt;=&nbsp;N&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;a&nbsp;=&nbsp;A[i-1];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;m&nbsp;=&nbsp;0&nbsp;;&nbsp;m&nbsp;&lt;=&nbsp;M&nbsp;;&nbsp;m++&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DP[i][m]&nbsp;=&nbsp;DP[i-1][m];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m-a&nbsp;&gt;=&nbsp;0)DP[i][m]&nbsp;=&nbsp;bool(DP[i][m]&nbsp;||&nbsp;DP[i-1][m-a]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;if(DP[N][M])cout&nbsp;&lt;&lt;&nbsp;&quot;Yes&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;cout&nbsp;&lt;&lt;&nbsp;&quot;No&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>}</pre>
+                    </details>
+                </div>
+                
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        ナップサック問題
+                    </h3>
+                    <p>
+                        \(N\) 種類の商品 \(1,2,...,N\) があり、商品 \(i\) の価値は \(v_i\) ,値段は \(p_i\) 円とする。各種類最大一つしか買わないとき、\(M\) 円で買える商品の価値の総和を最大化せよ。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            \(\mathrm{DP}(i,m) := \) 『\(i\) 番目までの商品で、\(m\) 円で買える商品の価値の総和の最大値』 という DP を考えると、求めたいものは \(\max_{0 \leq x \leq M}\mathrm{DP}(n,x)\) です。
+                        </p>
+                        <p>
+                            \(i\) 番目の商品は「買う」/「買わない」 という 2 つの場合に分けることができ、\(m\) 円で買える商品の価値の最大値は、\(\mathrm{DP}(i-1,m)\) と \(\mathrm{DP}(i-1,m-p_i) + v_i\) の大きい方です。
+                        </p>
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,m) = \max(\mathrm{DP}(i-1,m) , \mathrm{DP}(i-1,m-p_i) + v_i)\)
+                            </li>
+                        </ul>
+                        <p>
+                            上記のような数式であっても、\(\mathrm{DP}\) の指すものを一度日本語の定義に戻して考えると見通しが付きやすいです。
+                        </p>
+                    </details>
+                </div>
+                
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        部分和問題/ナップサック問題 補足
+                    </h3>
+                    <p>
+                        先述の部分和問題およびナップサック問題を改題し、\(N\) 個の要素それぞれを<u>何度選んでも良い</u>とした上で、<u>空間計算量 \(O(M)\)</u> で解いてください。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            部分和問題もナップサック問題も状態遷移(集約)方法は同じのため、今回は部分和問題にフォーカスして説明します。まずは <u>何度選んでも良い</u> という制約について考えます。結論から言うと、以下の \(1\) 点を変更すると達成できます。
+                        </p>
+                        <ul>
+                            <li>
+                                遷移の式を <code>DP[i][m] = bool(DP[i][m] || DP[i-1][m-a] || DP[i][m-a]);</code> にする。
+                            </li>
+                        </ul>
+                        <p>
+                            \(m\) が小さい順にイテレーションを行っていることで、<code>DP[i][m-a]</code> が計算済みであることを利用しています。<code>DP[i][m-a]</code> を達成するための遷移において \(i\) 個目の要素を使用した場合、<code>DP[i][m-a]</code> から <code>DP[i][m]</code> への遷移では <u>\(i\) 個目の要素が \(2\) 度以上使用されている</u>とわかります。<code>DP[i][m]</code> についても同様に <code>DP[i]</code> の計算で使用されるため、この遷移には \(i\) 番目が使用される回数の制限がないことがわかります。
+                        </p>
+                        <p>
+                            次に、空間計算量を \(O(M)\) にすることについて考えます。これは<u>インライン DP</u> を行うことで解くことができます。と言うか、実は<u>各要素を何度選んでも良い</u>と言う部分もインライン DP にするだけで解けます。
+                        </p>
+                        <p>
+                            先述の DP テーブル計算の \(i\) 番目のイテレーションにおいては、\(i-2\) 番目以前のテーブルと \(i+1\) 番目以降のテーブルは<u>無駄な領域</u>になっています。そこで、DP テーブルをインライン化することで一つ目の添字 \(i\) を省略することにします。すなわち、DP テーブルは長さ \(M+1\) の一次元配列になります。
+                        </p>
+                        <p>
+                            \(i\) を昇順に見ていく中で、この DP テーブルを使い回していきます。特に、<u>これから使用するデータを上書きしてはいけない</u>ため、\(m\) に関するイテレーションの順序が大事になります。今回は、\(m\) を昇順に見ていくことで、結果的に<u>各要素を何度選んでも良い</u>という追加条件を満たしながら DP テーブルを埋めていくことができます。
+                        </p>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;N,M;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;N&nbsp;&gt;&gt;&nbsp;M&nbsp;;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;A(N);<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&amp;&nbsp;x&nbsp;:&nbsp;A)cin&nbsp;&gt;&gt;&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;bool&gt;&nbsp;DP(M+1,false);<br>&nbsp;&nbsp;&nbsp;&nbsp;DP[0]&nbsp;=&nbsp;true;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;a&nbsp;:&nbsp;A){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;m&nbsp;=&nbsp;0&nbsp;;&nbsp;m&nbsp;&lt;=&nbsp;M&nbsp;;&nbsp;m++&nbsp;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(m-a&nbsp;&gt;=&nbsp;0)DP[m]&nbsp;=&nbsp;bool(DP[m]&nbsp;||&nbsp;DP[m-a]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;if(DP[M])cout&nbsp;&lt;&lt;&nbsp;&quot;Yes&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;cout&nbsp;&lt;&lt;&nbsp;&quot;No&quot;&nbsp;&lt;&lt;&nbsp;endl;<br>}</pre>
+                        <p>
+                            また、<u>各要素を何度選んでも良い</u>という条件をなくすと、\(m\) を見る順番が変わります。この場合に \(m\) を昇順に見て計算を行うのは、先述の<u>「これから使用するデータを上書きする」</u>ことに該当します。今回の場合は、\(m\) の見る順番を降順にすることで上手く DP テーブルを計算することができます。
+                        </p>
+                    </details>
+                </div>
+
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        最長増加部分列 (LIS)
+                    </h3>
+                    <p>
+                        長さ \(N\) の数列 \(A\) があります。\(A\) の部分列のうち、狭義単調増加で最長のもの (<b>LIS</b>) の長さを求めてください。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            \(\mathrm{DP}(i,l) := \) 『数列 \(A\) の前から \(i\) 個目までで長さ \(l\) の狭義単調増加列を作る時、その右端の要素としてありえる最小値』とし、\(\mathrm{DP}(0,0) = -∞ , \mathrm{DP}(0,l) = ∞ (l \geq 1)\) で初期化します。
+                        </p>
+                        <p>各 \(i\) について、数列 <b>\( b_x := \mathrm{DP}(i,x)\) が狭義単調増加になることに注意してください。</b></p>
+                        <p>
+                            \(i-1\) 番目までで構築した LIS の結果を見て、数列 \(A\) の \(i\) 番目の要素を調べます。
+                            <ol>
+                                <li>
+                                    LIS の右端に \(A_i\) を採用するためには、\(i-1\) 番目までで構築した LIS の右端が \(A_i\) 未満である必要があります。 
+                                    そのうち、右端としてあり得る最小値を \(A_i\) で更新する必要がある LIS の長さは <b>\( A_i \leq \mathrm{DP}(i-1 , m)\) である最小の \(m\)</b> のみです。なぜなら、
+                                    <ul>
+                                        <li>\(A_{i-1}\) までで長さが \(m-1\) 以下の LIS の右端は、m の定義より既に \(A_i\) 未満なので \(A_i\) で更新する必要がない。</li>
+                                        <li>長さが \(m+1\) 以上の LIS の右端が \(A_i\) になるためには、\(\mathrm{DP}(i-1 , m) &lt; A_i \) である必要があり、これは \(m\) の定義と矛盾する。</li>
+                                    </ul>
+                                    \(\mathrm{DP}(i)\) の中身が単調なので、そのような \(m\) は lower_bound などで見つけることができ、\(\mathrm{DP}(i,m) = A_i\) と更新します。
+                                </li>
+                                
+                                <li>
+                                    長さが \(m\) 以外の LIS の右端は \(A_i\) になることはないので、\(\mathrm{DP}(i,l) = \mathrm{DP}(i-1,l)\) です。
+                                </li>
+                            </ol>
+                        </p>
+                        <p>
+                            なお、<u>広義単調増加部分列を求める場合</u>は、上記の \(m\) の条件を <b>\( A_i &lt; \mathrm{DP}(i-1 , m)\) である最小の \(m\) </b>とし、upper_bound を用いることで同様の dp でも求めることができます。( この時、\(\mathrm{DP}(i)\)は広義単調増加になる )
+                        </p>
+                        <p>
+                            上記の DP では \(O(N^2)\) サイズの DP テーブルで DP を行いましたが、\(i \rightarrow i+1\) の遷移では DP テーブルの<b>一箇所しか更新しない</b>ので、インライン DP によって計算量を削減できます。
+                        </p>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;N;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;N;<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;long&nbsp;long&gt;&nbsp;A(N);<br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&amp;&nbsp;x&nbsp;:&nbsp;A)cin&nbsp;&gt;&gt;&nbsp;x;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;long&nbsp;long&gt;&nbsp;DP;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;for(auto&nbsp;x&nbsp;:&nbsp;A){&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;itr&nbsp;=&nbsp;lower_bound(DP.begin(),&nbsp;DP.end(),&nbsp;x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(itr!=DP.end())*itr&nbsp;=&nbsp;x;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;DP.push_back(x);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;DP.size()&nbsp;&lt;&lt;&nbsp;endl;<br>}</pre>
+                    </details>
+                </div>
+                
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        編集距離
+                    </h3>
+                    <p>
+                        文字列 \(S\) と \(T\) が与えられます。\(S\) に対して、以下の \(3\) 種類の操作を定義します。
+                    </p>
+                    <ul>
+                        <li>
+                            \(S\) の任意の \(1\) 文字を削除する。
+                        </li>
+                        <li>
+                            \(S\) の任意位置に任意の \(1\) 文字を挿入する。
+                        </li>
+                        <li>
+                            \(S\) の任意の \(1\) 文字を変更する。
+                        </li>
+                    </ul>
+                    <p>
+                        以上の操作で \(S\) を \(T\) に一致させるために必要な操作回数の最長値を求めてください。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            以下の DP テーブルを構築します。
+                        </p>
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,j) := \)  \(S\) の先頭 \(i\) 文字の文字列に対して操作を行うとき、\(T\) の \(j\) 文字目までと一致させるための操作の最小回数
+                            </li>
+                        </ul>
+                        <p>
+                            遷移は以下の通りです。DP の定義をよく読めば納得感があると思います。
+                        </p>
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,j) = \mathrm{min}(\mathrm{DP}(i-1,j)+1 , \mathrm{DP}(i,j-1) + 1 ,\mathrm{DP}(i-1,j-1) + \mathrm{int}(S_i \neq T_j))\) 
+                            </li>
+                        </ul>
+                        <p>
+                            (C++ では <code>int(true)</code> は \(1\) になります。上記の式もこれに従います。)
+                        </p>
+                    </details>
+                </div>
+                
+                <br>
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        LCS
+                    </h3>
+                    <p>
+                        文字列 \(S\) と \(T\) が与えられます。 \(S\) と \(T\) の共通する部分列のうち、最長のものの長さを求めてください。
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            編集距離と似たような感じです。以下の DP テーブルを構築します。
+                        </p>
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,j) := \) \(S\) の先頭 \(i\) 文字、\(T\) の \(j\) 文字目までの文字列の部分列で、共通する部分列のうち最長のものの長さ
+                            </li>
+                        </ul>
+                        <p>
+                            遷移は以下の通りです。DP の定義をよく読めば納得感があると思います。
+                        </p>
+                        <ul>
+                            <li>
+                                \(\mathrm{DP}(i,j) = \mathrm{min}(\mathrm{DP}(i-1,j) , \mathrm{DP}(i,j-1) ,\mathrm{DP}(i-1,j-1) + \mathrm{int}(S_i = T_j))\) 
+                            </li>
+                        </ul>
+                        <p>
+                            (C++ では <code>int(true)</code> は \(1\) になります。上記の式もこれに従います。)
+                        </p>
+                    </details>
+                </div>
+                
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        桁DP 
+                    </h3>
+                    <p>
+                        \(N\) 以下の自然数のうち、桁和が \(D\) の倍数である自然数の答えを \(\mod{1000000007}\) で求めよ。ただし、\(N\leq 10^{100000}, D \leq 100\) である。
+                    </p>
+                    <p>
+                        (出典 : AtCoder TDPC-E(https://atcoder.jp/contests/tdpc/tasks/tdpc_number))
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            TODO です。個人的には配る DP が書きやすいです。
+                        </p>
+                        <pre>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;mint&nbsp;=&nbsp;mint1e9_7;<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;D;<br>&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;N;<br>&nbsp;&nbsp;&nbsp;&nbsp;cin&nbsp;&gt;&gt;&nbsp;D&nbsp;&gt;&gt;&nbsp;N;<br>&nbsp;&nbsp;&nbsp;&nbsp;ll&nbsp;n&nbsp;=&nbsp;N.size();<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dp[i][0][x]&nbsp;:=&nbsp;N&nbsp;の上から&nbsp;i&nbsp;桁目までを&nbsp;10&nbsp;進数として見たとき、それ未満の整数のうち桁和&nbsp;D&nbsp;で割ったあまりが&nbsp;x&nbsp;である整数の個数<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dp[i][1][x]&nbsp;:=&nbsp;N&nbsp;の上から&nbsp;i&nbsp;桁目までを&nbsp;10&nbsp;進数として捉え、その桁和を&nbsp;D&nbsp;で割ったあまりが&nbsp;x&nbsp;である整数の個数(これは、高々&nbsp;1&nbsp;通り)<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&nbsp;dp(n+1,vector(2,vector&lt;mint&gt;(D,0)));<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;N&nbsp;の&nbsp;0&nbsp;桁目までは&nbsp;0&nbsp;であることを考慮すると、<br>&nbsp;&nbsp;&nbsp;&nbsp;dp[0][0][0]&nbsp;=&nbsp;0;//&nbsp;0&nbsp;以下は存在しない<br>&nbsp;&nbsp;&nbsp;&nbsp;dp[0][1][0]&nbsp;=&nbsp;1;//&nbsp;0&nbsp;自身のみ<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;配る&nbsp;DP&nbsp;の方が書きやすい<br>&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;0&nbsp;;&nbsp;i&nbsp;&lt;&nbsp;n&nbsp;;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;digit&nbsp;=&nbsp;int(N[i]-&apos;0&apos;);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;桁和が&nbsp;x&nbsp;のもの<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;x&nbsp;=&nbsp;0&nbsp;;&nbsp;x&nbsp;&lt;&nbsp;D&nbsp;;&nbsp;x++){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dp[i][F][x]&nbsp;の&nbsp;F&nbsp;の状態の変化に注目する<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;F&nbsp;が&nbsp;0&nbsp;→&nbsp;0&nbsp;は,&nbsp;0&nbsp;≦&nbsp;p&nbsp;≦&nbsp;9&nbsp;のどの&nbsp;p&nbsp;も&nbsp;i+1&nbsp;桁目として採用して&nbsp;OK&nbsp;:&nbsp;(&nbsp;桁和が&nbsp;x&nbsp;→&nbsp;x+p&nbsp;に変化する)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;p&nbsp;=&nbsp;0&nbsp;;&nbsp;p&nbsp;&lt;&nbsp;10&nbsp;;&nbsp;p++)dp[i+1][0][(x+p)%D]&nbsp;+=&nbsp;dp[i][0][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;F&nbsp;が&nbsp;0&nbsp;→&nbsp;0&nbsp;は,&nbsp;digit&nbsp;未満の&nbsp;p&nbsp;なら&nbsp;i+1&nbsp;桁目として採用して&nbsp;OK&nbsp;:&nbsp;(&nbsp;桁和が&nbsp;x&nbsp;→&nbsp;x+p&nbsp;に変化する)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;p&nbsp;=&nbsp;0&nbsp;;&nbsp;p&nbsp;&lt;&nbsp;digit&nbsp;;&nbsp;p++)dp[i+1][0][(x+p)%D]&nbsp;+=&nbsp;dp[i][1][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;F&nbsp;が&nbsp;0&nbsp;→&nbsp;1&nbsp;はありえない<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;F&nbsp;が&nbsp;1&nbsp;→&nbsp;1&nbsp;は&nbsp;digit&nbsp;を&nbsp;i+1&nbsp;桁目に採用する場合の&nbsp;1&nbsp;通りのみ<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i+1][1][(x+digit)%D]&nbsp;+=&nbsp;dp[i][1][x];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0&nbsp;のぶんを答えからひく<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;dp[n][0][0]&nbsp;+&nbsp;dp[n][1][0]&nbsp;-&nbsp;1&nbsp;&lt;&lt;&nbsp;endl;<br><br></pre>
+                    </details>
+                </div>
+
+                <br>
+                <div class = "Highlight">
+                    <h3>
+                        ABC 358-E
+                    </h3>
+                    <p>
+                        <code>a</code> から <code>z</code> までの \(26\) 文字を使って長さ \(K\) の文字列を作ります。ただし、辞書順で \(i\) 番目のアルファベット文字は最大で \(c_i\) 個までしか使ってはいけません。作ることができる文字列が何種類あるかを \(\mathrm{mod}\space 998244353\) で答えてください。
+                    </p>
+                    <p>
+                        (出典 : ABC 358-E(https://atcoder.jp/contests/abc358/tasks/abc358_e))
+                    </p>
+                </div>
+                <div class = "Box">
+                    <details>
+                        <summary>解説</summary>
+                        <p>
+                            以下の DP テーブルを定義します。
+                            <ul>
+                                <li>
+                                    \(\mathrm{DP}(i,k) := \) \(i\) 番目のアルファベットまでを使ってできる長さ \(k\) の文字列の種類数。
+                                </li>
+                                <li>
+                                    \(\mathrm{DP}(i,k) = \sum_{p := i 番目の文字を使う個数}{\mathrm{DP}(i-1,k-p)} \cdot _k\mathrm{C}_p \) 
+                                </li>
+                            </ul>
+                            \(i\) 番目の文字までで長さ \(k\) の文字列を作る方法は、\(i\) 番目の文字の個数を \(p\) として、残り \(k-p\) 文字の \(i-1\) 番目までの文字からなる文字列の両端を含めた \(k-p+1\) 箇所の挿入候補地点に \(p\) 個の文字を割り振る重複組合せから計算することができます (重複組合せは組み合わせの記事参照)。
+                        </p>
+                        <p>
+                            \(p\) について以上を足し合わせることで \(i\) が小さい方からテーブルを埋めることができます。
+                        </p>
+                    </details>
+                </div>
+
+                
+
+            </section>
+                
+
+
+            
+        </div>
+
+
+
+    </body>
+
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+
+
+
+ 
+ 
+ 
+ 
+
+
+

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </script>
+     
+    <title>Problem_1</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+        
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+             
+            <section class = "Introduction">
+                
+                <h2>   
+                    典型テクニック<br></h2>
+
+
+            </section>
+
+
+            <section class = "Explanation">
+                
+                <br>
+                <br>競プロでは、問題の要件さえ満たしていれば、(問題で要求されていても)無駄な操作は無視することがあります。
+                <br>
+                <br>
+                <br><h2>問題:「大きいことは、気にするな！」</h2>
+                
+                <br>長さが N の数列 A があります。
+                <br>初め、数列 B は空です。
+                <br>
+                <br>i 回目の操作では、B の末尾に A[i] を追加します。
+                <br>各操作終了時に、B のうち K 番目に小さい要素を出力してください。ただし、B の要素数が K 未満の場合は -1 を出力してください。
+                <br>
+                
+                <br>制約：
+                <br> N , K &lt; 200000
+                <br> A_i &lt; 1000000000
+                <br>
+                <br>
+                <br>
+                
+        </section>
+                
+            <section id = "section_2_special">
+                <section class = "SampleCodeField">
+
+                    <!-- 解説パート ...　長い-->
+                    <div id = "SampleCode" style="display: none;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "閉じる"></div>
+
+                            <br>
+                            <br>
+                            例えば、B の要素数がちょうど K の場合はどうでしょう。
+                            <br>この時、B のうち K 番目に小さい要素というのは、B の最大値になります。
+
+                            <br>
+                            <br>この問題を解くために、B のサイズが K であるような状況で考えていきます。
+                            <br>
+                            
+                            <br>サイズが K である場合に B に新たに要素を追加した時、B のうち K 番目に小さい要素はどのようになるでしょう。
+                            <br>
+                            <br>追加する要素を x , B の K 番目に小さい要素(最大値)を bk とすると、
+                            <br>
+                            <br>bk &lt;= x であるならBに追加する必要はありません。
+                            <br>なぜなら B には要素の追加しか行わないので、ある時点で 小さい方からK+1番目以降の要素は、今後もK番目にはなり得ないからです。
+                            <br>ただし下記と同様に、追加してから pop しても差し支えありません(全く無駄ですが)。
+                            <br>
+                            <br>また x &lt; bk の場合、 B に x を追加し、B の最大値をpopします。
+                            <br>B に x を追加したことにより、Bのサイズが K+1 になるので、B のうち小さい方から K+1 番目、つまりBの最大値をpopします。
+                            <br>
+                            <br>以上の操作を行うことにより、B のサイズを K に保ちつつ、本来追加されるはずの要素のうち、小さい方から K 個(問題の要件に必要な分だけ)を持つことができます。
+
+                            <br>
+                            <br>B のサイズが常に K なので、操作ごとに B の最大値を出力すれば良いです。
+                            <br>
+                            <br>最大値取得、挿入、最大値削除 の3つができるデータ構造があれば良いので、priority_queueを使いながら処理していけば良いです。
+                            <br>サイズが K 未満の場合、要素の追加だけして　-1 を出力すれば良いです。
+                            <br>
+                            
+                            <br>
+
+                            <br>
+                            <br>
+                            <br>
+
+
+
+
+                        <div class = "SampleCodeFieldToggleButton"><input type="button" id="Button_hide" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()" value = "閉じる"></div>
+                    </div>
+                    
+
+
+
+
+
+
+
+                    <div id = "HideCheck" style="display: block;position:relative;width:100%;">
+                        <div class = "SampleCodeFieldToggleButton"><input type="button"  id="Button_appear" class = "detail_openclose_button" onclick="toggleSampleCodeDisplay()"  value = "詳細を表示する"></div>
+                    </div>
+
+                    
+
+
+                </section>
+
+
+                
+
+                
+            </section>
+
+
+
+        </div>
+        <br>
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
+

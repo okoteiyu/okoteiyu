@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../static/css/article_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../static/css/article_pc.css">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Okoteiyu Archive</title>
+        
+
+    </head>
+
+
+
+
+    <body>
+
+        <!-- 記事ページの最上位置のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_TopPosition"></div>
+        <a href = "https://okoteiyu.com" target = "_blank"><ToHomeLinkIcon></ToHomeLinkIcon></a>
+        
+         
+        <!-- 記事ページのコンテンツ直前のフラグ。置換などで使う -->
+        <div id = "UniqueFlag_BeforeInnerContents"></div>
+        <div class = "CopyRightField">Copyright (c) ©️ 2024 okoteiyu <br>All Rights Reserved</div>
+        
+        <div class = "Inner">
+            <section class = "Introduction">
+                
+                <h2>   
+                    C++ 言語機能等トピック一覧<br></h2>
+
+            </section>
+
+
+            <section class = "Explanation">
+            
+
+                <div class = "Highlight">
+                    <h3>
+                        内容
+                    </h3>
+                    <p>
+                        C++ の言語機能などを断片的に紹介する記事です。
+                    </p>
+                </div>
+                <br>
+                <h2>
+                    トピック一覧
+                </h2>
+                <ol>
+                    <li>
+                        <b><u>言語機能</u></b>
+                        <ol>
+                            <li>
+                                <code>constexpr</code> 関数は<b>実引数がコンパイル時定数</b>である場合に限り、返り値がコンパイル時定数になる。返り値がコンパイル時定数になるなら、テンプレート引数リストの中でその値を使用することができる。
+                            </li>
+                            <li>
+                                <b>ビットフィールド</b>は実質的に参照不可能である。
+                            </li>
+                            <li>
+                                (TODO : 厳密かつ簡潔に) テンプレートの特殊化で、候補である複数の (シグネチャが一致する) テンプレートから \(1\) つの実体化するテンプレートを解決(特定)する場合を考える。<b>SFINAE</b> という言語機能によって、ある候補の実体化が失敗しても即座にエラーとはならず、別の候補のテンプレートから解決しようとする。全ての候補で解決できなかった時にコンパイルエラーとなる。SFINAE を利用することで、コンパイル時に条件分岐を実現できる。条件分岐とは複数条件を 1 つずつ順に試す手続きなので、その点でも一致する。
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+                <br>
+                <h2>
+                    詳解
+                </h2>
+                <br>
+                <h3>
+                    可変長テンプレートを使った mapping
+                </h3>
+                <pre><br>#include&nbsp;&lt;utility&gt;<br><br>//&nbsp;終了状態<br>template&lt;typename&nbsp;T,&nbsp;typename&nbsp;X&gt;<br>void&nbsp;mapping_sub(T&nbsp;(*f)(X)&nbsp;,&nbsp;vector&lt;T&gt;&amp;&nbsp;buf){<br>&nbsp;&nbsp;&nbsp;&nbsp;return;<br>}<br><br>//&nbsp;Tail&nbsp;の先頭要素に&nbsp;f&nbsp;を適用して&nbsp;buf&nbsp;に記録<br>template&lt;typename&nbsp;T,&nbsp;typename&nbsp;X,&nbsp;typename...&nbsp;Tail&gt;<br>void&nbsp;mapping_sub(T&nbsp;(*f)(X),&nbsp;vector&lt;T&gt;&amp;&nbsp;buf,&nbsp;X&amp;&amp;&nbsp;head,&nbsp;Tail&amp;&amp;...&nbsp;tail){<br>&nbsp;&nbsp;&nbsp;&nbsp;mapping_sub&lt;T,Tail...&gt;(f,&nbsp;buf,&nbsp;std::forward&lt;Tail&gt;(tail)...);<br>&nbsp;&nbsp;&nbsp;&nbsp;buf.push_back(f(head));<br>}<br><br>//&nbsp;引数全てに&nbsp;f&nbsp;を適用し、結果を&nbsp;vector&nbsp;に格納して返す<br>template&lt;typename&nbsp;T,&nbsp;typename&nbsp;X,&nbsp;typename...&nbsp;Args&gt;<br>vector&lt;T&gt;&nbsp;mapping(T&nbsp;(*f)(X),&nbsp;Args&amp;&amp;...&nbsp;args){<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;mapping_sub(f,&nbsp;res,&nbsp;std::forward&lt;Args&gt;(args)...);<br>&nbsp;&nbsp;&nbsp;&nbsp;reverse(res.begin(),&nbsp;res.end());<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>}<br><br>//&nbsp;イテレータ付きコンテナに対するマッピング<br>template&lt;typename&nbsp;T,&nbsp;typename&nbsp;X,&nbsp;typename&nbsp;Container,<br>&nbsp;&nbsp;&nbsp;&nbsp;typename&nbsp;=&nbsp;void_t&lt;decltype(declval&lt;Container&gt;().begin())&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;typename&nbsp;=&nbsp;void_t&lt;decltype(declval&lt;Container&gt;().end())&gt;<br>&gt;<br>vector&lt;T&gt;&nbsp;mapping(T&nbsp;(*f)(X),&nbsp;Container&nbsp;C){<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;T&gt;&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;itr&nbsp;=&nbsp;C.begin();<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;auto&nbsp;e&nbsp;=&nbsp;C.end();<br>&nbsp;&nbsp;&nbsp;&nbsp;while(itr&nbsp;!=&nbsp;e)res.push_back(&nbsp;f(*(itr++))&nbsp;);<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>}<br><br><br>//&nbsp;イテレータ付きコンテナに対する出力<br>template&lt;typename&nbsp;Container,<br>&nbsp;&nbsp;&nbsp;&nbsp;typename&nbsp;=&nbsp;void_t&lt;decltype(declval&lt;Container&gt;().begin())&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;typename&nbsp;=&nbsp;void_t&lt;decltype(declval&lt;Container&gt;().end())&gt;<br>&gt;<br>void&nbsp;put(Container&nbsp;C){&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;itr&nbsp;=&nbsp;C.begin();<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;auto&nbsp;e&nbsp;=&nbsp;C.end();<br>&nbsp;&nbsp;&nbsp;&nbsp;while(itr&nbsp;!=&nbsp;e)cout&nbsp;&lt;&lt;&nbsp;*(itr++)&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;endl;<br>}<br><br><br>double&nbsp;f(int&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;sqrt(x)&nbsp;+&nbsp;1;<br>}<br><br>vector&lt;double&gt;&nbsp;g(int&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;double&gt;&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;res.push_back(sqrt(x)+2);<br>&nbsp;&nbsp;&nbsp;&nbsp;res.push_back(sqrt(x)+3);<br>&nbsp;&nbsp;&nbsp;&nbsp;res.push_back(sqrt(x)+5);<br>&nbsp;&nbsp;&nbsp;&nbsp;res.push_back(sqrt(x)+7);<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;res;<br>}<br><br>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;V&nbsp;=&nbsp;{1,2,3};<br>&nbsp;&nbsp;&nbsp;&nbsp;set&lt;int&gt;&nbsp;S&nbsp;=&nbsp;{1,2,3};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;p&nbsp;=&nbsp;mapping(g,&nbsp;V);<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;q&nbsp;=&nbsp;mapping(g,&nbsp;S);<br>&nbsp;&nbsp;&nbsp;&nbsp;auto&nbsp;r&nbsp;=&nbsp;mapping(f,1,2,3,4,5,6,7,8,9);<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;put(r);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br>}</pre>
+
+                <br>
+                <h3>
+                    <code>std::pair</code> に <code>[]</code> オペレータでアクセスする
+                </h3>
+                <pre>#include&nbsp;&lt;iostream&gt;<br>#include&nbsp;&lt;cassert&gt;<br>using&nbsp;namespace&nbsp;std;<br>template&lt;typename&nbsp;t1&nbsp;,&nbsp;typename&nbsp;t2&gt;<br>struct&nbsp;mpair{<br>&nbsp;&nbsp;&nbsp;&nbsp;protected:<br>&nbsp;&nbsp;&nbsp;&nbsp;pair&lt;t1,t2&gt;&nbsp;m_pr;<br>&nbsp;&nbsp;&nbsp;&nbsp;public:<br>&nbsp;&nbsp;&nbsp;&nbsp;mpair(){}<br>&nbsp;&nbsp;&nbsp;&nbsp;explicit&nbsp;mpair(pair&lt;t1,t2&gt;&nbsp;pr_)&nbsp;:&nbsp;m_pr(pr_){}<br>&nbsp;&nbsp;&nbsp;&nbsp;mpair(t1&nbsp;first&nbsp;,&nbsp;t2&nbsp;second)&nbsp;:&nbsp;m_pr(first,second)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;explicit&nbsp;operator&nbsp;pair&lt;t1,t2&gt;(){return&nbsp;m_pr;}<br>&nbsp;&nbsp;&nbsp;&nbsp;/*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0]&nbsp;-&gt;&nbsp;t1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;は&nbsp;nullptr_t&nbsp;にキャスト可能なので、もう一つの&nbsp;operator[]&nbsp;よりも優先度を上げるとこっちが呼ばれる<br>&nbsp;&nbsp;&nbsp;&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;t1&amp;&nbsp;operator[](nullptr_t&nbsp;i){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_pr.first;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;自作クラスを使って優先度を下げる。<br>&nbsp;&nbsp;&nbsp;&nbsp;struct&nbsp;_dummy_{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_dummy_(int&nbsp;x){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(x&nbsp;==&nbsp;1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[1]&nbsp;-&gt;&nbsp;t2&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;t2&amp;&nbsp;operator[](_dummy_&nbsp;i)&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m_pr.second;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;bool&nbsp;operator==(const&nbsp;mpair&lt;t1,t2&gt;&amp;&nbsp;a&nbsp;,&nbsp;const&nbsp;mpair&lt;t1,t2&gt;&amp;&nbsp;b){return&nbsp;a.m_pr&nbsp;==&nbsp;b.m_pr;}<br>&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;bool&nbsp;operator!=(const&nbsp;mpair&lt;t1,t2&gt;&amp;&nbsp;a&nbsp;,&nbsp;const&nbsp;mpair&lt;t1,t2&gt;&amp;&nbsp;b){return&nbsp;!(a==b);}<br>&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;partial_ordering&nbsp;operator&lt;=&gt;(const&nbsp;mpair&lt;t1,t2&gt;&amp;&nbsp;a&nbsp;,&nbsp;const&nbsp;mpair&lt;t1,t2&gt;&amp;&nbsp;b){return&nbsp;a.m_pr&nbsp;&lt;=&gt;&nbsp;b.m_pr;}<br>};<br>int&nbsp;main(){<br>&nbsp;&nbsp;&nbsp;&nbsp;mpair&lt;string,int&gt;&nbsp;pr;<br>&nbsp;&nbsp;&nbsp;&nbsp;pr[0]&nbsp;=&nbsp;&quot;okoteiyu&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;pr[1]&nbsp;=&nbsp;25;<br>&nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;pr[0]&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;is&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;pr[1]&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;years&nbsp;old&nbsp;now.&quot;&nbsp;&lt;&lt;&nbsp;endl;<br><br></pre>
+
+                
+            </section>
+
+
+
+        </div>
+
+
+
+    </body>
+
+
+</html>
+<script src="./../../static/js/article_constructor.js"></script>
+<script src="./../../../static/js/common_constructor.js"></script>
