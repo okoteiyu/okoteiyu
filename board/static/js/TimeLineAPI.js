@@ -332,11 +332,11 @@ const TimeLineAPI = new class{
         this.c_filter_category_list_elem = document.getElementById(this.c_filter_category_id);
 
         // デフォルトカテゴリをリストに追加
-        this.c_filter_default_category = "すべて";
-        const default_category = document.createElement("option");
-        default_category.value = this.c_filter_default_category;
-        default_category.innerText = this.c_filter_default_category;
-        this.c_filter_category_list_elem.appendChild(default_category);
+        this.c_filter_category_all = "すべて";
+        const category_all = document.createElement("option");
+        category_all.value = this.c_filter_category_all;
+        category_all.innerText = this.c_filter_category_all;
+        this.c_filter_category_list_elem.appendChild(category_all);
 
 
         // 投稿者
@@ -486,6 +486,7 @@ const TimeLineAPI = new class{
             var score = 1;
             if(search_patterns != null)score = search_score(post_title, search_patterns);
             if(score == 0)continue;
+            
 
             // 日時の比較は形式が一定なので辞書順で OK
             if(date_from && post_time < date_from)continue;
@@ -599,7 +600,7 @@ const TimeLineAPI = new class{
             date_to = null;
         }
 
-        if(category == this.c_filter_default_category)category = null;
+        if(category == this.c_filter_category_all)category = null;
 
         var keywords = null;
         if(keyword)keywords = keyword.trim().split(/\s+/);
