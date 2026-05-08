@@ -62,6 +62,7 @@ body {
     position: relative;
     
     width: 96%;
+
     max-width: var(--maxwidth-Inner);
 	margin:0 auto;
     margin-top: 2px;
@@ -80,6 +81,8 @@ body {
     border-radius: 15px;
 	position: relative;	
 	width: 96%;
+    box-sizing: border-box;
+    padding: 14px;
     max-width: var(--maxwidth-Inner);
 	margin:0 auto;
     margin-top: 2px;
@@ -110,9 +113,10 @@ body {
 }
 
 
-
 /* アイコン */
 .text_block_icon{
+    border: 1ps solid gray;
+    box-sizing: border-box;
     width:32px;
     height:32px;
     border-radius: 100%;
@@ -127,7 +131,7 @@ body {
     /*文章折り返し*/
     overflow-wrap: break-word;
     word-break: break-all;
-    line-height: 1.2rem;
+    line-height: 1.5rem;
 }
 
 

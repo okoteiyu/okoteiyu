@@ -103,8 +103,14 @@ class PostData{
         this.m_post_time = time_data;
         this.m_post_id = post_id;
         this.m_post_priority = post_priority;
-        this.m_contents_link = contents_link;
         this.m_normal_display_priority = 0;// 通常コンテナ内での順序
+
+        this.m_contents_link = contents_link;
+        if(this.m_contents_link === undefined || this.m_contents_link.length <= 3){
+            if(this.m_post_id !== undefined && this.m_post_id.length > 0){
+                this.m_contents_link = "/board/articles/" + post_id + "/page.html";
+            }
+        }
     }
 
 
@@ -155,8 +161,7 @@ class PostData{
     // ポスト情報から、ページ構築のためのパラメータとともにリンクを生成する
     generate_link(){
         // 記事のリンクデータを構築
-        var link = "";
-        link += this.contents_link();
+        var link = this.contents_link();
         
         if(link === undefined || link.length <= 3)return;
 
@@ -213,7 +218,6 @@ class PostData{
 
         if(this.contents_link() !== undefined && this.contents_link().length >= 3){
             state_str += "🔗 ";
-            new_content.innerText += "(タップで開く)\n";
         }
 
         new_content.innerText += this.post_text();
@@ -258,7 +262,7 @@ class PostData{
             }
         }
         state_str += state_datetime;
-        if(!post_priority){
+        if(!post_priority && this.post_id() !== undefined && this.post_id().length > 0){
             state_str +=" #"+this.post_id();
         }
         new_state.innerText += state_str;
@@ -274,7 +278,6 @@ class PostData{
             var link = "";
             link += this.generate_link();
             if(link === undefined || link.length <= 3)return;
-            
             popup_page(link);
         });
 
@@ -448,7 +451,6 @@ const TimeLineAPI = new class{
             this.c_postcontainer_elem.prepend(this.m_post_data[i].make_postelem());
         }
     }
-
     
     /* =============================================================================
         # ポストデータからデータを取得し、表示する
@@ -465,14 +467,15 @@ const TimeLineAPI = new class{
             const post = posts[i];
             // data-* の構文
             var post_category = post.dataset.postCategory;
-            const post_link = post.dataset.postLink;
+            const post_link = post.dataset.articleLink;
             const post_time = post.dataset.postTime;
-            const post_title = post.dataset.postTitle;
+            const post_title = post.dataset.postContent;
             const post_priority = post.dataset.postPriority;
             const post_id = post.dataset.postId;
             const post_thumbnail = post.dataset.postThumbnail;
 
             if(post_category === undefined || post_category == "")post_category = this.c_filter_default_category;
+            
 
             // フィルタ処理
             if(target_category != null && target_category != post_category)continue;

@@ -120,7 +120,7 @@ function close_popup(){
 
 function popup_page(link){
     if(link.length <= 0)return;
-    if(link[0] != '.')return;// 危険なので相対リンクのみ
+    if(link[0] != '.' && link[0] != '/')return;// 危険なのでプロダクト内のリンクのみ
     const outer = document.getElementById(popup_outer_elementID);
     const frame = document.getElementById(popup_elementID);
     frame.src = link;

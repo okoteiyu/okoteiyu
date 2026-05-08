@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+    
+    <link rel="stylesheet" media="screen and (max-width:650px)" href="./../../../static/css/common_smartphone.css">
+    <link rel="stylesheet" media="screen and (min-width:651px)" href="./../../../static/css/common_pc.css">
+
+    <link rel="stylesheet" href="./../../static/css/articles.css">
+    
+    
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>post content</title>
+        
+
+    </head>
+
+
+    <body>         
+        <div class = "Title">
+            てゆ掲示板 Wiki
+        </div>
+
+        <!-- ページ構築用エリア -->
+        <div class = "article_data_field">
+            <div id = "post_person" class = "article_data"></div>
+            <div id = "post_category" class = "article_data"></div>
+        </div>
+
+
+        <div class = "Inner">
+            <h3>
+                全体構成
+            </h3>
+
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    okoteiyu.com は、Github Pages のみを用いて公開しています。つまり、okoteiyu.com にはバックエンドが存在せず、全てのコンテンツをフロントに用意しておく必要があります。
+                </div>
+            </div>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    全てのコンテンツを愚直に HTML に埋め込んで表示するのはあまりにも非効率的なので、てゆ掲示板では、HTML を抽象化されたフレームとして扱います。それぞれのコンテンツは形式的なデータとして html 要素に埋め込まれ、JavaScript がそれらのデータからページを構築する流れです。
+                </div>
+            </div>
+            <pre>=======&nbsp;index.html&nbsp;=======<br>|##&nbsp;フロント操作&amp;リソース　&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<br>|コンテンツリストを定義.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<br>|&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;JS&nbsp;がデータを構築　&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>|&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;HTML、ビューに反映　&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;==========&nbsp;TimeLineAPI.js&nbsp;===========<br>==========================&nbsp;&nbsp;&nbsp;&nbsp;&lt;=&gt;&nbsp;&nbsp;&nbsp;&nbsp;|##&nbsp;バックエンドに対応する立ち位置&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|index.html&nbsp;に定義されたデータや操作から&nbsp;|&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|ページ情報(配置、イベント)を構築する。&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|コンテンツリストに&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=====================================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|リンク情報を埋込み&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|index.html&nbsp;から取得したデータを<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|統合して、URL&nbsp;パラメータ付きリンクにする<br>==========&nbsp;articles&nbsp;======&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>|##&nbsp;記事データを格納&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=======&nbsp;article_constructor.js&nbsp;=====&nbsp;&nbsp;&nbsp;<br>==========================&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;=&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|##&nbsp;フロント処理に対応&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;　&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|TimeLineAPI&nbsp;から&nbsp;URL&nbsp;パラメータとして&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|受け取った情報を元に記事データを構築する。|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;====================================</pre>
+
+
+            <div class = "text_block_listener">
+                <div class = "text_block_content">
+                    具体的にはどんなデータがどうやって定義されるの？
+                </div>
+            </div>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    いい質問でし。まず、<code>index.html</code> ページには以下の要素があるでし。
+                    <ul>
+                        <li>ポスト一覧</li>
+                        <li>投稿者一覧</li>
+                        <li>フィルター</li>
+                    </ul>
+                    こいつらのデータを HTML に直接埋め込むのは泥臭いから、なるべく抽象化しようとしたというのがさっきの話なのね。
+                </div>
+            </div>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    まずはじめにフィルター要素ですけども、ここで抽象化されているのはカテゴリ指定の種類なのね。カテゴリの種類は投稿者と一対一対応しておる。ここではまず投稿者データを取得して、その投稿者の担当カテゴリをフィルターのドロップダウンリストに追加することにしておる。
+                </div>
+            </div>
+            <pre>&lt;!--&nbsp;投稿者データアイテム&nbsp;--&gt;<br>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;person_data&quot;&nbsp;data-user-name&nbsp;=&nbsp;&quot;顔面惑星&quot;&nbsp;data-post-category&nbsp;=&nbsp;&quot;日常&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;data-icon-link&nbsp;=&nbsp;&quot;./static/image/face_planet.jpg&quot;&gt;顔面惑星はいつも上から見てるよ(🍥⩌&nbsp;︿&nbsp;⩌🍥)<br>&lt;/div&gt;</pre>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    こいつのデータは、<code>index.html</code> ページでのサムネイルやカテゴリに加えて、今見ている文章のアイコンにもなるヨット。洋式は見ての通りﾃﾞｼﾘｯﾄﾙ。
+                </div>
+            </div>
+            <div class = "text_block_listener">
+                <div class = "text_block_content">
+                    なるほど、確かに投稿者データの HTML 要素を各所に散りばめるより圧倒的に綺麗だね！
+                </div>
+            </div>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    うむ。では次にポスト/記事データについて説明するよ。まず、<code>index.html</code> には記事データは直接埋め込んでいないよ!!! <code>index.html</code> には記事ビューの <code>iframe</code> だけ用意して、index ページ上で選択した記事をビューに表示しているのラ。
+                </div>
+            </div>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    記事データは web ページであれば何でも良いけれど、特に <code>articles</code> フォルダ配下のものは特別に <b>ポスト ID</b> と関連づけるようにしているよ。そしてポスト/記事を構築するため、<code>index.html</code> にポスト/記事データを以下の様式で定義しているよ。
+                </div>
+            </div>
+            <pre>&lt;!--&nbsp;id&nbsp;はポストリンクの自動割り当て,&nbsp;link&nbsp;は明示的なリンク&nbsp;--&gt;<br>&lt;!--&nbsp;link&nbsp;と&nbsp;id&nbsp;が両方指定されているなら、link&nbsp;を採用.&nbsp;--&gt;<br><br>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;post_data&quot;&nbsp;data-post-category&nbsp;=&nbsp;&quot;&quot;&nbsp;<br>data-post-time&nbsp;=&nbsp;&quot;2000/01/06&nbsp;00:00:00&quot;&nbsp;data-article-link=&quot;&quot;<br>data-post-priority&nbsp;=&nbsp;&quot;0&quot;&nbsp;data-post-thumbnail&nbsp;=&nbsp;&quot;&quot;<br>data-post-content&nbsp;=&nbsp;&quot;おこていゆ誕生&quot;&gt;&lt;/div&gt;<br><br>&lt;div&nbsp;class&nbsp;=&nbsp;&quot;post_data&quot;&nbsp;data-post-category&nbsp;=&nbsp;&quot;技術/運営&quot;&nbsp;<br>data-post-time&nbsp;=&nbsp;&quot;2026/05/08&nbsp;01:36:00&quot;&nbsp;<br>data-post-id&nbsp;=&nbsp;&quot;T0000&quot;&nbsp;data-post-priority&nbsp;=&nbsp;&quot;1&quot;&nbsp;data-post-thumbnail&nbsp;=&nbsp;&quot;&quot;<br>data-post-content&nbsp;=&nbsp;&quot;てゆ掲示板について&quot;&gt;&lt;/div&gt;</pre>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    これは少し説明が必要かもね。(かーもね!) 以下のデータを定義しているよ。あと少し事前説明をすると、ポストってのは <code>index.html</code> に表示されるもので、記事ってのはこのページみたいに、ポストと関連づけられてるものだよ。記事が <code>index.html</code> のビューに表示されるのねー。
+                    <ul>
+                        <li>
+                            <code>data-post-category</code> : 投稿者の担当カテゴリに対応するよ。このデータを元に、ポストや記事のアイコンが決定されるよ。この記事だと、技術/運営 カテゴリだからオイラが担当しているのね。ちなみに、どの投稿者のカテゴリにも合致しない場合、デフォルトとして設置された投稿者の投稿になるよ！
+                        </li>
+                        <li>
+                            <code>data-post-time</code> : <code>YYYY/MM/DD hh:mm:ss</code> 形式で定めた日時データだよ。<code>time.js</code> で処理可能なデータ形式に合わせておる。
+                        </li>
+                        <li>
+                            <code>data-article-link</code> : ビューに表示する記事内容のリンクだよ。ここが指定されていたら、ポスト ID による自動割り当ては OFF になるよ。
+                        </li>
+                        <li>
+                            <code>data-post-id</code> : ポストの ID だよ。リンクが指定されていなければ、リンクに自動割り当てされて <code>articles/[ポスト ID]/page.html</code> が記事内容になるよ。リンクも ID も指定がなければ記事と関連づかないポストになるよ!! あと、リンクが指定されている場合でも ID はあったほうがいいヨット。特定の記事を開いた状態でページ URL を共有する際の URL パラメータになるからネット！
+                        </li>
+                        <li>
+                            <code>data-post-priority</code> : 優先ポストに指定するかどうかを決めるよ!! <code>0</code> なら通常ポスト、<code>1</code> なら優先ポストとして優先ポスト一覧に追加されるよ！
+                        </li>
+                        <li>
+                            <code>data-post-thumbnail</code> : ポスト表示の時に、ここで指定した画像をサムネイルにできるよ。なければサムネイルは無しになるよ！
+                        </li>
+                        <li>
+                            <code>data-post-content</code> : ポスト表示の際に表示されるテキストだよ。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class = "text_block_listener">
+                <div class = "text_block_content">
+                    うーん、さっきより少し複雑になってけど、それでも泥臭く埋め込むよりはだいぶ綺麗だね。
+                </div>
+            </div>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    そうなのサ。最後に、記事ページに渡されるデータについて説明するよ。<code>TimeLineAPI.js</code> は、ポスト要素に記事へのリンクを付与するんだけど、この時データを以下の通り URL パラメータとして渡しているんだ。
+                </div>
+            </div>
+            <pre>/board/articles/T0001/page.html?icon_src=./static/image/oko_icon.jpg&user_name=おこていゆ&category=技術/運営</pre>
+            <div class = "text_block">
+                <div class = "text_block_content">
+                    まあパラメータの内容は見たまんまで、このデータを元に、記事データ内のフレームにデータが割り当てられるよ。実際、この記事の HTML にはカテゴリ名もアイコンのソースもひとつも埋め込まれていないよ！
+                </div>
+            </div>
+
+
+            
+        </div>
+
+        <!-- フッター -->            
+        <div id = "footer">
+            <div id = "copyright">
+                Copyright (c) ©️ 2026 okoteiyu All Rights Reserved
+            </div>
+        </div>
+
+        
+
+    </body>
+
+
+</html>
+
+<script src="./../../../static/js/common_constructor.js"></script>
+<script src="./../../static/js/TimeLineAPI.js"></script><!-- パラメータ名の取得のみ -->
+<script src="./../../static/js/article_constructor.js"></script>
+
