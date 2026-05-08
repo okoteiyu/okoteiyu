@@ -543,7 +543,7 @@ const TimeLineAPI = new class{
             const new_filteritem = document.createElement("span");
             this.c_filterstate_container_elem.appendChild(new_filteritem);
             new_filteritem.className = "filter_state_item";
-            new_filteritem.innerText = "なし";
+            new_filteritem.innerText = "フィルタなし";
         }else{
             const clear_filter_button = document.createElement("span");
             this.c_filterstate_container_elem.appendChild(clear_filter_button);
