@@ -25,7 +25,8 @@ input[type="button"] {
 
 /*画像クラス : img タグに適用 (直前に <br> がある必要がある)*/
 .StandardImageStyle{
-    width : 100% ; 
+    width : 86% ; 
+    margin-left: 7%;
 }
 
 
