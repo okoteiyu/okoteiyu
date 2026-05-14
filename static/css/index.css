@@ -20,8 +20,85 @@ body {
 /*===================================================================================================
 ## コンテナ
 ===================================================================================================*/
-.container{
+#container{
     width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+
+/*===================================================================================================
+## サイト紹介
+===================================================================================================*/
+
+#wite_introduction{
+    width: 100%;
+    height:200px;
+    background-color: rgb(182, 139, 223);
+    display: flex;
+    gap:5%;
+}
+
+#intro_icon{
+    margin-left:20px;
+    margin-top:20px;
+    height:160px;
+    border-radius: 100%;
+}
+
+#intro_text{
+    margin-top:54px;
+    font-size: 35px;
+    color: rgb(212, 224, 235);
+}
+
+
+/*===================================================================================================
+## web コンテンツへのリンクを貼る部分
+===================================================================================================*/
+
+.web_contents_field{
+    width:86%;
+    margin: 0 auto;
+
+    display:grid;
+    /* 2 列 */
+    grid-template-columns: repeat(2, 1fr);
+    gap:32px;
+}
+
+.web_contents_item{
+    width:100%;
+    aspect-ratio: 0.9/1;
+    background-color: wheat;
+    cursor: pointer;
+    border-radius: 18px;
+    border: 6px solid rgb(204, 195, 195);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.web_contents_item:hover{
+    border: 8px solid rgb(209, 169, 169);
+}
+
+
+.web_contents_item_title{
+    position: relative;
+    width: 100%;
+    text-align: center;
+    height:fit-content;
+    font-size: 15px;
+    background-color: rgb(233, 255, 205);
+    letter-spacing: 0.05em;
+    box-sizing: border-box;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.web_contents_item img{
+    width:100%;
+    display: block;
 }
 
 

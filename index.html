@@ -16,17 +16,23 @@
 
         
         <div id = "container">
+            <div id = "wite_introduction">
+                <img id = "intro_icon" src = "static/image/MyIcon.jpg">
+                <div id = "intro_text">顔面惑星はいつも上から見てるよ<br>(🍥⩌  ︿  ⩌🍥)</div>
+            </div>
             <p>
                 顔面惑星ラボにようこそ。現在 index ページは工事中ですが、以下のページは正常に公開されています。よろしくお願いします。
             </p>
-            <ul>
-                <li>
-                    <a href = "board/index.html">てゆ掲示板</a>
-                </li>
-                <li>
-                    <a href = "study/index.html">おこていゆアーカイブ</a>
-                </li>
-            </ul>
+            <div class = "web_contents_field">
+                <div class = "web_contents_item" onclick="location.href='./study/index.html'">
+                    <div class = "web_contents_item_title">📄 おこていゆアーカイブ</div>
+                    <img src = "./static/image/study_thumbnail.png">
+                </div>
+                <div class = "web_contents_item" onclick="location.href='./board/index.html'">
+                    <div class = "web_contents_item_title">📄 てゆ掲示板</div>
+                    <img src = "./static/image/board_thumbnail.png">
+                </div>
+            </div>
         </div>
 
         <!-- フッター --> 
